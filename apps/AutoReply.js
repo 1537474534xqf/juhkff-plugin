@@ -1,5 +1,6 @@
 import {
   parseSourceImg,
+  parseJson,
   formatDate,
   processMessageWithUrls,
   url2Base64,
@@ -43,10 +44,12 @@ export class AutoReply extends plugin {
   async autoReply(e) {
     // 避免重复保存上下文
     // 借助siliconflow-plugin保存群聊上下文
-    // 处理引用消息,获取图片和文本
+    // 处理引用消息，获取图片和文本
     let chatDate = await formatDate(Date.now());
-    await parseSourceImg(e);
     // e.sourceImg-引用图片；e.sourceMsg-引用文本；e.img-图片；e.msg-文本
+    await parseSourceImg(e);
+    // 处理分享链接
+    await parseJson(e);
     // 引用图片链接
     let sourceImages = [];
     if (e.sourceImg && e.sourceImg.length > 0) {
