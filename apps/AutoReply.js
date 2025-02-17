@@ -6,7 +6,7 @@ import {
   url2Base64,
 } from "#juhkff.tools";
 import setting from "#juhkff.setting";
-import { ChatInterface, chatMap, DeepSeek } from "../model/chat_api.js";
+import { ChatInterface, chatMap } from "../model/chat_api.js";
 
 /**
  * 主动群聊插件
@@ -110,7 +110,7 @@ export class AutoReply extends plugin {
       return false;
     }
 
-    let answer = undefined;
+    var answer = undefined;
     // 如果@了bot，就直接回复
     if (e.atBot || Math.random() < Number(this.Config.ChatRate)) {
       answer = await this.generate_answer(e, msg, sourceImages, currentImages);
@@ -158,16 +158,16 @@ export class AutoReply extends plugin {
     let apiKey = this.Config.ApiKey;
     let model = this.Config.ChatModel;
     if (!apiKey || apiKey == "") {
-      await e.reply("请在AutoReply.yaml中设置ApiKey", true);
-      return true;
+      logger.error("[AutoReply]请先在AutoReply.yaml中设置ApiKey");
+      return "[AutoReply]请先在AutoReply.yaml中设置ApiKey";
     }
     if (!apiBaseUrl || apiBaseUrl == "") {
-      await e.reply("请在AutoReply.yaml中设置有效的AI接口", true);
-      return true;
+      logger.error("[AutoReply]请先在AutoReply.yaml中设置ApiKey");
+      return "[AutoReply]请先在AutoReply.yaml中设置有效的AI接口";
     }
     if (!model || model == "") {
-      await e.reply("请在AutoReply.yaml中设置ChatModel", true);
-      return true;
+      logger.error("[AutoReply]请先在AutoReply.yaml中设置ApiKey");
+      return "[AutoReply]请先在AutoReply.yaml中设置ChatModel";
     }
 
     // 获取历史对话
