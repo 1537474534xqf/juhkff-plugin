@@ -1,3 +1,8 @@
+/**
+ * @file: date.js
+ * @description: 日期相关
+ */
+
 import { Lunar } from "lunar-javascript";
 
 // 定义2025年农历节日的农历日期
@@ -76,6 +81,10 @@ function getLunarFestivalsDates(today) {
   );
 }
 
+/**
+ * 获取节日日期
+ * @returns {Array} 节日日期列表
+ */
 export async function getFestivalsDates() {
   const today = new Date();
   const lunarFestivalsDates = getLunarFestivalsDates(today);
@@ -108,6 +117,12 @@ export async function getFestivalsDates() {
   return dataList;
 }
 
+/**
+ * 格式化日期，精确到天，可选农历公历
+ * @param {number} timestamp 时间戳
+ * @param {en | zh} format 格式，默认为公历
+ * @returns {string} 格式化后的日期
+ */
 export async function formatDate(timestamp, format = "en") {
   if (format === "en") {
     const date = new Date(timestamp);
@@ -124,4 +139,20 @@ export async function formatDate(timestamp, format = "en") {
     //   return `${lunarYear}年${lunarMonth}${lunarDay}`;
     return `${lunarMonth}${lunarDay}`;
   }
+}
+
+/**
+ * 格式化日期，精确到秒
+ * @param {number} timestamp 
+ * @returns {string} 格式化后的日期
+ */
+export async function formatDateDetail(timestamp) {
+  const date = new Date(timestamp);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // 月份从0开始，需要加1
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
 }
