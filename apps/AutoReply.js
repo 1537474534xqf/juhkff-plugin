@@ -43,6 +43,7 @@ export class AutoReply extends plugin {
     await parseUrl(e);
     // 通过自定义的e.j_msg拼接完整消息内容
     var msg = e.j_msg.map((msg) => msg.text).join(" ");
+    logger.info(`[AutoReply]解析后的消息内容: ${msg}`);
 
     if (msg) msg = msg.trim();
     if (!msg || msg == "") {
