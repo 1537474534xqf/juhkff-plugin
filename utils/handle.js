@@ -70,6 +70,7 @@ export async function parseSourceMessage(e) {
           if (val.type == "image") {
             if (!getConfig().UseVisual) continue
             var result = await analyseImage(val.url, "该图片是否为表情包，只输出是或否")
+            logger.info(`[handle]图片是否为表情包: ${result}`)
             if (result == "是") {
               // 表情包不加入消息
               continue
