@@ -10,9 +10,16 @@
   "scripts": {},
   "imports": {
     "#juhkff.path": "./model/path.js",
+    "#juhkff.api.chat": "./model/chat_api.js",
+    "#juhkff.api.visual": "./model/visual_api.js",
     "#juhkff.setting": "./model/setting.js",
+    "#juhkff.date": "./utils/date.js",
+    "#juhkff.handle": "./utils/handle.js",
+    "#juhkff.helper": "./utils/helper.js",
+    "#juhkff.net": "./utils/net.js",
+    "#juhkff.page": "./utils/page.js",
     "#juhkff.tools": "./utils/tools.js",
-    "#juhkff.lunar": "./utils/lunar.js"
+    "#juhkff.redis": "./utils/redis.js"
   },
   "dependencies": {
     "axios": "^1.6.2",

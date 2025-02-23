@@ -1,6 +1,6 @@
-import { downloadFile } from "#juhkff.tools";
-import setting from "#juhkff.setting";
 import fs from "fs";
+import setting from "#juhkff.setting";
+import { downloadFile } from "#juhkff.net";
 import { _path, pluginResources, pluginRoot } from "#juhkff.path";
 
 /**

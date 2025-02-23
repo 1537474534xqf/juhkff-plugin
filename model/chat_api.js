@@ -1,9 +1,5 @@
-import setting from "#juhkff.setting";
 import fetch from "node-fetch";
-
-function getConfig() {
-  return setting.getConfig("AutoReply");
-}
+import setting from "#juhkff.setting";
 
 export const ChatInterface = {
   generateRequest: Symbol("generateRequest"),
@@ -21,38 +17,45 @@ export const ChatInterface = {
  */
 ChatInterface.generateRequest = async function (
   apiKey,
-  apiBaseUrl = "",
-  model = "",
+  apiBaseUrl,
+  model,
   input,
   historyMessages = [],
   image_list = {},
-  image_type = false
-) {};
+  image_type = false,
+  useSystemRole = true
+) { };
 
 export class DefaultChatRequest {
+  constructor() {
+    this.Config = setting.getConfig("AutoReply");
+  }
   async [ChatInterface.generateRequest](
     apiKey,
     apiBaseUrl,
     model,
     input,
-    historyMessages,
+    historyMessages = [],
     image_list = {},
-    image_type = false
+    image_type = false,
+    useSystemRole = true
   ) {
     // 构造请求体
     const requestBody = {
-      model: model || getConfig().ChatModel,
-      messages: [
-        {
-          role: "system",
-          content:
-            getConfig().ChatPrompt ||
-            "You are a helpful assistant, you prefer to speak Chinese. Now you are in a chat group, and the following is chat history",
-        },
-      ],
+      model: model || this.Config.ChatModel,
+      messages: [],
       stream: false,
       temperature: 1.5,
     };
+
+    if (useSystemRole) {
+      requestBody.messages.push({
+        role: "system",
+        content:
+          this.Config.ChatPrompt ||
+          "You are a helpful assistant, you prefer to speak Chinese. Now you are in a chat group, and the following is chat history",
+      });
+    }
 
     // 添加历史对话
     if (historyMessages && historyMessages.length > 0) {
@@ -210,6 +213,7 @@ export class DeepSeek {
       "deepseek-chat": this.deepseek_chat.bind(this),
       "deepseek-reasoner": this.deepseek_reasoner.bind(this),
     };
+    this.Config = setting.getConfig("AutoReply");
   }
 
   async [ChatInterface.generateRequest](
@@ -217,9 +221,10 @@ export class DeepSeek {
     apiBaseUrl,
     model,
     input,
-    historyMessages,
+    historyMessages = [],
     image_list = {},
-    image_type = false
+    image_type = false,
+    useSystemRole = true
   ) {
     if (!this.modelMap[model]) {
       logger.error("[AutoReply]不支持的模型：" + model);
@@ -247,7 +252,8 @@ export class DeepSeek {
       input,
       historyMessages,
       image_list,
-      image_type
+      image_type,
+      useSystemRole
     );
     // 如果 DeepSeek-R1 失败，尝试使用 DeepSeek-V3
 
@@ -270,17 +276,20 @@ export class DeepSeek {
   async deepseek_chat(
     request,
     input,
-    historyMessages,
+    historyMessages = [],
     image_list = {},
-    image_type = false
+    image_type = false,
+    useSystemRole
   ) {
     // 添加消息内容
-    request.options.body.messages.push({
-      role: "system",
-      content:
-        getConfig().ChatPrompt ||
-        "You are a helpful assistant, you prefer to speak Chinese. Now you are in a chat group, and the following is chat history",
-    });
+    if (useSystemRole) {
+      request.options.body.messages.push({
+        role: "system",
+        content:
+          this.Config.ChatPrompt ||
+          "You are a helpful assistant, you prefer to speak Chinese. Now you are in a chat group, and the following is chat history",
+      });
+    }
     // 添加历史对话
     if (historyMessages && historyMessages.length > 0) {
       historyMessages.forEach((msg) => {
@@ -348,17 +357,20 @@ export class DeepSeek {
   async deepseek_reasoner(
     request,
     input,
-    historyMessages,
+    historyMessages = [],
     image_list = {},
-    image_type = false
+    image_type = false,
+    useSystemRole
   ) {
     // 添加消息内容
-    request.options.body.messages.push({
-      role: "system",
-      content:
-        getConfig().ChatPrompt ||
-        "You are a helpful assistant, you prefer to speak Chinese. Now you are in a chat group, and the following is chat history",
-    });
+    if (useSystemRole) {
+      request.options.body.messages.push({
+        role: "system",
+        content:
+          this.Config.ChatPrompt ||
+          "You are a helpful assistant, you prefer to speak Chinese. Now you are in a chat group, and the following is chat history",
+      });
+    }
     // 添加历史对话
     var content = "";
     if (historyMessages && historyMessages.length > 0) {
@@ -413,6 +425,12 @@ export class DeepSeek {
 }
 
 export const chatMap = {
-  default: DefaultChatRequest,
-  deepseek: DeepSeek,
+  "default": DefaultChatRequest,
+  "deepseek": DeepSeek,
+  // "siliconflow": ,
 };
+
+export const apiList = {
+  "deepseek": "https://api.deepseek.com/",
+  "siliconflow": "https://api.siliconflow.cn/v1",
+}

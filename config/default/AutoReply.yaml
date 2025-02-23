@@ -1,4 +1,4 @@
-# 是否解析消息中包含的链接，不建议开启，极大可能会导致AI回复不准确
+# 是否解析消息中包含的链接，确保ChatApi生效时开启，可能会降低AI回复准确度
 AttachUrlAnalysis: false
 
 # 是否使用上下文
@@ -7,11 +7,11 @@ UseContext: true
 # 上下文长度
 MaxHistoryLength: 5
 
-# AI接口选择，可选项：deepseek,siliconflow
+# AI接口选择，如果AttachUrlAnalysis开启，则该接口也会用于URL内容总结。可选项：deepseek,siliconflow
 ChatApi: deepseek
 
-# Api Key
-ApiKey: 
+# Chat Api Key
+ChatApiKey:
 
 # 模型选择
 ChatModel: deepseek-chat
@@ -19,14 +19,17 @@ ChatModel: deepseek-chat
 # 触发聊天的概率
 ChatRate: 0.1
 
-# 是否将图片（包括发送的表情等一切图片）保存到上下文，AI具有图像分析功能时才可使用
-AnalyzeImage: false
+# 是否使用视觉AI
+UseVisual: false
 
-# 模型是否可以传入图片，如果非视觉模型，将此项设置为 false，不推荐开启，极大可能会导致AI回复不准确
-ModelCanSendImage: false
+# 视觉AI接口选择
+VisualApi:
 
-# 是否保存聊天中出现的图片，和 ModelCanSendImage 保持一致即可
-SaveChatImage: false
+# 视觉模型 Api Key
+VisualApiKey:
+
+# 视觉模型选择，可选项：Qwen/Qwen2-VL-72B-Instruct
+VisualModel:
 
 # 用于生成绘画的预设
 TextToPaintPrompt:
