@@ -12,7 +12,7 @@ import setting from "#juhkff.setting";
 import _ from "lodash";
 
 function getConfig() {
-  return setting.getConfig("AutoReply");
+  return setting.getConfig("autoReply");
 }
 
 /**

@@ -28,7 +28,7 @@ ChatInterface.generateRequest = async function (
 
 export class DefaultChatRequest {
   constructor() {
-    this.Config = setting.getConfig("AutoReply");
+    this.Config = setting.getConfig("autoReply");
   }
   async [ChatInterface.generateRequest](
     apiKey,
