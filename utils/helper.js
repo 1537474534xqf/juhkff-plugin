@@ -8,7 +8,7 @@ import { url2Base64 } from "#juhkff.net";
 import { VisualInterface, visualMap, apiList } from "#juhkff.api.visual";
 
 function getConfig() {
-  return setting.getConfig("AutoReply");
+  return setting.getConfig("autoReply");
 }
 
 /**

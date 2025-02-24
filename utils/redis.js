@@ -1,5 +1,3 @@
-
-
 export async function get_source_message(groupId, message_id) {
     try {
         // 获取该群的所有消息
