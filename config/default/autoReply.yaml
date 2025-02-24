@@ -1,38 +1,38 @@
-# 是否解析消息中包含的链接，确保ChatApi生效时开启，可能会降低AI回复准确度
-AttachUrlAnalysis: false
+# 是否解析消息中包含的链接，确保chatApi生效时开启，可能会降低AI回复准确度
+attachUrlAnalysis: false
 
 # 是否使用上下文
-UseContext: true
+useContext: true
 
 # 上下文长度
-MaxHistoryLength: 5
+maxHistoryLength: 5
 
-# AI接口选择，如果AttachUrlAnalysis开启，则该接口也会用于URL内容总结。可选项：deepseek,siliconflow
-ChatApi: deepseek
+# AI接口选择，如果attachUrlAnalysis开启，则该接口也会用于URL内容总结。可选项：deepseek,siliconflow
+chatApi: deepseek
 
-# Chat Api Key
-ChatApiKey:
+# 群聊ApiKey
+chatApiKey:
 
 # 模型选择
-ChatModel: deepseek-chat
+chatModel: deepseek-chat
 
 # 触发聊天的概率
-ChatRate: 0.1
+chatRate: 0.1
 
 # 是否使用视觉AI
-UseVisual: false
+useVisual: false
 
 # 视觉AI接口选择
-VisualApi:
+visualApi:
 
 # 视觉模型 Api Key
-VisualApiKey:
+visualApiKey:
 
 # 视觉模型选择，可选项：Qwen/Qwen2-VL-72B-Instruct
-VisualModel:
+visualModel:
 
 # 用于生成绘画的预设
-TextToPaintPrompt:
+textToPaintPrompt:
   请按照我的提供的要求，用一句话英文生成一组Midjourney指令，指令由：{人物形象},{场景},{氛围},{镜头},{照明},{绘画风格},{建筑风格},{参考画家},{高画质关键词}
   当我向你提供生成内容时，你需要根据我的提示进行联想，当我让你随机生成的时候，你可以自由进行扩展和联想 人物形象 =
   你可以发挥自己的想象力，使用最华丽的词汇进行描述：{主要内容}，包括对人物头发、眼睛、服装、体型、动作和表情的描述，注意人物的形象应与氛围匹配，要尽可能地详尽
@@ -47,7 +47,7 @@ TextToPaintPrompt:
   command之类的语句，直接给出我要传递给midjourney的提示词，这非常重要！！！直接生成提示词，并且只需要生成提示词，尽可能详细地生成提示词。
 
 # 群聊预设
-ChatPrompt:
+chatPrompt:
   你现在在一个群聊中，将自己当作一名群员，请根据其他人的聊天历史、发言人昵称及对应时间，进行聊天。
   注意：不是模仿续写，是将自己当作一名群员进行聊天，不需要解释思考过程，生成的内容不需包含日期和昵称，只需要生成最终的聊天内容；
   你的聊天内容应该围绕最近的聊天内容展开，无需将聊天历史全部囊括，仅需将较早的聊天记录作为思考回复内容的上下文；

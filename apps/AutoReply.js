@@ -1,5 +1,10 @@
 import setting from "#juhkff.setting";
-import { parseImage, parseSourceMessage, parseJson, parseUrl } from "#juhkff.handle";
+import {
+  parseImage,
+  parseSourceMessage,
+  parseJson,
+  parseUrl,
+} from "#juhkff.handle";
 import { formatDateDetail } from "#juhkff.date";
 import { ChatInterface, chatMap, apiList } from "#juhkff.api.chat";
 
@@ -26,7 +31,7 @@ export class AutoReply extends plugin {
   }
 
   get Config() {
-    return setting.getConfig("AutoReply");
+    return setting.getConfig("autoReply");
   }
 
   async autoReply(e) {
@@ -39,8 +44,10 @@ export class AutoReply extends plugin {
     await parseSourceMessage(e);
     // 处理分享链接
     await parseJson(e);
-    // 处理URL
-    await parseUrl(e);
+    if (this.Config.attachUrlAnalysis) {
+      // 处理URL
+      await parseUrl(e);
+    }
     // 通过自定义的e.j_msg拼接完整消息内容
     var msg = e.j_msg.map((msg) => msg.text).join(" ");
     logger.info(`[AutoReply]解析后的消息内容: ${msg}`);
@@ -54,7 +61,7 @@ export class AutoReply extends plugin {
     var answer = undefined;
     var answer_time = undefined;
     // 如果@了bot，就直接回复
-    if (e.atBot || Math.random() < Number(this.Config.ChatRate)) {
+    if (e.atBot || Math.random() < Number(this.Config.chatRate)) {
       answer = await this.generate_answer(e, msg);
       if (!e.atBot && (!answer || answer.startsWith("[AutoReply]"))) {
         // 如果自主发言失败不提示
@@ -63,9 +70,9 @@ export class AutoReply extends plugin {
         answer_time = Date.now();
       }
     }
-    if (this.Config.UseContext) {
+    if (this.Config.useContext) {
       // 保存用户消息
-      var content = chatDate + " - " + e.sender.card + "：" + msg
+      var content = chatDate + " - " + e.sender.card + "：" + msg;
       await this.saveContext(time, e.group_id, e.message_id, "user", content);
       // 保存AI回复
       if (answer && !answer.startsWith("[AutoReply]")) {
@@ -84,26 +91,26 @@ export class AutoReply extends plugin {
    * @returns answer 回复内容
    */
   async generate_answer(e, msg) {
-    var chatApi = this.Config.ChatApi;
+    var chatApi = this.Config.chatApi;
     var apiBaseUrl = apiList[chatApi];
-    let apiKey = this.Config.ChatApiKey;
-    let model = this.Config.ChatModel;
+    let apiKey = this.Config.chatApiKey;
+    let model = this.Config.chatModel;
     if (!apiKey || apiKey == "") {
-      logger.error("[AutoReply]请先在AutoReply.yaml中设置ChatApiKey");
-      return "[AutoReply]请先在AutoReply.yaml中设置ChatApiKey";
+      logger.error("[AutoReply]请先在autoReply.yaml中设置chatApiKey");
+      return "[AutoReply]请先在autoReply.yaml中设置chatApiKey";
     }
     if (!apiBaseUrl || apiBaseUrl == "") {
-      logger.error("[AutoReply]请先在AutoReply.yaml中设置有效的ChatApi");
-      return "[AutoReply]请先在AutoReply.yaml中设置有效的ChatApi";
+      logger.error("[AutoReply]请先在autoReply.yaml中设置有效的chatApi");
+      return "[AutoReply]请先在autoReply.yaml中设置有效的chatApi";
     }
     if (!model || model == "") {
-      logger.error("[AutoReply]请先在AutoReply.yaml中设置ChatModel");
-      return "[AutoReply]请先在AutoReply.yaml中设置ChatModel";
+      logger.error("[AutoReply]请先在autoReply.yaml中设置chatModel");
+      return "[AutoReply]请先在autoReply.yaml中设置chatModel";
     }
 
     // 获取历史对话
     let historyMessages = [];
-    if (this.Config.UseContext) {
+    if (this.Config.useContext) {
       historyMessages = await this.loadContext(e.group_id);
       logger.info(`[AutoReply]加载历史对话: ${historyMessages.length} 条`);
     }
@@ -159,11 +166,15 @@ export class AutoReply extends plugin {
   // 保存对话上下文
   async saveContext(time, groupId, message_id = 0, role, message) {
     try {
-      const maxHistory = this.Config.MaxHistoryLength;
+      const maxHistory = this.Config.maxHistoryLength;
       const key = `juhkff:auto_reply:${groupId}:${time}`;
 
       // message_id = 0时，表示是AI回复
-      var saveContent = { message_id: message_id, role: role, content: message }
+      var saveContent = {
+        message_id: message_id,
+        role: role,
+        content: message,
+      };
       await redis.set(key, JSON.stringify(saveContent), { EX: 12 * 60 * 60 }); // 12小时过期
 
       // 获取该群的所有消息
@@ -192,7 +203,7 @@ export class AutoReply extends plugin {
   // 加载群历史对话
   async loadContext(groupId) {
     try {
-      const maxHistory = this.Config.MaxHistoryLength;
+      const maxHistory = this.Config.maxHistoryLength;
 
       // 获取该群的所有消息
       const keys = await redis.keys(`juhkff:auto_reply:${groupId}:*`);

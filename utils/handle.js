@@ -23,7 +23,7 @@ export async function parseImage(e) {
   if (!e.j_msg) e.j_msg = []
   for (let i = 0; i < e.message.length; i++) {
     if (e.message[i].type == "image") {
-      if (!getConfig().UseVisual) continue
+      if (!getConfig().useVisual) continue
       var url = e.message[i].url
       var result = await analyseImage(url, "该图片是否为表情包，只输出是或否")
       logger.info(`[parseImage]图片是否为表情包: ${result}`)
@@ -69,7 +69,7 @@ export async function parseSourceMessage(e) {
         senderNickname = reply.sender?.card || reply.sender?.nickname;
         for (var val of reply.message) {
           if (val.type == "image") {
-            if (!getConfig().UseVisual) continue
+            if (!getConfig().useVisual) continue
             var result = await analyseImage(val.url, "该图片是否为表情包，只输出是或否")
             logger.info(`[parseSourceMessage]图片是否为表情包: ${result}`)
             if (result == "是") {
@@ -182,11 +182,11 @@ export async function parseUrl(e) {
             logger.info(`[URL处理]成功提取URL内容`);
           }
           var config = getConfig();
-          // 借助ChatApi对提取的内容进行总结
-          var chatApi = config.ChatApi;
-          var apiKey = config.ChatApiKey;
-          var model = config.ChatModel;
-          var Constructor = chatMap[config.ChatApi]
+          // 借助chatApi对提取的内容进行总结
+          var chatApi = config.chatApi;
+          var apiKey = config.chatApiKey;
+          var model = config.chatModel;
+          var Constructor = chatMap[config.chatApi]
           var chatInstance = new Constructor();
           var result = await chatInstance[ChatInterface.generateRequest](
             apiKey,

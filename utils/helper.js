@@ -37,10 +37,10 @@ export async function extractUrlContent(url) {
 
 export async function analyseImage(image, input) {
   var config = getConfig();
-  var visualApi = config.VisualApi
-  var visualApiKey = config.VisualApiKey
+  var visualApi = config.visualApi
+  var visualApiKey = config.visualApiKey
   var apiBaseUrl = apiList[visualApi]
-  var model = config.VisualModel
+  var model = config.visualModel
   if (!image.startsWith("data:")) {
     image = await url2Base64(image)
   }

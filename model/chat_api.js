@@ -42,7 +42,7 @@ export class DefaultChatRequest {
   ) {
     // 构造请求体
     const requestBody = {
-      model: model || this.Config.ChatModel,
+      model: model || this.Config.chatModel,
       messages: [],
       stream: false,
       temperature: 1.5,
@@ -52,8 +52,8 @@ export class DefaultChatRequest {
       requestBody.messages.push({
         role: "system",
         content:
-          this.Config.ChatPrompt ||
-          "You are a helpful assistant, you prefer to speak Chinese. Now you are in a chat group, and the following is chat history",
+          this.Config.chatPrompt ||
+          "You are a helpful assistant, you must speak Chinese. Now you are in a chat group, and the following is chat history",
       });
     }
 
@@ -286,8 +286,8 @@ export class DeepSeek {
       request.options.body.messages.push({
         role: "system",
         content:
-          this.Config.ChatPrompt ||
-          "You are a helpful assistant, you prefer to speak Chinese. Now you are in a chat group, and the following is chat history",
+          this.Config.chatPrompt ||
+          "You are a helpful assistant, you must speak Chinese. Now you are in a chat group, and the following is chat history",
       });
     }
     // 添加历史对话
@@ -367,8 +367,8 @@ export class DeepSeek {
       request.options.body.messages.push({
         role: "system",
         content:
-          this.Config.ChatPrompt ||
-          "You are a helpful assistant, you prefer to speak Chinese. Now you are in a chat group, and the following is chat history",
+          this.Config.chatPrompt ||
+          "You are a helpful assistant, you must speak Chinese. Now you are in a chat group, and the following is chat history",
       });
     }
     // 添加历史对话
