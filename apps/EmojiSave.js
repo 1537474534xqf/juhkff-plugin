@@ -10,7 +10,7 @@ import { _path, pluginResources, pluginRoot } from "#juhkff.path";
 export class EmojiSave extends plugin {
   constructor() {
     super({
-      name: "[扎克芙芙]表情保存",
+      name: "[扎克芙芙]表情偷取",
       dsc: "指定时间（默认三天）内发送过两次（不包含引用）的图片自动保存并随机发送",
       event: "message",
       priority: 2,

@@ -13,11 +13,11 @@ export function supportGuoba() {
       // name 为插件唯一标识，尽量不要与其他插件重复
       name: "juhkff-plugin",
       // title 为显示名称
-      title: "juhkff-Plugin",
+      title: "综合插件 (juhkff-plugin)",
       // 插件描述
-      description: "聊天和日报推送综合插件",
+      description: "主动回复群聊、表情偷取、日报推送等综合功能插件",
       // 作者可以为字符串也可以为数组，当有多个作者时建议使用数组
-      author: ["@juhkff"],
+      author: ["@扎克芙芙"],
       // 作者主页地址。若author为数组，则authorLink也需要为数组，且需要与author一一对应
       authorLink: ["https://github.com/juhkff"],
       // 仓库地址
@@ -199,7 +199,6 @@ export function supportGuoba() {
           label: "推送群组列表",
           bottomHelpMessage: "推送群组列表",
           component: "GSelectGroup",
-          
         },
         {
           label: "偷图配置",
@@ -228,13 +227,19 @@ export function supportGuoba() {
             max: 1,
             step: 0.01,
           },
+          required: true,
         },
         {
           field: "emojiSave.expireTimeInSeconds",
-          label: "表情包二次确认时间（秒）",
+          label: "表情包确认等待时间（秒）",
           bottomHelpMessage:
             "只有发送两次相同图片时，会被记为表情包并偷取，默认259200为3天",
           component: "InputNumber",
+          componentProps: {
+            min: 1,
+            step: 1,
+          },
+          required: true,
         },
         {
           field: "emojiSave.groupRate",

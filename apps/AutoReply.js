@@ -16,8 +16,8 @@ export class AutoReply extends plugin {
   // 构建正则匹配等
   constructor() {
     super({
-      name: "[扎克芙芙]主动群聊",
-      dsc: "主动群聊",
+      name: "[扎克芙芙]主动回复群聊",
+      dsc: "主动回复群聊",
       event: "message",
       priority: 1,
       rule: [
