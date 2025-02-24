@@ -1,19 +1,17 @@
 <div align="center">
 
-<img src="./resources/images/icon.jpg" width = 200px height = 200px />
+# JUHKFF-PLUGIN
 
-<img src="https://img.shields.io/badge/Gihub-综合插件-skyblue?style=flat-square&logo=github">
+<img src="./resources/images/icon.jpg" width = 200px height = 200px/>
+
+<img src="https://img.shields.io/badge/Gihub-综合插件-skyblue?style=flat-square&logo=github"/>
 <img src ="https://img.shields.io/github/license/juhkff/juhkff-plugin"/>
 <img src ="https://img.shields.io/github/languages/top/juhkff/juhkff-plugin?logo=github"/>
 
-<img src ="https://img.shields.io/badge/v3-null?label=TRSS-Yunzai
-"/>
-<img src="https://img.shields.io/badge/v11-null?label=OneBot
-">
+<img src ="https://img.shields.io/badge/v3-null?label=TRSS-Yunzai"/>
+<img src="https://img.shields.io/badge/v11-null?label=OneBot">
 
 </div>
-
-# JUHKFF-PLUGIN
 
 <img decoding="async" align=right width="35%">
 
