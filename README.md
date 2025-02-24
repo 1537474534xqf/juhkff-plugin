@@ -3,7 +3,7 @@
 # JUHKFF-PLUGIN
 
 <img src="./resources/images/icon.jpg" width = 200px height = 200px/>
-
+<br>
 <img src="https://img.shields.io/badge/Gihub-综合插件-skyblue?style=flat-square&logo=github"/>
 <img src ="https://img.shields.io/github/license/juhkff/juhkff-plugin"/>
 <img src ="https://img.shields.io/github/languages/top/juhkff/juhkff-plugin?logo=github"/>
