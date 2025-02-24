@@ -15,7 +15,7 @@
 
 <img decoding="async" align=right width="35%">
 
-一个适用于 [TRSS-Yunzai 框架](https://github.com/TimeRainStarSky/Yunzai) 和 [OneBot-v11 标准](https://onebot.dev) 的 **自用** 综合群机器人插件：
+一个适用于 [TRSS-Yunzai 框架](https://github.com/TimeRainStarSky/Yunzai) 和 [OneBot-v11 标准](https://onebot.dev) 的 **自用** 综合群机器人插件
 
 > [!WARNING]
 > 由于为自用插件，所以其它协议适配性未知，喵崽框架适配性未知（没运行过）
