@@ -213,7 +213,7 @@ export class DeepSeek {
       "deepseek-chat": this.deepseek_chat.bind(this),
       "deepseek-reasoner": this.deepseek_reasoner.bind(this),
     };
-    this.Config = setting.getConfig("AutoReply");
+    this.Config = setting.getConfig("autoReply");
   }
 
   async [ChatInterface.generateRequest](
