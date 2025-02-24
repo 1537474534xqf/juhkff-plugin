@@ -59,6 +59,7 @@ pnpm install --filter=juhkff-plugin
   - [x] 借鉴 [真寻日报](https://github.com/HibiKier/nonebot-plugin-zxreport) 的样式和代码生成日报
 - [x] 表情偷取
   - [x] 借鉴 [鸢尾花插件](https://github.com/logier/logier-plugins) 的思路改进实现
+  - [x] 同一图片在指定时间长度内被发送两次，则被视为表情并偷取
 - [ ] TODO...
 
 ## 支持与贡献
