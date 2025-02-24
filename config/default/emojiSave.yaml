@@ -1,0 +1,24 @@
+# 指定特定群的回复概率、发送偷的图的概率，格式如下
+# groupRate:
+#   - groupList:
+#       - xxxxxxxxx (群号1)
+#     replyRate: 0.1
+#     emojiRate: 0.2
+#   - groupList:
+#       - xxxxxxxxx (群号2)
+#     replyRate: 0.6
+#     emojiRate: 0.2
+#   - groupList:
+#       - xxxxxxxxx (群号...)
+#     replyRate: 0.2
+#     emojiRate: 0.2
+groupRate:
+
+# 默认回复概率
+defaultReplyRate: 0.1
+
+# 默认发送偷图概率
+defaultEmojiRate: 0.2
+
+# 表情包二次确认的过期时间为3天
+expireTimeInSeconds: 259200

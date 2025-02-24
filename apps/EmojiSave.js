@@ -25,32 +25,32 @@ export class EmojiSave extends plugin {
   }
 
   get Config() {
-    return setting.getConfig("EmojiSave");
+    return setting.getConfig("emojiSave");
   }
 
   async emojiSave(e) {
     let emojiSaveDir = `${pluginRoot}/data/${e.group_id}/emoji_save`;
-    let replyRate = this.Config.DefaultReplyRate; // 回复概率
-    let emojiRate = this.Config.DefaultEmojiRate; // 发送偷的图的概率
+    let replyRate = this.Config.defaultReplyRate; // 回复表情概率
+    let emojiRate = this.Config.defaultEmojiRate; // 发送偷的图的概率
     let groupMatched = false;
 
-    // 如果 ETGroupRate 配置存在且不为空
-    if (this.Config.GroupRate && this.Config.GroupRate.length > 0) {
-      for (let config of this.Config.GroupRate) {
+    // 如果 groupRate 配置存在且不为空
+    if (this.Config.groupRate && this.Config.groupRate.length > 0) {
+      for (let config of this.Config.groupRate) {
         // 确保 config.groupList 是数组，以避免 undefined 的情况
         if (
-          Array.isArray(config.GroupList) &&
-          config.GroupList.includes(e.group_id)
+          Array.isArray(config.groupList) &&
+          config.groupList.includes(e.group_id)
         ) {
-          if (config.ReplyRate) replyRate = config.ReplyRate;
-          if (config.EmojiRate) emojiRate = config.EmojiRate;
+          if (config.replyRate) replyRate = config.replyRate;
+          if (config.emojiRate) emojiRate = config.emojiRate;
           groupMatched = true;
           break;
         }
       }
     }
 
-    const expireTimeInSeconds = this.Config.ExpireTimeInSeconds;
+    const expireTimeInSeconds = this.Config.expireTimeInSeconds;
     await fs.promises.mkdir(emojiSaveDir, { recursive: true });
     let list = await fs.promises.readdir(emojiSaveDir);
 
