@@ -11,6 +11,7 @@
 <img src ="https://img.shields.io/badge/v3-null?label=TRSS-Yunzai"/>
 <img src="https://img.shields.io/badge/v11-null?label=OneBot">
 
+<img src="https://count.getloli.com/@juhkff-plugin?juhkff-plugin&theme=random&padding=7&offset=0&align=top&scale=1&pixelated=0&darkmode=auto" />
 </div>
 
 <img decoding="async" align=right width="35%">
