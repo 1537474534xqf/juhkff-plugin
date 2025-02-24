@@ -231,9 +231,9 @@ export function supportGuoba() {
         },
         {
           field: "emojiSave.expireTimeInSeconds",
-          label: "表情包确认等待时间（秒）",
+          label: "表情确认时间（秒）",
           bottomHelpMessage:
-            "只有发送两次相同图片时，会被记为表情包并偷取，默认259200为3天",
+            "只有发送两次相同图片时，会被记为表情并偷取，默认259200为3天",
           component: "InputNumber",
           componentProps: {
             min: 1,
