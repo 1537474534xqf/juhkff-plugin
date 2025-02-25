@@ -14,8 +14,6 @@
 <img src="https://count.getloli.com/@juhkff-plugin?juhkff-plugin&theme=random&padding=7&offset=0&align=top&scale=1&pixelated=0&darkmode=auto" />
 </div>
 
-<img decoding="async" align=right width="35%">
-
 一个适用于 [TRSS-Yunzai 框架](https://github.com/TimeRainStarSky/Yunzai) 和 [OneBot-v11 标准](https://onebot.dev) 的 **自用** 综合群机器人插件
 
 > [!WARNING]
