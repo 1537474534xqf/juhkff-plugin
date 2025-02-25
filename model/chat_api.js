@@ -26,10 +26,50 @@ ChatInterface.generateRequest = async function (
   useSystemRole = true
 ) { };
 
-export class DefaultChatRequest {
+ChatInterface.getModelMap = function () { };
+
+class ChatApi {
   constructor() {
     this.Config = setting.getConfig("autoReply");
+    this.ModelMap = {}
+    this[ChatInterface.getModelMap]();
   }
+
+  [ChatInterface.getModelMap]() { }
+
+  async [ChatInterface.generateRequest](
+    apiKey,
+    apiBaseUrl,
+    model,
+    input,
+    historyMessages = [],
+    image_list = {},
+    image_type = false,
+    useSystemRole = true
+  ) { }
+}
+
+export class Siliconflow extends ChatApi {
+
+  [ChatInterface.getModelMap]() {
+    // 爬取siliconflow页面模型
+    var responsePromise = fetch("https://api.siliconflow.cn/v1/models?type=text", {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${this.Config.chatApiKey}`,
+      },
+    });
+    responsePromise.then(response => response.json()).then(response => {
+      var models = response.data;
+      for (const model of models) {
+        this.ModelMap[model.id] = this.commonRequest.bind(this);
+      }
+    }).catch(error => {
+      logger.error("[AutoReply] 获取模型失败：", error);
+      return {};
+    });
+  }
+
   async [ChatInterface.generateRequest](
     apiKey,
     apiBaseUrl,
@@ -40,16 +80,49 @@ export class DefaultChatRequest {
     image_type = false,
     useSystemRole = true
   ) {
+    if (!this.ModelMap[model]) {
+      logger.error("[AutoReply]不支持的模型：" + model);
+      return "[AutoReply]不支持的模型：" + model;
+    }
+
     // 构造请求体
-    const requestBody = {
-      model: model || this.Config.chatModel,
-      messages: [],
-      stream: false,
-      temperature: 1.5,
+    var request = {
+      url: `${apiBaseUrl}/chat/completions`,
+      options: {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: {
+          model: model,
+          messages: [],
+          stream: false,
+          temperature: 1.5,
+        },
+      },
     };
 
+    var response = await this.ModelMap[model](
+      request,
+      input,
+      historyMessages,
+      image_list,
+      image_type,
+      useSystemRole
+    );
+    return response;
+  }
+  async commonRequest(
+    request,
+    input,
+    historyMessages = [],
+    image_list = {},
+    image_type = false,
+    useSystemRole
+  ) {
     if (useSystemRole) {
-      requestBody.messages.push({
+      request.options.body.messages.push({
         role: "system",
         content:
           this.Config.chatPrompt ||
@@ -62,158 +135,61 @@ export class DefaultChatRequest {
       historyMessages.forEach((msg) => {
         // 不是图片时添加
         if (!msg.imageBase64) {
-          if (msg.role === "system") {
-            requestBody.messages.push({
-              role: "system",
-              content: msg.content,
-            });
-          }
-          if (msg.role === "user") {
-            requestBody.messages.push({
-              role: "user",
-              content: msg.content,
-            });
-          } else if (msg.role === "assistant") {
-            requestBody.messages.push({
-              role: "assistant",
-              content: msg.content,
-            });
-          }
+          request.options.body.messages.push({
+            role: msg.role,
+            content: msg.content,
+          });
         }
       });
     }
-
-    // 构造当前消息
-    // 当前消息作为统一的一个message放入requestBody.messages
-    try {
-      // 构造消息内容数组
-      let allContent = [];
-      // 添加\引用的和当前的图片
-      if (
-        image_type &&
-        image_list.sourceImages &&
-        image_list.sourceImages.length > 0
-      ) {
-        image_list.sourceImages.forEach((image) => {
-          allContent.push({
-            type: "text",
-            text: "引用消息包含的图片:\n",
-          });
-          allContent.push({
-            type: "image_url",
-            image_url: {
-              url: `data:image/jpeg;base64,${image}`,
-            },
-          });
-        });
-      }
-      if (
-        image_type &&
-        image_list.currentImages &&
-        image_list.currentImages.length > 0
-      ) {
-        allContent.push({
-          type: "text",
-          text: "消息正文包含的图片:\n",
-        });
-        image_list.currentImages.forEach((image) => {
-          allContent.push({
-            type: "image_url",
-            image_url: {
-              url: `data:image/jpeg;base64,${image}`,
-            },
-          });
-        });
-      }
-      allContent.push({
-        type: "text",
-        text: input,
-      });
-
-      // 添加历史图片
-      if (
-        image_type &&
-        image_list.historyImages &&
-        image_list.historyImages.length > 0
-      ) {
-        allContent.push({
-          type: "text",
-          text: "\n历史对话包含的图片:",
-        });
-        image_list.historyImages.forEach((image) => {
-          allContent.push({
-            type: "image_url",
-            image_url: {
-              url: `data:image/jpeg;base64,${image}`,
-            },
-          });
-        });
-      }
-      if (image_type) {
-        // 兼容带图片的消息格式
-        requestBody.messages.push({
-          role: "user",
-          content: allContent,
-        });
-      } else {
-        requestBody.messages.push({
-          role: "user",
-          content: input,
-        });
-      }
-    } catch (error) {
-      logger.error("[AutoReply]消息处理失败\n", error);
-      // 如果处理失败，至少保留用户输入
-      requestBody.messages.push({
-        role: "user",
-        content: input,
-      });
-    }
+    request.options.body.messages.push({
+      role: "user",
+      content: input,
+    });
 
     logger.mark(
-      `\n[AutoReply]API调用，请求内容：${JSON.stringify(
-        requestBody.messages,
+      `\n[AutoReply]Siliconflow API调用，请求内容：${JSON.stringify(
+        request,
         null,
         2
       )}`
     );
+
     var response;
     try {
-      response = await fetch(`${apiBaseUrl}/chat/completions`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
+      request.options.body = JSON.stringify(request.options.body);
+      response = await fetch(request.url, request.options);
 
       const data = await response.json();
 
       if (data?.choices?.[0]?.message?.content) {
         return data.choices[0].message.content;
       } else {
-        logger.error("[AutoReply]API调用失败：", JSON.stringify(data, null, 2));
-        return "[AutoReply]API调用失败，详情请查阅控制台。";
+        logger.error(
+          "[AutoReply]Siliconflow调用失败：",
+          JSON.stringify(data, null, 2)
+        );
+        return "[AutoReply]Siliconflow调用失败，详情请查阅控制台。";
       }
     } catch (error) {
       logger.error(
-        `[AutoReply]API调用失败, 请求返回结果：${JSON.stringify(response)}\n`,
+        `[AutoReply]Siliconflow调用失败, 请求返回结果：${JSON.stringify(
+          response
+        )}\n`,
         error
       );
-      return "[AutoReply]API调用失败，详情请查阅控制台。";
+      return "[AutoReply]Siliconflow调用失败，详情请查阅控制台。";
     }
   }
 }
 
-export class DeepSeek {
-  constructor() {
-    // 模型映射
-    this.modelMap = {
+export class DeepSeek extends ChatApi {
+
+  [ChatInterface.getModelMap]() {
+    this.ModelMap = {
       "deepseek-chat": this.deepseek_chat.bind(this),
       "deepseek-reasoner": this.deepseek_reasoner.bind(this),
     };
-    this.Config = setting.getConfig("autoReply");
   }
 
   async [ChatInterface.generateRequest](
@@ -226,7 +202,7 @@ export class DeepSeek {
     image_type = false,
     useSystemRole = true
   ) {
-    if (!this.modelMap[model]) {
+    if (!this.ModelMap[model]) {
       logger.error("[AutoReply]不支持的模型：" + model);
       return "[AutoReply]不支持的模型：" + model;
     }
@@ -247,8 +223,8 @@ export class DeepSeek {
       },
     };
 
-    var response = await this.modelMap[model](
-      JSON.parse(JSON.stringify(request)),
+    var response = await this.ModelMap[model](
+      request,
       input,
       historyMessages,
       image_list,
@@ -295,23 +271,10 @@ export class DeepSeek {
       historyMessages.forEach((msg) => {
         // 不是图片时添加
         if (!msg.imageBase64) {
-          if (msg.role === "system") {
-            request.options.body.messages.push({
-              role: "system",
-              content: msg.content,
-            });
-          }
-          if (msg.role === "user") {
-            request.options.body.messages.push({
-              role: "user",
-              content: msg.content,
-            });
-          } else if (msg.role === "assistant") {
-            request.options.body.messages.push({
-              role: "assistant",
-              content: msg.content,
-            });
-          }
+          request.options.body.messages.push({
+            role: msg.role,
+            content: msg.content,
+          });
         }
       });
       // 添加当前对话
@@ -374,13 +337,10 @@ export class DeepSeek {
     // 添加历史对话
     var content = "";
     if (historyMessages && historyMessages.length > 0) {
-      historyMessages.forEach((msg) => {
-        // 不是图片时添加
-        if (!msg.imageBase64) {
-          content +=
-            '"role": "' + msg.role + '"  "content":' + msg.content + '"\n';
-        }
-      });
+      content += historyMessages
+        .filter((msg) => !msg.imageBase64)
+        .map((msg) => `"role": "${msg.role}", "content": "${msg.content}",\n`)
+        .join("");
     }
     content += '"role": "user"  "content":' + input + '"\n';
     request.options.body.messages.push({
@@ -425,9 +385,8 @@ export class DeepSeek {
 }
 
 export const chatMap = {
-  "default": DefaultChatRequest,
-  "deepseek": DeepSeek,
-  // "siliconflow": ,
+  "siliconflow": new Siliconflow(),
+  "deepseek": new DeepSeek(),
 };
 
 export const apiList = {

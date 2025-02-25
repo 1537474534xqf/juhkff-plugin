@@ -2,6 +2,7 @@ import path from "path";
 import lodash from "lodash";
 import { pluginResources } from "#juhkff.path";
 import setting from "#juhkff.setting";
+import { chatMap } from "#juhkff.api.chat";
 
 // 支持锅巴
 export function supportGuoba() {
@@ -72,9 +73,9 @@ export function supportGuoba() {
         },
         {
           field: "autoReply.chatApi",
-          label: "AI接口选择",
+          label: "群聊AI接口选择",
           bottomHelpMessage:
-            "AI接口选择，如果attachUrlAnalysis开启，则该接口也会用于URL内容总结",
+            "AI接口选择，如果开启解析URL，则该接口也会用于URL内容总结",
           component: "Select",
           componentProps: {
             options: [
@@ -86,24 +87,21 @@ export function supportGuoba() {
         },
         {
           field: "autoReply.chatApiKey",
-          label: "群聊ApiKey",
+          label: "群聊AI ApiKey",
           bottomHelpMessage: "deepseek的apiKey或siliconflow的apiKey",
           component: "Input",
           required: true,
         },
         {
           field: "autoReply.chatModel",
-          label: "模型选择",
+          label: "群聊AI模型选择",
           bottomHelpMessage:
-            "模型请与AI接口匹配，例如deepseek接口应选择deepseek-chat/deepseek-reasoner模型",
+            "在选择群聊AI接口后，先保存配置，刷新页面，再选择此项并保存配置",
           component: "Select",
           componentProps: {
-            options: [
-              { label: "deepseek-chat", value: "deepseek-chat" },
-              { label: "deepseek-reasoner", value: "deepseek-reasoner" },
-            ],
+            options: getChatModels(),
+            placeholder: "必填项",
           },
-          required: true,
         },
         {
           field: "autoReply.chatRate",
@@ -134,13 +132,13 @@ export function supportGuoba() {
         },
         {
           field: "autoReply.visualApiKey",
-          label: "视觉模型ApiKey",
+          label: "视觉AI ApiKey",
           bottomHelpMessage: "目前仅支持siliconflow的apiKey",
           component: "Input",
         },
         {
           field: "autoReply.visualModel",
-          label: "视觉模型选择",
+          label: "视觉AI模型选择",
           bottomHelpMessage: "目前仅支持Qwen/Qwen2-VL-72B-Instruct",
           component: "Select",
           componentProps: {
@@ -310,4 +308,16 @@ export function supportGuoba() {
       },
     },
   };
+}
+
+function getChatModels() {
+  var chatApi = setting.getConfig("autoReply").chatApi;
+  var chatInstance = chatMap[chatApi];
+  if (!chatInstance) return ["请选择有效的群聊AI接口"];
+  var models = chatInstance.ModelMap;
+  var result = []
+  for (const key of Object.keys(models)) {
+    result.push({ label: key, value: key });
+  }
+  return result;
 }
