@@ -50,7 +50,7 @@ pnpm install --filter=juhkff-plugin
 
 > [!WARNING]
 > 不建议手动修改配置文件，本插件已兼容 [Guoba-plugin](https://github.com/guoba-yunzai/guoba-plugin) ，请使用锅巴插件对配置项进行修改 <br>
-> 若手动修改配置文件，需首先在启动一次插件，然后可在 `juhkff-plugin/config/default` 目录下的文件内找到配置项说明，据此修改 `juhkff-plugin/config` 目录下的相应文件
+> 若手动修改配置文件，需至少启动一次插件，然后可在 `juhkff-plugin/config/default` 目录下的文件内找到配置项说明，据此修改 `juhkff-plugin/config` 目录下的相应文件，保存后重启机器人。**请勿直接修改 default 目录及其内文件**
 
 ## 功能列表
 
