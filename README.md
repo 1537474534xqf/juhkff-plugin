@@ -23,10 +23,16 @@
 
 #### 1. 克隆仓库
 
+- github
+
 ```
 git clone https://github.com/juhkff/juhkff-plugin.git ./plugins/juhkff-plugin
-如果网络不好可使用代理下载
-git clone https://ghproxy.lyln.us.kg/https://github.com/juhkff/juhkff-plugin.git ./plugins/juhkff-plugin
+```
+
+- gitee（国内）
+
+```
+git clone https://gitee.com/juhkff/juhkff-plugin.git ./plugins/juhkff-plugin
 ```
 
 #### 2. 安装依赖
