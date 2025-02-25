@@ -1,8 +1,10 @@
+import axios from "axios";
 import fetch from "node-fetch";
 import setting from "#juhkff.setting";
 
 export const ChatInterface = {
   generateRequest: Symbol("generateRequest"),
+  getModelMap: Symbol("getModelMap"),
 };
 
 /**
@@ -51,23 +53,34 @@ class ChatApi {
 
 export class Siliconflow extends ChatApi {
 
+  constructor() {
+    super();
+    /*
+    if (this.Config.chatApi == "siliconflow")
+      this[ChatInterface.getModelMap]();
+    */
+  }
+
   [ChatInterface.getModelMap]() {
-    // 爬取siliconflow页面模型
-    var responsePromise = fetch("https://api.siliconflow.cn/v1/models?type=text", {
+    /*
+    var responsePromise = axios.get("https://api.siliconflow.cn/v1/models?type=text", {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${this.Config.chatApiKey}`,
       },
     });
-    responsePromise.then(response => response.json()).then(response => {
-      var models = response.data;
+    responsePromise.then(response => {
+      var models = response.data.data;
+      var modelMap = {};
       for (const model of models) {
-        this.ModelMap[model.id] = this.commonRequest.bind(this);
+        modelMap[model.id] = this.commonRequest.bind(this);
       }
+      return modelMap;
     }).catch(error => {
       logger.error("[AutoReply] 获取模型失败：", error);
       return {};
     });
+    */
   }
 
   async [ChatInterface.generateRequest](
@@ -80,10 +93,12 @@ export class Siliconflow extends ChatApi {
     image_type = false,
     useSystemRole = true
   ) {
+    /*
     if (!this.ModelMap[model]) {
       logger.error("[AutoReply]不支持的模型：" + model);
       return "[AutoReply]不支持的模型：" + model;
     }
+    */
 
     // 构造请求体
     var request = {
@@ -103,7 +118,8 @@ export class Siliconflow extends ChatApi {
       },
     };
 
-    var response = await this.ModelMap[model](
+    // var response = await this.ModelMap[model](
+    var response = await this.commonRequest(
       request,
       input,
       historyMessages,
@@ -184,6 +200,10 @@ export class Siliconflow extends ChatApi {
 }
 
 export class DeepSeek extends ChatApi {
+
+  constructor() {
+    super();
+  }
 
   [ChatInterface.getModelMap]() {
     this.ModelMap = {
