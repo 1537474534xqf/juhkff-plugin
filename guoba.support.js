@@ -2,7 +2,7 @@ import path from "path";
 import lodash from "lodash";
 import { pluginResources } from "#juhkff.path";
 import setting from "#juhkff.setting";
-import { chatMap } from "#juhkff.api.chat";
+import { ChatInterface, chatMap } from "#juhkff.api.chat";
 
 // 支持锅巴
 export function supportGuoba() {
@@ -94,12 +94,12 @@ export function supportGuoba() {
         },
         {
           field: "autoReply.chatModel",
-          label: "群聊AI模型选择",
+          label: "群聊AI模型",
           bottomHelpMessage:
-            "在选择群聊AI接口后，先保存配置，刷新页面，再选择此项并保存配置",
-          component: "Select",
+            "deepseek-reasoner/deepseek-chat/siliconflow各对话模型名称",
+          component: "Input",
+          required: true,
           componentProps: {
-            options: getChatModels(),
             placeholder: "必填项",
           },
         },
@@ -303,6 +303,7 @@ export function supportGuoba() {
           config[app][key] = value;
         }
         var err = setting.setConfig(config);
+        // chatMap[config.autoReply.chatApi][ChatInterface.getModelMap]();
         if (err == null) return Result.ok({}, "保存成功~");
         else return Result.ok({}, "保存失败: " + err.message);
       },
