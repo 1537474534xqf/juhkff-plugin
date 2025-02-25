@@ -146,13 +146,8 @@ export class AutoReply extends plugin {
     model = "",
     historyMessages = []
   ) {
-    var Constructor = chatMap[chatApi];
-    var chatInstance;
-    if (Constructor) {
-      chatInstance = new Constructor();
-    } else {
-      return "[AutoReply]请在AutoReply.yaml中设置有效的AI接口";
-    }
+    var chatInstance = chatMap[chatApi];
+    if (!chatInstance) return "[AutoReply]请在AutoReply.yaml中设置有效的AI接口";
     var result = await chatInstance[ChatInterface.generateRequest](
       apiKey,
       apiBaseUrl,
