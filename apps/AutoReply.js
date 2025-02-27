@@ -58,10 +58,25 @@ export class AutoReply extends plugin {
       return false;
     }
 
+    let chatRate = this.Config.defaultChatRate; // 回复表情概率
+    // 如果 groupRate 配置存在且不为空
+    if (this.Config.groupChatRate && this.Config.groupChatRate.length > 0) {
+      for (let config of this.Config.groupChatRate) {
+        // 确保 config.groupList 是数组，以避免 undefined 的情况
+        if (
+          Array.isArray(config.groupList) &&
+          config.groupList.includes(e.group_id)
+        ) {
+          if (config.chatRate) chatRate = config.chatRate;
+          break;
+        }
+      }
+    }
+
     var answer = undefined;
     var answer_time = undefined;
     // 如果@了bot，就直接回复
-    if (e.atBot || Math.random() < Number(this.Config.chatRate)) {
+    if (e.atBot || Math.random() < Number(chatRate)) {
       answer = await this.generate_answer(e, msg);
       if (!e.atBot && (!answer || answer.startsWith("[AutoReply]"))) {
         // 如果自主发言失败不提示
