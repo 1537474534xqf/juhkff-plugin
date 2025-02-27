@@ -17,7 +17,20 @@ chatApiKey:
 chatModel: deepseek-chat
 
 # 触发聊天的概率
-chatRate: 0.1
+defaultChatRate: 0.1
+
+# 指定特定群的回复概率、发送偷的图的概率，格式如下
+# groupChatRate:
+#   - groupList:
+#       - xxxxxxxxx (群号1)
+#     chatRate: 0.1
+#   - groupList:
+#       - xxxxxxxxx (群号2)
+#     chatRate: 0.6
+#   - groupList:
+#       - xxxxxxxxx (群号...)
+#     chatRate: 0.2
+groupChatRate:
 
 # 是否使用视觉AI
 useVisual: false

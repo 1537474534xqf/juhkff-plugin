@@ -32,7 +32,6 @@ export class EmojiSave extends plugin {
     let emojiSaveDir = `${pluginRoot}/data/${e.group_id}/emoji_save`;
     let replyRate = this.Config.defaultReplyRate; // 回复表情概率
     let emojiRate = this.Config.defaultEmojiRate; // 发送偷的图的概率
-    let groupMatched = false;
 
     // 如果 groupRate 配置存在且不为空
     if (this.Config.groupRate && this.Config.groupRate.length > 0) {
@@ -44,7 +43,6 @@ export class EmojiSave extends plugin {
         ) {
           if (config.replyRate) replyRate = config.replyRate;
           if (config.emojiRate) emojiRate = config.emojiRate;
-          groupMatched = true;
           break;
         }
       }

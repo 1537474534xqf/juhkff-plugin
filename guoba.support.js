@@ -104,8 +104,8 @@ export function supportGuoba() {
           },
         },
         {
-          field: "autoReply.chatRate",
-          label: "触发主动回复的概率",
+          field: "autoReply.defaultChatRate",
+          label: "默认主动回复率",
           bottomHelpMessage: "概率小数[0,1]，越高越容易触发主动回复",
           component: "InputNumber",
           componentProps: {
@@ -114,6 +114,35 @@ export function supportGuoba() {
             step: 0.01,
           },
           required: true,
+        },
+        {
+          field: "autoReply.groupChatRate",
+          label: "特定群主动回复率",
+          bottomHelpMessage: "该项优先于默认概率",
+          component: "GSubForm",
+          componentProps: {
+            multiple: true,
+            schemas: [
+              {
+                field: "groupList",
+                label: "群号",
+                required: true,
+                bottomHelpMessage: "群号",
+                component: "GSelectGroup",
+              },
+              {
+                field: "chatRate",
+                label: "主动回复概率",
+                component: "InputNumber",
+                componentProps: {
+                  min: 0,
+                  max: 1,
+                  step: 0.01,
+                },
+                required: true,
+              },
+            ],
+          },
         },
         {
           field: "autoReply.useVisual",
