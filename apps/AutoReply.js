@@ -58,7 +58,7 @@ export class AutoReply extends plugin {
       return false;
     }
 
-    let chatRate = this.Config.defaultChatRate; // 回复表情概率
+    let chatRate = this.Config.defaultChatRate; // 主动回复概率
     // 如果 groupRate 配置存在且不为空
     if (this.Config.groupChatRate && this.Config.groupChatRate.length > 0) {
       for (let config of this.Config.groupChatRate) {
