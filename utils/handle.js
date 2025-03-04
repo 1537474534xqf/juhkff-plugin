@@ -25,7 +25,7 @@ export async function parseImage(e) {
     if (e.message[i].type == "image") {
       if (!getConfig().useVisual) continue
       var url = e.message[i].url
-      var result = await analyseImage(url, "该图片是否为表情包，只输出是或否")
+      var result = await analyseImage(url, "该图片是否为表情包，只输出是或否，不要加标点符号")
       logger.info(`[parseImage]图片是否为表情包: ${result}`)
       if (result === "是") {
         // 表情包不加入消息

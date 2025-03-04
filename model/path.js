@@ -1,11 +1,14 @@
-import path from "path";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
 
 const _path = process.cwd().replace(/\\/g, "/");
+const _filename = fileURLToPath(import.meta.url);
+const _dirname = path.dirname(_filename);
 
-// 插件名 juhkff-plugin
-const pluginName = path.basename(path.join(import.meta.url, "../../"));
 // 插件根目录 /../../plugins/juhkff-plugin
-const pluginRoot = path.join(_path, "plugins", pluginName);
+const pluginRoot = path.dirname(_dirname);
+// 插件名 juhkff-plugin
+const pluginName = path.basename(pluginRoot);
 // 插件资源目录 /../../plugins/juhkff-plugin/resources
 const pluginResources = path.join(pluginRoot, "resources");
 

@@ -2,6 +2,7 @@ import fs from "fs";
 import setting from "#juhkff.setting";
 import { downloadFile } from "#juhkff.net";
 import { _path, pluginResources, pluginRoot } from "#juhkff.path";
+import path from "path";
 
 /**
  * 表情保存插件
@@ -13,7 +14,7 @@ export class EmojiSave extends plugin {
       name: "[扎克芙芙]表情偷取",
       dsc: "指定时间（默认三天）内发送过两次（不包含引用）的图片自动保存并随机发送",
       event: "message",
-      priority: 2,
+      priority: 5000,
       rule: [
         {
           reg: "",
@@ -29,7 +30,13 @@ export class EmojiSave extends plugin {
   }
 
   async emojiSave(e) {
-    let emojiSaveDir = `${pluginRoot}/data/${e.group_id}/emoji_save`;
+    if (e.message_type != "group") return false;
+    var emojiSaveDir = path.join(
+      pluginRoot,
+      "data",
+      `${e.group_id}`,
+      "emoji_save"
+    );
     let replyRate = this.Config.defaultReplyRate; // 回复表情概率
     let emojiRate = this.Config.defaultEmojiRate; // 发送偷的图的概率
 
@@ -83,13 +90,13 @@ export class EmojiSave extends plugin {
             let imgType = item.file.split(".").pop();
             await downloadFile(
               item.url,
-              `${emojiSaveDir}/${item.file_unique}.${imgType}`
+              path.join(emojiSaveDir, `${item.file_unique}.${imgType}`)
             );
             list.push(`${item.file_unique}.${imgType}`);
             if (list.length > 50) {
               const randomIndex = Math.floor(Math.random() * list.length);
               const randomFile = list[randomIndex];
-              fs.unlinkSync(`${emojiSaveDir}/${randomFile}`);
+              fs.unlinkSync(path.join(emojiSaveDir, `${randomFile}`))
               list.splice(randomIndex, 1);
               logger.info(`[EmojiSave]存储过多，删除表情: ${randomFile}`);
             }
@@ -106,7 +113,7 @@ export class EmojiSave extends plugin {
         // 有表情包的情况下才继续
         if (list.length > 0 && Math.random() < Number(emojiRate)) {
           let randomIndex = Math.floor(Math.random() * list.length);
-          var emojiUrl = `${emojiSaveDir}/${list[randomIndex]}`;
+          var emojiUrl = path.join(emojiSaveDir, list[randomIndex]);
           logger.info(`[EmojiSave]发送表情: ${emojiUrl}`);
           e.reply([segment.image(emojiUrl)]);
         }

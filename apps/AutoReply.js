@@ -19,7 +19,7 @@ export class AutoReply extends plugin {
       name: "[扎克芙芙]主动回复群聊",
       dsc: "主动回复群聊",
       event: "message",
-      priority: 1,
+      priority: 9999,
       rule: [
         {
           reg: "^((?!#).)*$", // 匹配所有非#开头的文本
@@ -35,6 +35,7 @@ export class AutoReply extends plugin {
   }
 
   async autoReply(e) {
+    if (e.message_type != "group") return false;
     // 避免重复保存上下文
     // 借助siliconflow-plugin保存群聊上下文
     var time = Date.now();

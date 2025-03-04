@@ -6,10 +6,10 @@ import path from "path";
 class Setting {
   constructor() {
     /** 用户设置 */
-    this.configPath = `${pluginRoot}/config`;
+    this.configPath = path.join(pluginRoot, "config");
     this.config = this.initConfig();
 
-    this.dataPath = `${pluginRoot}/data`;
+    this.dataPath = path.join(pluginRoot, "data");
     this.data = {};
   }
 
@@ -24,7 +24,7 @@ class Setting {
       f.endsWith(".yaml")
     );
     for (const defaultFile of files) {
-      const app = defaultFile.split("/").pop().replace(".yaml", "");
+      const app = path.basename(defaultFile, ".yaml");
       if (!fs.existsSync(path.join(this.configPath, `${app}.yaml`))) {
         // 复制 default 内对应的 yaml 文件到 config/*.yaml 中
         fs.copyFileSync(
