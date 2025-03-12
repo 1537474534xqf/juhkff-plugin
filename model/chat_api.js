@@ -32,7 +32,6 @@ class ChatApi {
   constructor() {
     this.Config = setting.getConfig("autoReply");
     this.ModelMap = {};
-    this[ChatInterface.getModelMap]();
   }
 
   [ChatInterface.getModelMap]() {}
@@ -52,32 +51,29 @@ export class Siliconflow extends ChatApi {
   constructor() {
     super();
     this.ApiBaseUrl = "https://api.siliconflow.cn/v1";
-    /*
-    if (this.Config.chatApi == "siliconflow")
-      this[ChatInterface.getModelMap]();
-    */
+    if (this.Config.chatApi == "siliconflow") this[ChatInterface.getModelMap]();
   }
 
   [ChatInterface.getModelMap]() {
-    /*
-    var responsePromise = axios.get("https://api.siliconflow.cn/v1/models?type=text", {
+    this.ModelMap = {};
+    var responsePromise = axios.get(`${this.ApiBaseUrl}/models?type=text`, {
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${this.Config.chatApiKey}`,
+        Authorization: `Bearer ${this.Config.chatApiKey}`,
       },
     });
-    responsePromise.then(response => {
-      var models = response.data.data;
-      var modelMap = {};
-      for (const model of models) {
-        modelMap[model.id] = this.commonRequest.bind(this);
-      }
-      return modelMap;
-    }).catch(error => {
-      logger.error("[AutoReply] 获取模型失败：", error);
-      return {};
-    });
-    */
+    responsePromise
+      .then((response) => {
+        var models = response.data.data;
+        var modelMap = {};
+        for (const model of models) {
+          modelMap[model.id] = this.commonRequest.bind(this);
+        }
+        this.ModelMap = modelMap;
+      })
+      .catch((error) => {
+        logger.error("[AutoReply] 获取模型失败：", error);
+      });
   }
 
   async [ChatInterface.generateRequest](
@@ -199,9 +195,11 @@ export class DeepSeek extends ChatApi {
   constructor() {
     super();
     this.ApiBaseUrl = "https://api.deepseek.com/";
+    if (this.Config.chatApi == "deepseek") this[ChatInterface.getModelMap]();
   }
 
   [ChatInterface.getModelMap]() {
+    this.ModelMap = {};
     this.ModelMap = {
       "deepseek-chat": this.deepseek_chat.bind(this),
       "deepseek-reasoner": this.deepseek_reasoner.bind(this),

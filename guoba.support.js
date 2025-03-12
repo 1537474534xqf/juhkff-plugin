@@ -96,11 +96,10 @@ export function supportGuoba() {
           field: "autoReply.chatModel",
           label: "群聊AI模型",
           bottomHelpMessage:
-            "deepseek-reasoner/deepseek-chat/siliconflow各对话模型名称",
-          component: "Input",
-          required: true,
+            "选择AI接口，写入正确的ApiKey，保存并刷新页面后，再选择该项",
+          component: "Select",
           componentProps: {
-            placeholder: "必填项",
+            options: getChatModels(),
           },
         },
         {
@@ -324,6 +323,7 @@ export function supportGuoba() {
       // 设置配置的方法（前端点确定后调用的方法）
       setConfigData(data, { Result }) {
         var config = setting.getAllConfig();
+        var preChatApi = config.autoReply.chatApi;
         for (let [keyPath, value] of Object.entries(data)) {
           var keyPaths = keyPath.split(".");
           var app = keyPaths[0];
@@ -331,10 +331,16 @@ export function supportGuoba() {
           if (!(app in config)) config[app] = {};
           config[app][key] = value;
         }
+        if (preChatApi != config.autoReply.chatApi) {
+          config.autoReply.chatModel = "";
+        }
         var err = setting.setConfig(config);
-        // chatMap[config.autoReply.chatApi][ChatInterface.getModelMap]();
-        if (err == null) return Result.ok({}, "保存成功~");
-        else return Result.ok({}, "保存失败: " + err.message);
+        var chatInstance = chatMap[config.autoReply.chatApi];
+        if (!chatInstance)
+          return Result.ok({}, "请选择有效的群聊AI接口" + err.message);
+        chatInstance[ChatInterface.getModelMap]();
+        if (err != null) return Result.ok({}, "保存失败: " + err.message);
+        else return Result.ok({}, "保存成功~");
       },
     },
   };
@@ -344,9 +350,8 @@ function getChatModels() {
   var chatApi = setting.getConfig("autoReply").chatApi;
   var chatInstance = chatMap[chatApi];
   if (!chatInstance) return ["请选择有效的群聊AI接口"];
-  var models = chatInstance.ModelMap;
-  var result = []
-  for (const key of Object.keys(models)) {
+  var result = [];
+  for (const key of Object.keys(chatInstance.ModelMap)) {
     result.push({ label: key, value: key });
   }
   return result;
