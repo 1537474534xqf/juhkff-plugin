@@ -96,7 +96,7 @@ export class EmojiSave extends plugin {
             if (list.length > 50) {
               const randomIndex = Math.floor(Math.random() * list.length);
               const randomFile = list[randomIndex];
-              fs.unlinkSync(path.join(emojiSaveDir, `${randomFile}`))
+              fs.unlinkSync(path.join(emojiSaveDir, `${randomFile}`));
               list.splice(randomIndex, 1);
               logger.info(`[EmojiSave]存储过多，删除表情: ${randomFile}`);
             }

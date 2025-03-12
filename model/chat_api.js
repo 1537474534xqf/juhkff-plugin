@@ -376,8 +376,7 @@ export class DeepSeek extends ChatApi {
       const data = await response.json();
 
       if (data?.choices?.[0]?.message?.content) {
-        // 测试成功频率
-        return data.choices[0].message.content + "\n ";
+        return data.choices[0].message.content;
       } else {
         logger.error(
           "[AutoReply]DeepSeek-R1调用失败：",
