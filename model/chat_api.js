@@ -10,7 +10,6 @@ export const ChatInterface = {
 /**
  *
  * @param {*} apiKey apiKey
- * @param {*} apiBaseUrl 使用的API地址
  * @param {*} model 使用的API模型
  * @param {*} input 当前聊天输入
  * @param {*} historyMessages 聊天历史记录
@@ -19,42 +18,40 @@ export const ChatInterface = {
  */
 ChatInterface.generateRequest = async function (
   apiKey,
-  apiBaseUrl,
   model,
   input,
   historyMessages = [],
   image_list = {},
   image_type = false,
   useSystemRole = true
-) { };
+) {};
 
-ChatInterface.getModelMap = function () { };
+ChatInterface.getModelMap = function () {};
 
 class ChatApi {
   constructor() {
     this.Config = setting.getConfig("autoReply");
-    this.ModelMap = {}
+    this.ModelMap = {};
     this[ChatInterface.getModelMap]();
   }
 
-  [ChatInterface.getModelMap]() { }
+  [ChatInterface.getModelMap]() {}
 
   async [ChatInterface.generateRequest](
     apiKey,
-    apiBaseUrl,
     model,
     input,
     historyMessages = [],
     image_list = {},
     image_type = false,
     useSystemRole = true
-  ) { }
+  ) {}
 }
 
 export class Siliconflow extends ChatApi {
-
   constructor() {
     super();
+    this.ApiBaseUrl = "https://api.siliconflow.cn/v1";
     /*
     if (this.Config.chatApi == "siliconflow")
       this[ChatInterface.getModelMap]();
@@ -85,7 +82,6 @@ export class Siliconflow extends ChatApi {
 
   async [ChatInterface.generateRequest](
     apiKey,
-    apiBaseUrl,
     model,
     input,
     historyMessages = [],
@@ -102,7 +98,7 @@ export class Siliconflow extends ChatApi {
 
     // 构造请求体
     var request = {
-      url: `${apiBaseUrl}/chat/completions`,
+      url: `${this.ApiBaseUrl}/chat/completions`,
       options: {
         method: "POST",
         headers: {
@@ -200,9 +196,9 @@ export class Siliconflow extends ChatApi {
 }
 
 export class DeepSeek extends ChatApi {
-
   constructor() {
     super();
+    this.ApiBaseUrl = "https://api.deepseek.com/";
   }
 
   [ChatInterface.getModelMap]() {
@@ -214,7 +210,6 @@ export class DeepSeek extends ChatApi {
 
   async [ChatInterface.generateRequest](
     apiKey,
-    apiBaseUrl,
     model,
     input,
     historyMessages = [],
@@ -227,7 +222,7 @@ export class DeepSeek extends ChatApi {
       return "[AutoReply]不支持的模型：" + model;
     }
     var request = {
-      url: `${apiBaseUrl}/chat/completions`,
+      url: `${this.ApiBaseUrl}/chat/completions`,
       options: {
         method: "POST",
         headers: {
@@ -405,11 +400,6 @@ export class DeepSeek extends ChatApi {
 }
 
 export const chatMap = {
-  "siliconflow": new Siliconflow(),
-  "deepseek": new DeepSeek(),
+  siliconflow: new Siliconflow(),
+  deepseek: new DeepSeek(),
 };
-
-export const apiList = {
-  "deepseek": "https://api.deepseek.com/",
-  "siliconflow": "https://api.siliconflow.cn/v1",
-}

@@ -34,15 +34,13 @@ export async function extractUrlContent(url) {
   }
 }
 
-
 export async function analyseImage(image, input) {
   var config = getConfig();
-  var visualApi = config.visualApi
-  var visualApiKey = config.visualApiKey
-  var apiBaseUrl = apiList[visualApi]
-  var model = config.visualModel
+  var visualApi = config.visualApi;
+  var visualApiKey = config.visualApiKey;
+  var model = config.visualModel;
   if (!image.startsWith("data:")) {
-    image = await url2Base64(image)
+    image = await url2Base64(image);
   }
   var Constructor = visualMap[visualApi];
   var visualInstance;
@@ -53,10 +51,9 @@ export async function analyseImage(image, input) {
   }
   var result = await visualInstance[VisualInterface.generateRequest](
     visualApiKey,
-    apiBaseUrl,
     model,
     image,
     input
   );
-  return result
+  return result;
 }

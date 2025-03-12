@@ -3,8 +3,7 @@
  * @description: 原始消息处理相关
  */
 
-
-import { ChatInterface, chatMap, apiList } from "#juhkff.api.chat";
+import { ChatInterface, chatMap } from "#juhkff.api.chat";
 import { formatDateDetail } from "#juhkff.date";
 import { extractUrlContent, analyseImage } from "#juhkff.helper";
 import { get_source_message } from "#juhkff.redis";
@@ -17,34 +16,40 @@ function getConfig() {
 
 /**
  * 由于会生成插件专属消息处理列表j_msg，该方法必须作为消息处理的第一个函数
- * @param {} e 
+ * @param {} e
  */
 export async function parseImage(e) {
-  if (!e.j_msg) e.j_msg = []
+  if (!e.j_msg) e.j_msg = [];
   for (let i = 0; i < e.message.length; i++) {
     if (e.message[i].type == "image") {
-      if (!getConfig().useVisual) continue
-      var url = e.message[i].url
-      var result = await analyseImage(url, "该图片是否为表情包，只输出是或否，不要加标点符号")
-      logger.info(`[parseImage]图片是否为表情包: ${result}`)
+      if (!getConfig().useVisual) continue;
+      var url = e.message[i].url;
+      var result = await analyseImage(
+        url,
+        "该图片是否为表情包，只输出是或否，不要加标点符号"
+      );
+      logger.info(`[parseImage]图片是否为表情包: ${result}`);
       if (result === "是") {
         // 表情包不加入消息
-        continue
+        continue;
       } else {
-        var analyseMsg = await analyseImage(url, "提取图中关键信息")
-        e.j_msg.push({ text: `<发送图片，图片内容的分析结果——${analyseMsg}>`, type: "img2text" })
+        var analyseMsg = await analyseImage(url, "提取图中关键信息");
+        e.j_msg.push({
+          text: `<发送图片，图片内容的分析结果——${analyseMsg}>`,
+          type: "img2text",
+        });
       }
     } else {
       // text和json等其他类型的消息在该方法中不做处理
-      e.j_msg.push(e.message[i])
+      e.j_msg.push(e.message[i]);
     }
   }
 }
 
 /**
  * 确保该方法在parseImage之后执行
- * @param {*} e 
- * @returns 
+ * @param {*} e
+ * @returns
  */
 export async function parseSourceMessage(e) {
   if (!e.j_msg) return;
@@ -53,38 +58,44 @@ export async function parseSourceMessage(e) {
       // 优先从redis中获取引用消息
       var redis_source = await get_source_message(e.group_id, e.j_msg[i].id);
       if (redis_source != undefined) {
-        var msg = `[回复 ${redis_source}]`
-        e.j_msg[i] = { text: msg, type: "reply" }
-        continue
+        var msg = `[回复 ${redis_source}]`;
+        e.j_msg[i] = { text: msg, type: "reply" };
+        continue;
       }
 
       var reply = await e.getReply(e.j_msg[i].id);
       if (reply) {
         let senderTime = undefined; // 存储发送者时间
-        let senderNickname = "";    // 存储发送者昵称
-        let msg = [];               // 存储发送者消息
+        let senderNickname = ""; // 存储发送者昵称
+        let msg = []; // 存储发送者消息
 
         // 获取发送者昵称和时间
         senderTime = await formatDateDetail(reply.time * 1000);
         senderNickname = reply.sender?.card || reply.sender?.nickname;
         for (var val of reply.message) {
           if (val.type == "image") {
-            if (!getConfig().useVisual) continue
-            var result = await analyseImage(val.url, "该图片是否为表情包，只输出是或否")
-            logger.info(`[parseSourceMessage]图片是否为表情包: ${result}`)
+            if (!getConfig().useVisual) continue;
+            var result = await analyseImage(
+              val.url,
+              "该图片是否为表情包，只输出是或否"
+            );
+            logger.info(`[parseSourceMessage]图片是否为表情包: ${result}`);
             if (result == "是") {
               // 表情包不加入消息
-              continue
+              continue;
             } else {
-              var analyseMsg = await analyseImage(val.url, "提取图中关键信息，以中文的自然语言的形式回答")
-              msg.push(`<发送图片，内容: ${analyseMsg}>`)
+              var analyseMsg = await analyseImage(
+                val.url,
+                "提取图中关键信息，以中文的自然语言的形式回答"
+              );
+              msg.push(`<发送图片，内容: ${analyseMsg}>`);
             }
           } else if (val.type == "text") {
             msg.push(val.text); // 收集文本消息
           } else if (val.type == "file") {
             // 不支持消息中的文件
-            continue
-          } else if (val.type == 'json') {
+            continue;
+          } else if (val.type == "json") {
             var result = analyseJsonMessage(val.data);
             if (result) {
               msg.push(result);
@@ -98,8 +109,8 @@ export async function parseSourceMessage(e) {
           quotedLines = msg.map((line) => `${line}`).join(" ");
         }
         e.j_msg[i] = {
-          "text": `[回复 ${senderTime} - ${senderNickname}：${quotedLines}]`,
-          "type": "reply"
+          text: `[回复 ${senderTime} - ${senderNickname}：${quotedLines}]`,
+          type: "reply",
         };
       }
     }
@@ -109,8 +120,8 @@ export async function parseSourceMessage(e) {
 
 /**
  * 确保该方法在parseImage之后执行
- * @param {} e 
- * @returns 
+ * @param {} e
+ * @returns
  */
 export async function parseJson(e) {
   if (!e.j_msg) return;
@@ -118,7 +129,7 @@ export async function parseJson(e) {
     if (e.j_msg[i].type === "json") {
       var result = analyseJsonMessage(e.j_msg[i].data);
       if (result) {
-        e.j_msg[i] = { text: result, type: "json2text" }
+        e.j_msg[i] = { text: result, type: "json2text" };
       }
     }
   }
@@ -128,22 +139,21 @@ function analyseJsonMessage(message) {
   try {
     let data = JSON.parse(message);
     if (data.meta?.detail_1?.title === "哔哩哔哩") {
-      return `<分享链接，链接内容的分析结果——${data.prompt}>`
+      return `<分享链接，链接内容的分析结果——${data.prompt}>`;
     } else if (data.meta?.news?.tag === "小黑盒") {
-      return `<分享链接，链接内容的分析结果——标题：${data.meta?.news?.title}，内容：${data.meta?.news?.desc}>`
+      return `<分享链接，链接内容的分析结果——标题：${data.meta?.news?.title}，内容：${data.meta?.news?.desc}>`;
     }
-    return undefined
+    return undefined;
   } catch (error) {
     logger.error(`[analyseJsonMessage] JSON解析错误: ${error.message}`);
-    return undefined
+    return undefined;
   }
 }
 
-
 /**
  * 确保该方法在parseImage之后执行
- * @param {*} e 
- * @returns 
+ * @param {*} e
+ * @returns
  */
 export async function parseUrl(e) {
   if (!e.j_msg) return;
@@ -158,7 +168,10 @@ export async function parseUrl(e) {
         // 替换原始消息
         for (let url of matches) {
           // 移除URL末尾的标点符号和中文字符
-          let cleanUrl = url.replace(/[.,!?;:，。！？、；：\s\u4e00-\u9fa5]+$/, "");
+          let cleanUrl = url.replace(
+            /[.,!?;:，。！？、；：\s\u4e00-\u9fa5]+$/,
+            ""
+          );
           // 处理URL中的空格和中文字符
           try {
             // 尝试解码URL，如果已经是解码状态则保持不变
@@ -186,17 +199,19 @@ export async function parseUrl(e) {
           var chatApi = config.chatApi;
           var apiKey = config.chatApiKey;
           var model = config.chatModel;
-          var Constructor = chatMap[config.chatApi]
+          var Constructor = chatMap[config.chatApi];
           var chatInstance = new Constructor();
           var result = await chatInstance[ChatInterface.generateRequest](
             apiKey,
-            apiList[chatApi],
             model,
             "根据从URL抓取的信息，以自然语言简练地总结URL中的主要内容，其中无关信息可以过滤掉",
             [{ role: "user", content: extractResult.content }],
-            useSystemRole = false
+            (useSystemRole = false)
           );
-          e.j_msg[i].text = e.j_msg[i].text.replace(url, `<分享URL，URL内容的分析结果——${result}>`);
+          e.j_msg[i].text = e.j_msg[i].text.replace(
+            url,
+            `<分享URL，URL内容的分析结果——${result}>`
+          );
           e.j_msg[i].type = "url2text";
         }
       }

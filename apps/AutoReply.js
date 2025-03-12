@@ -6,7 +6,7 @@ import {
   parseUrl,
 } from "#juhkff.handle";
 import { formatDateDetail } from "#juhkff.date";
-import { ChatInterface, chatMap, apiList } from "#juhkff.api.chat";
+import { ChatInterface, chatMap } from "#juhkff.api.chat";
 
 /**
  * 主动群聊插件
@@ -108,16 +108,11 @@ export class AutoReply extends plugin {
    */
   async generate_answer(e, msg) {
     var chatApi = this.Config.chatApi;
-    var apiBaseUrl = apiList[chatApi];
     let apiKey = this.Config.chatApiKey;
     let model = this.Config.chatModel;
     if (!apiKey || apiKey == "") {
       logger.error("[AutoReply]请先在autoReply.yaml中设置chatApiKey");
       return "[AutoReply]请先在autoReply.yaml中设置chatApiKey";
-    }
-    if (!apiBaseUrl || apiBaseUrl == "") {
-      logger.error("[AutoReply]请先在autoReply.yaml中设置有效的chatApi");
-      return "[AutoReply]请先在autoReply.yaml中设置有效的chatApi";
     }
     if (!model || model == "") {
       logger.error("[AutoReply]请先在autoReply.yaml中设置chatModel");
@@ -135,7 +130,6 @@ export class AutoReply extends plugin {
       e.sender.card + "：" + msg,
       chatApi,
       apiKey,
-      apiBaseUrl,
       model,
       historyMessages
     );
@@ -149,7 +143,6 @@ export class AutoReply extends plugin {
    * @param {*} input
    * @param {*} chatApi 使用的AI接口
    * @param {*} apiKey
-   * @param {*} apiBaseUrl 使用的API地址
    * @param {*} model 使用的API模型
    * @param {*} opt 图片参数
    * @return {string}
@@ -158,7 +151,6 @@ export class AutoReply extends plugin {
     input,
     chatApi,
     apiKey,
-    apiBaseUrl = "",
     model = "",
     historyMessages = []
   ) {
@@ -166,7 +158,6 @@ export class AutoReply extends plugin {
     if (!chatInstance) return "[AutoReply]请在AutoReply.yaml中设置有效的AI接口";
     var result = await chatInstance[ChatInterface.generateRequest](
       apiKey,
-      apiBaseUrl,
       model,
       input,
       historyMessages
