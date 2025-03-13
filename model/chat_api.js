@@ -72,7 +72,7 @@ export class Siliconflow extends ChatApi {
         this.ModelMap = modelMap;
       })
       .catch((error) => {
-        logger.error("[AutoReply] 获取模型失败：", error);
+        logger.error("[autoReply] 获取模型失败：", error);
       });
   }
 
@@ -87,8 +87,8 @@ export class Siliconflow extends ChatApi {
   ) {
     /*
     if (!this.ModelMap[model]) {
-      logger.error("[AutoReply]不支持的模型：" + model);
-      return "[AutoReply]不支持的模型：" + model;
+      logger.error("[autoReply]不支持的模型：" + model);
+      return "[autoReply]不支持的模型：" + model;
     }
     */
 
@@ -156,7 +156,7 @@ export class Siliconflow extends ChatApi {
     });
 
     logger.mark(
-      `\n[AutoReply]Siliconflow API调用，请求内容：${JSON.stringify(
+      `\n[autoReply]Siliconflow API调用，请求内容：${JSON.stringify(
         request,
         null,
         2
@@ -174,19 +174,19 @@ export class Siliconflow extends ChatApi {
         return data.choices[0].message.content;
       } else {
         logger.error(
-          "[AutoReply]Siliconflow调用失败：",
+          "[autoReply]Siliconflow调用失败：",
           JSON.stringify(data, null, 2)
         );
-        return "[AutoReply]Siliconflow调用失败，详情请查阅控制台。";
+        return "[autoReply]Siliconflow调用失败，详情请查阅控制台。";
       }
     } catch (error) {
       logger.error(
-        `[AutoReply]Siliconflow调用失败, 请求返回结果：${JSON.stringify(
+        `[autoReply]Siliconflow调用失败, 请求返回结果：${JSON.stringify(
           response
         )}\n`,
         error
       );
-      return "[AutoReply]Siliconflow调用失败，详情请查阅控制台。";
+      return "[autoReply]Siliconflow调用失败，详情请查阅控制台。";
     }
   }
 }
@@ -216,8 +216,8 @@ export class DeepSeek extends ChatApi {
     useSystemRole = true
   ) {
     if (!this.ModelMap[model]) {
-      logger.error("[AutoReply]不支持的模型：" + model);
-      return "[AutoReply]不支持的模型：" + model;
+      logger.error("[autoReply]不支持的模型：" + model);
+      return "[autoReply]不支持的模型：" + model;
     }
     var request = {
       url: `${this.ApiBaseUrl}/chat/completions`,
@@ -248,7 +248,7 @@ export class DeepSeek extends ChatApi {
 
     if (
       typeof response === "string" &&
-      response.startsWith("[AutoReply]DeepSeek-R1调用失败")
+      response.startsWith("[autoReply]DeepSeek-R1调用失败")
     ) {
       request.options.body.model = "deepseek-chat";
       response = await this.deepseek_chat(
@@ -297,7 +297,7 @@ export class DeepSeek extends ChatApi {
       });
     }
     logger.mark(
-      `\n[AutoReply]DeepSeek-V3 API调用，请求内容：${JSON.stringify(
+      `\n[autoReply]DeepSeek-V3 API调用，请求内容：${JSON.stringify(
         request,
         null,
         2
@@ -314,19 +314,19 @@ export class DeepSeek extends ChatApi {
         return data.choices[0].message.content;
       } else {
         logger.error(
-          "[AutoReply]DeepSeek-V3调用失败：",
+          "[autoReply]DeepSeek-V3调用失败：",
           JSON.stringify(data, null, 2)
         );
-        return "[AutoReply]DeepSeek-V3调用失败，详情请查阅控制台。";
+        return "[autoReply]DeepSeek-V3调用失败，详情请查阅控制台。";
       }
     } catch (error) {
       logger.error(
-        `[AutoReply]DeepSeek-V3调用失败, 请求返回结果：${JSON.stringify(
+        `[autoReply]DeepSeek-V3调用失败, 请求返回结果：${JSON.stringify(
           response
         )}\n`,
         error
       );
-      return "[AutoReply]DeepSeek-V3调用失败，详情请查阅控制台。";
+      return "[autoReply]DeepSeek-V3调用失败，详情请查阅控制台。";
     }
   }
 
@@ -362,7 +362,7 @@ export class DeepSeek extends ChatApi {
     });
 
     logger.mark(
-      `\n[AutoReply]DeepSeek-R1 API调用，请求内容：${JSON.stringify(
+      `\n[autoReply]DeepSeek-R1 API调用，请求内容：${JSON.stringify(
         request,
         null,
         2
@@ -379,19 +379,19 @@ export class DeepSeek extends ChatApi {
         return data.choices[0].message.content;
       } else {
         logger.error(
-          "[AutoReply]DeepSeek-R1调用失败：",
+          "[autoReply]DeepSeek-R1调用失败：",
           JSON.stringify(data, null, 2)
         );
-        return "[AutoReply]DeepSeek-R1调用失败，详情请查阅控制台。";
+        return "[autoReply]DeepSeek-R1调用失败，详情请查阅控制台。";
       }
     } catch (error) {
       logger.error(
-        `[AutoReply]DeepSeek-R1调用失败, 请求返回结果：${JSON.stringify(
+        `[autoReply]DeepSeek-R1调用失败, 请求返回结果：${JSON.stringify(
           response
         )}\n`,
         error
       );
-      return "[AutoReply]DeepSeek-R1调用失败，详情请查阅控制台。";
+      return "[autoReply]DeepSeek-R1调用失败，详情请查阅控制台。";
     }
   }
 }

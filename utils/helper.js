@@ -47,7 +47,7 @@ export async function analyseImage(image, input) {
   if (Constructor) {
     visualInstance = new Constructor();
   } else {
-    return "[AutoReply]请在AutoReply.yaml中设置有效的视觉AI接口";
+    return "[autoReply]请在autoReply.yaml中设置有效的视觉AI接口";
   }
   var result = await visualInstance[VisualInterface.generateRequest](
     visualApiKey,

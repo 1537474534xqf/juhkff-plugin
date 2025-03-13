@@ -8,7 +8,7 @@ import path from "path";
  * 表情保存插件
  * @author Bilibili - 扎克芙芙
  */
-export class EmojiSave extends plugin {
+export class emojiSave extends plugin {
   constructor() {
     super({
       name: "[扎克芙芙]表情偷取",
@@ -68,25 +68,25 @@ export class EmojiSave extends plugin {
           if (!list.includes(`${item.file_unique}.jpg`)) {
             let can_be_stored = false;
             if (
-              !(await redis.get(`EmojiSave:${e.group_id}:${item.file_unique}`))
+              !(await redis.get(`emojiSave:${e.group_id}:${item.file_unique}`))
             ) {
               //key不存在，设置key
               await redis.set(
-                `EmojiSave:${e.group_id}:${item.file_unique}`,
+                `emojiSave:${e.group_id}:${item.file_unique}`,
                 "1",
                 {
                   EX: expireTimeInSeconds,
                 }
               );
-              logger.info(`[EmojiSave]待二次确认: ${item.file_unique}`);
+              logger.info(`[emojiSave]待二次确认: ${item.file_unique}`);
             } else {
               // key存在，二次确认成功
-              await redis.del(`EmojiSave:${e.group_id}:${item.file_unique}`);
+              await redis.del(`emojiSave:${e.group_id}:${item.file_unique}`);
               can_be_stored = true;
-              logger.info(`[EmojiSave]二次确认成功: ${item.file_unique}`);
+              logger.info(`[emojiSave]二次确认成功: ${item.file_unique}`);
             }
             if (!can_be_stored) continue;
-            logger.info("[EmojiSave]存储表情");
+            logger.info("[emojiSave]存储表情");
             let imgType = item.file.split(".").pop();
             await downloadFile(
               item.url,
@@ -98,11 +98,11 @@ export class EmojiSave extends plugin {
               const randomFile = list[randomIndex];
               fs.unlinkSync(path.join(emojiSaveDir, `${randomFile}`));
               list.splice(randomIndex, 1);
-              logger.info(`[EmojiSave]存储过多，删除表情: ${randomFile}`);
+              logger.info(`[emojiSave]存储过多，删除表情: ${randomFile}`);
             }
           }
         } catch (error) {
-          logger.error(`[EmojiSave]出错: ${error}`);
+          logger.error(`[emojiSave]出错: ${error}`);
         }
       }
     }
@@ -114,11 +114,11 @@ export class EmojiSave extends plugin {
         if (list.length > 0 && Math.random() < Number(emojiRate)) {
           let randomIndex = Math.floor(Math.random() * list.length);
           var emojiUrl = path.join(emojiSaveDir, list[randomIndex]);
-          logger.info(`[EmojiSave]发送表情: ${emojiUrl}`);
+          logger.info(`[emojiSave]发送表情: ${emojiUrl}`);
           e.reply([segment.image(emojiUrl)]);
         }
       } catch (error) {
-        logger.error(`[EmojiSave]表情发送失败: ${error}`);
+        logger.error(`[emojiSave]表情发送失败: ${error}`);
       }
     }
 

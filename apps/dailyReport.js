@@ -5,7 +5,7 @@ import { templateToPic } from "#juhkff.page";
 import { getFestivalsDates, formatDate } from "#juhkff.date";
 import { pluginResources } from "#juhkff.path";
 
-export class DailyReport extends plugin {
+export class dailyReport extends plugin {
   constructor() {
     super({
       name: "[扎克芙芙]推送日报",
