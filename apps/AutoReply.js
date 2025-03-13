@@ -7,6 +7,7 @@ import {
 } from "#juhkff.handle";
 import { formatDateDetail } from "#juhkff.date";
 import { ChatInterface, chatMap } from "#juhkff.api.chat";
+import Objects from "#juhkff.kits";
 
 /**
  * 主动群聊插件
@@ -28,6 +29,17 @@ export class AutoReply extends plugin {
         },
       ],
     });
+    if (this.Config.useEmotion) {
+      this.task = Object.defineProperties(
+        {},
+        {
+          cron: { value: this.Config.emotionGenerateTime, writable: false },
+          name: { value: "情感生成", writable: false },
+          fnc: { value: () => this.emotionGenerate(), writable: false },
+          log: { get: () => false },
+        }
+      );
+    }
   }
 
   get Config() {
@@ -231,5 +243,30 @@ export class AutoReply extends plugin {
       logger.error("[AutoReply]加载上下文失败:", error);
       return [];
     }
+  }
+
+  /**
+   * @description: 情感生成
+   * @param {*}
+   * @return {*}
+   * @author: JUHKFF
+   */
+  async emotionGenerate() {
+    var chatApi = this.Config.chatApi;
+    let apiKey = this.Config.chatApiKey;
+    let model = this.Config.chatModel;
+    if (Objects.hasNull(chatApi, apiKey, model)) {
+      return null;
+    }
+    var emotion = await this.sendChatRequest(
+      this.Config.emotionGeneratePrompt,
+      chatApi,
+      apiKey,
+      model,
+      []
+    );
+    // 获取该群的所有消息
+    await redis.set(`juhkff:auto_reply:emotion`, emotion, { EX: 24 * 60 * 60 });
+    logger.info(`[AutoReply]情感生成: ${emotion}`);
   }
 }
