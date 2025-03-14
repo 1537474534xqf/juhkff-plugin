@@ -8,6 +8,7 @@ import {
 import { formatDateDetail } from "#juhkff.date";
 import { ChatInterface, chatMap } from "#juhkff.api.chat";
 import Objects from "#juhkff.kits";
+import { EMOTION_KEY } from "#juhkff.redis";
 
 /**
  * 主动群聊插件
@@ -138,6 +139,13 @@ export class autoReply extends plugin {
       logger.info(`[autoReply]加载历史对话: ${historyMessages.length} 条`);
     }
 
+    // 如果启用了情感，并且redis中不存在情感，则进行情感生成
+    if (this.Config.useEmotion && Objects.isNull(redis.get(EMOTION_KEY))) {
+      redis.set(EMOTION_KEY, await this.emotionGenerate(), {
+        EX: 24 * 60 * 60,
+      });
+    }
+
     let answer = await this.sendChatRequest(
       e.sender.card + "：" + msg,
       chatApi,
@@ -266,7 +274,7 @@ export class autoReply extends plugin {
       []
     );
     // 获取该群的所有消息
-    await redis.set(`juhkff:auto_reply:emotion`, emotion, { EX: 24 * 60 * 60 });
+    await redis.set(EMOTION_KEY, emotion, { EX: 24 * 60 * 60 });
     logger.info(`[autoReply]情感生成: ${emotion}`);
   }
 }

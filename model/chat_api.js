@@ -1,6 +1,8 @@
 import axios from "axios";
 import fetch from "node-fetch";
 import setting from "#juhkff.setting";
+import { EMOTION_KEY } from "#juhkff.redis";
+import Objects from "#juhkff.kits";
 
 export const ChatInterface = {
   generateRequest: Symbol("generateRequest"),
@@ -85,13 +87,6 @@ export class Siliconflow extends ChatApi {
     image_type = false,
     useSystemRole = true
   ) {
-    /*
-    if (!this.ModelMap[model]) {
-      logger.error("[autoReply]不支持的模型：" + model);
-      return "[autoReply]不支持的模型：" + model;
-    }
-    */
-
     // 构造请求体
     var request = {
       url: `${this.ApiBaseUrl}/chat/completions`,
@@ -130,12 +125,11 @@ export class Siliconflow extends ChatApi {
     useSystemRole
   ) {
     if (useSystemRole) {
-      request.options.body.messages.push({
-        role: "system",
-        content:
-          this.Config.chatPrompt ||
-          "You are a helpful assistant, you must speak Chinese. Now you are in a chat group, and the following is chat history",
-      });
+      var systemContent = generateSystemContent(
+        this.Config.useEmotion,
+        this.Config.chatPrompt
+      );
+      request.options.body.messages.push(systemContent);
     }
 
     // 添加历史对话
@@ -272,12 +266,11 @@ export class DeepSeek extends ChatApi {
   ) {
     // 添加消息内容
     if (useSystemRole) {
-      request.options.body.messages.push({
-        role: "system",
-        content:
-          this.Config.chatPrompt ||
-          "You are a helpful assistant, you must speak Chinese. Now you are in a chat group, and the following is chat history",
-      });
+      var systemContent = generateSystemContent(
+        this.Config.useEmotion,
+        this.Config.chatPrompt
+      );
+      request.options.body.messages.push(systemContent);
     }
     // 添加历史对话
     if (historyMessages && historyMessages.length > 0) {
@@ -340,12 +333,11 @@ export class DeepSeek extends ChatApi {
   ) {
     // 添加消息内容
     if (useSystemRole) {
-      request.options.body.messages.push({
-        role: "system",
-        content:
-          this.Config.chatPrompt ||
-          "You are a helpful assistant, you must speak Chinese. Now you are in a chat group, and the following is chat history",
-      });
+      var systemContent = generateSystemContent(
+        this.Config.useEmotion,
+        this.Config.chatPrompt
+      );
+      request.options.body.messages.push(systemContent);
     }
     // 添加历史对话
     var content = "";
@@ -394,6 +386,24 @@ export class DeepSeek extends ChatApi {
       return "[autoReply]DeepSeek-R1调用失败，详情请查阅控制台。";
     }
   }
+}
+
+/**
+ * 生成 role = system 的内容
+ * @param {*} useEmotion 是否使用情感
+ * @param {*} chatPrompt 聊天预设
+ * @returns `{role: 'system', content: 'xxx'}`
+ */
+function generateSystemContent(useEmotion, chatPrompt) {
+  if (Objects.isNull(chatPrompt))
+    chatPrompt =
+      "You are a helpful assistant, you must speak Chinese. Now you are in a chat group, and the following is chat history";
+  return {
+    role: "system",
+    content: useEmotion
+      ? `${chatPrompt}\n你的今日心情为：${redis.get(EMOTION_KEY)}`
+      : chatPrompt,
+  };
 }
 
 export const chatMap = {
