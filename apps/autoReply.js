@@ -140,7 +140,10 @@ export class autoReply extends plugin {
     }
 
     // 如果启用了情感，并且redis中不存在情感，则进行情感生成
-    if (this.Config.useEmotion && Objects.isNull(redis.get(EMOTION_KEY))) {
+    if (
+      this.Config.useEmotion &&
+      Objects.isNull(await redis.get(EMOTION_KEY))
+    ) {
       redis.set(EMOTION_KEY, await this.emotionGenerate(), {
         EX: 24 * 60 * 60,
       });
@@ -172,16 +175,18 @@ export class autoReply extends plugin {
     chatApi,
     apiKey,
     model = "",
-    historyMessages = []
+    historyMessages = [],
+    useSystemRole = true
   ) {
     var chatInstance = chatMap[chatApi];
     if (!chatInstance) return "[autoReply]请在autoReply.yaml中设置有效的AI接口";
-    var result = await chatInstance[ChatInterface.generateRequest](
+    var result = await chatInstance[ChatInterface.generateRequest]({
       apiKey,
       model,
       input,
-      historyMessages
-    );
+      historyMessages,
+      useSystemRole,
+    });
     return result;
   }
 
@@ -271,10 +276,10 @@ export class autoReply extends plugin {
       chatApi,
       apiKey,
       model,
-      []
+      [],
+      false
     );
-    // 获取该群的所有消息
-    await redis.set(EMOTION_KEY, emotion, { EX: 24 * 60 * 60 });
     logger.info(`[autoReply]情感生成: ${emotion}`);
+    return emotion;
   }
 }

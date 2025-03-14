@@ -2,6 +2,7 @@ import YAML from "yaml";
 import fs from "node:fs";
 import { _path, pluginResources, pluginRoot } from "#juhkff.path";
 import path from "path";
+import Objects from "#juhkff.kits";
 
 class Setting {
   constructor() {
@@ -43,6 +44,16 @@ class Setting {
         // 先读取用户配置文件
         config[app] = YAML.parse(fs.readFileSync(file, "utf8"));
         var defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8"));
+
+        // 对预设单独处理，将旧预设自动更新为新预设
+        var oldPromptList = defaultConfig["oldPrompt"];
+        if (!Objects.isNull(oldPromptList)) {
+          var curPrompt = config["autoReply"]["chatPrompt"];
+          if (oldPromptList.includes(curPrompt.trim())) {
+            config["autoReply"]["chatPrompt"] = defaultConfig["chatPrompt"];
+          }
+        }
+
         // 优先使用用户配置文件，添加缺少的配置，便于版本更新同步
         for (var key in config[app]) {
           if (key in defaultConfig) {

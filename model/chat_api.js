@@ -18,15 +18,15 @@ export const ChatInterface = {
  * @param {*} image_list 图片列表
  * @param {*} image_type 是否可传入图片
  */
-ChatInterface.generateRequest = async function (
+ChatInterface.generateRequest = async function ({
   apiKey,
   model,
   input,
   historyMessages = [],
   image_list = {},
   image_type = false,
-  useSystemRole = true
-) {};
+  useSystemRole = true,
+}) {};
 
 ChatInterface.getModelMap = function () {};
 
@@ -38,15 +38,15 @@ class ChatApi {
 
   [ChatInterface.getModelMap]() {}
 
-  async [ChatInterface.generateRequest](
+  async [ChatInterface.generateRequest]({
     apiKey,
     model,
     input,
     historyMessages = [],
     image_list = {},
     image_type = false,
-    useSystemRole = true
-  ) {}
+    useSystemRole = true,
+  }) {}
 }
 
 export class Siliconflow extends ChatApi {
@@ -78,15 +78,15 @@ export class Siliconflow extends ChatApi {
       });
   }
 
-  async [ChatInterface.generateRequest](
+  async [ChatInterface.generateRequest]({
     apiKey,
     model,
     input,
     historyMessages = [],
     image_list = {},
     image_type = false,
-    useSystemRole = true
-  ) {
+    useSystemRole = true,
+  }) {
     // 构造请求体
     var request = {
       url: `${this.ApiBaseUrl}/chat/completions`,
@@ -125,7 +125,7 @@ export class Siliconflow extends ChatApi {
     useSystemRole
   ) {
     if (useSystemRole) {
-      var systemContent = generateSystemContent(
+      var systemContent = await generateSystemContent(
         this.Config.useEmotion,
         this.Config.chatPrompt
       );
@@ -200,15 +200,15 @@ export class DeepSeek extends ChatApi {
     };
   }
 
-  async [ChatInterface.generateRequest](
+  async [ChatInterface.generateRequest]({
     apiKey,
     model,
     input,
     historyMessages = [],
     image_list = {},
     image_type = false,
-    useSystemRole = true
-  ) {
+    useSystemRole = true,
+  }) {
     if (!this.ModelMap[model]) {
       logger.error("[autoReply]不支持的模型：" + model);
       return "[autoReply]不支持的模型：" + model;
@@ -266,7 +266,7 @@ export class DeepSeek extends ChatApi {
   ) {
     // 添加消息内容
     if (useSystemRole) {
-      var systemContent = generateSystemContent(
+      var systemContent = await generateSystemContent(
         this.Config.useEmotion,
         this.Config.chatPrompt
       );
@@ -333,7 +333,7 @@ export class DeepSeek extends ChatApi {
   ) {
     // 添加消息内容
     if (useSystemRole) {
-      var systemContent = generateSystemContent(
+      var systemContent = await generateSystemContent(
         this.Config.useEmotion,
         this.Config.chatPrompt
       );
@@ -346,8 +346,10 @@ export class DeepSeek extends ChatApi {
         .filter((msg) => !msg.imageBase64)
         .map((msg) => `"role": "${msg.role}", "content": "${msg.content}",\n`)
         .join("");
+      content += `"role": "user", "content": "${input}"`;
+    } else {
+      content = input;
     }
-    content += '"role": "user"  "content":' + input + '"\n';
     request.options.body.messages.push({
       role: "user",
       content: content,
@@ -394,14 +396,18 @@ export class DeepSeek extends ChatApi {
  * @param {*} chatPrompt 聊天预设
  * @returns `{role: 'system', content: 'xxx'}`
  */
-function generateSystemContent(useEmotion, chatPrompt) {
+async function generateSystemContent(useEmotion, chatPrompt) {
   if (Objects.isNull(chatPrompt))
     chatPrompt =
       "You are a helpful assistant, you must speak Chinese. Now you are in a chat group, and the following is chat history";
+  var emotionPrompt = await redis.get(EMOTION_KEY);
   return {
     role: "system",
+    // todo 按deepseek-r1的模板修正格式，之后有问题再说
     content: useEmotion
-      ? `${chatPrompt}\n你的今日心情为：${redis.get(EMOTION_KEY)}`
+      ? `${chatPrompt} \n 你的今日心情——${emotionPrompt
+          .replace(/\n/g, "")
+          .replace(/\s+/g, "")}`
       : chatPrompt,
   };
 }
