@@ -57,11 +57,11 @@ pnpm install --filter=juhkff-plugin
 - [x] 主动群聊：支持 DeepSeek API 以及 SiliconFlow 视觉 API
   - [x] 支持上下文
   - [x] 视觉模型开启时，会对图片提取关键内容加入上下文
+  - 视觉模型目前只支持 SiliconFlow 的 Qwen/Qwen2-VL-72B-Instruct
   - [x] 可以提取分享的 URL 内容并加入上下文
   - [x] 一定程度上支持对分享链接的解析并加入上下文
-  - ~~聊天模型目前只支持 deepseek-chat 和 deepseek-reasoner~~
-  - **聊天模型现已支持 DeepSeek 和 SiliconFlow 相关模型**
-  - 视觉模型目前只支持 SiliconFlow 的 Qwen/Qwen2-VL-72B-Instruct
+  - [x] 聊天模型支持 DeepSeek 和 SiliconFlow 相关模型
+  - [x] **添加情感生成，会加入API接口中辅助生成群聊内容（雾** 
 - [x] 生成和推送日报
   - [x] 借鉴 [真寻日报](https://github.com/HibiKier/nonebot-plugin-zxreport) 的样式和代码生成日报
 - [x] 表情偷取

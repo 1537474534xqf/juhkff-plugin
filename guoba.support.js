@@ -197,7 +197,7 @@ export function supportGuoba() {
           field: "autoReply.useEmotion",
           label: "BOT情感开关",
           bottomHelpMessage:
-            "若开启，BOT每天会生成当天心情用于辅助生成群聊内容",
+            "若开启，会生成每日心情辅助生成群聊内容，由于意义不明，默认设为关闭",
           component: "Switch",
         },
         {
