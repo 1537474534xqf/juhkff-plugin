@@ -405,7 +405,7 @@ async function generateSystemContent(useEmotion, chatPrompt) {
     role: "system",
     // todo 按deepseek-r1的模板修正格式，之后有问题再说
     content: useEmotion
-      ? `${chatPrompt} \n 你的今日心情——${emotionPrompt
+      ? `${chatPrompt} \n 你的情感倾向——${emotionPrompt
           .replace(/\n/g, "")
           .replace(/\s+/g, "")}`
       : chatPrompt,

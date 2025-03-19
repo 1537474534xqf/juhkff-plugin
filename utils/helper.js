@@ -5,7 +5,7 @@
 
 import setting from "#juhkff.setting";
 import { url2Base64 } from "#juhkff.net";
-import { VisualInterface, visualMap, apiList } from "#juhkff.api.visual";
+import { VisualInterface, visualMap } from "#juhkff.api.visual";
 
 function getConfig() {
   return setting.getConfig("autoReply");

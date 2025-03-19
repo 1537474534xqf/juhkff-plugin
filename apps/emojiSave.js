@@ -30,6 +30,7 @@ export class emojiSave extends plugin {
   }
 
   async emojiSave(e) {
+    if (!this.Config.useEmojiSave) return false;
     if (e.message_type != "group") return false;
     var emojiSaveDir = path.join(
       pluginRoot,

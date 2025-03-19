@@ -3,6 +3,7 @@ import lodash from "lodash";
 import { pluginResources } from "#juhkff.path";
 import setting from "#juhkff.setting";
 import { ChatInterface, chatMap } from "#juhkff.api.chat";
+import Objects from "#juhkff.kits";
 
 // 支持锅巴
 export function supportGuoba() {
@@ -46,6 +47,12 @@ export function supportGuoba() {
           component: "SOFT_GROUP_BEGIN",
         },
         {
+          field: "autoReply.useAutoReply",
+          label: "主动群聊开关",
+          bottomHelpMessage: "若开启，BOT会根据概率和设定主动回复群聊",
+          component: "Switch",
+        },
+        {
           field: "autoReply.attachUrlAnalysis",
           label: "是否解析URL",
           bottomHelpMessage:
@@ -83,14 +90,12 @@ export function supportGuoba() {
               { label: "siliconflow", value: "siliconflow" },
             ],
           },
-          required: true,
         },
         {
           field: "autoReply.chatApiKey",
           label: "群聊AI ApiKey",
           bottomHelpMessage: "deepseek的apiKey或siliconflow的apiKey",
           component: "Input",
-          required: true,
         },
         {
           field: "autoReply.chatModel",
@@ -128,6 +133,7 @@ export function supportGuoba() {
                 required: true,
                 bottomHelpMessage: "群号",
                 component: "GSelectGroup",
+                required: true,
               },
               {
                 field: "chatRate",
@@ -188,9 +194,41 @@ export function supportGuoba() {
           },
         },
         {
+          field: "autoReply.useEmotion",
+          label: "BOT情感开关",
+          bottomHelpMessage:
+            "若开启，BOT每天会生成当天心情用于辅助生成群聊内容",
+          component: "Switch",
+        },
+        {
+          field: "autoReply.emotionGenerateTime",
+          label: "定时生成情感时间",
+          bottomHelpMessage:
+            "秒[0,59] 分钟[0,59] 小时[0,23] 日期[1,31] 月份[1,12] 星期[0,7/SUN,SAT]",
+          component: "Input",
+          componentProps: {
+            placeholder: "*表示任意，?表示不指定（月日和星期互斥）",
+          },
+        },
+        {
+          field: "autoReply.emotionGeneratePrompt",
+          label: "情感生成预设",
+          bottomHelpMessage: "BOT的每日心情生成所使用的预设",
+          component: "Input",
+          componentProps: {
+            placeholder: "请输入心情预设",
+          },
+        },
+        {
           label: "日报配置",
           // 第二个分组标记开始
           component: "SOFT_GROUP_BEGIN",
+        },
+        {
+          field: "dailyReport.useDailyReport",
+          label: "日报开关",
+          bottomHelpMessage: "若开启，BOT会启用 `#日报` 命令和定时发送任务",
+          component: "Switch",
         },
         {
           field: "dailyReport.dailyReportFullShow",
@@ -230,6 +268,12 @@ export function supportGuoba() {
           label: "偷图配置",
           // 第三个分组标记开始
           component: "SOFT_GROUP_BEGIN",
+        },
+        {
+          field: "emojiSave.useEmojiSave",
+          label: "偷图功能开关",
+          bottomHelpMessage: "若开启，BOT会根据配置偷表情和发表情",
+          component: "Switch",
         },
         {
           field: "emojiSave.defaultReplyRate",
@@ -323,7 +367,11 @@ export function supportGuoba() {
       // 设置配置的方法（前端点确定后调用的方法）
       setConfigData(data, { Result }) {
         var config = setting.getAllConfig();
-        var preChatApi = config.autoReply.chatApi;
+        // 更新前校验和处理
+        var beforeResult = beforeUpdate(config);
+        if (beforeResult.code != 0) {
+          return Result.error(beforeResult.code, null, beforeResult.message);
+        }
         for (let [keyPath, value] of Object.entries(data)) {
           var keyPaths = keyPath.split(".");
           var app = keyPaths[0];
@@ -331,19 +379,120 @@ export function supportGuoba() {
           if (!(app in config)) config[app] = {};
           config[app][key] = value;
         }
-        if (preChatApi != config.autoReply.chatApi) {
-          config.autoReply.chatModel = "";
+        // 更新后校验和处理
+        var afterResult = afterUpdate(config);
+        if (afterResult.code != 0) {
+          return Result.error(afterResult.code, null, afterResult.message);
+        }
+        // 前后配置比较处理
+        var compare = validate(beforeResult, afterResult, config);
+        if (compare.code != 0) {
+          return Result.error(compare.code, null, compare.message);
         }
         var err = setting.setConfig(config);
-        var chatInstance = chatMap[config.autoReply.chatApi];
-        if (!chatInstance)
-          return Result.ok({}, "请选择有效的群聊AI接口" + err.message);
-        chatInstance[ChatInterface.getModelMap]();
-        if (err != null) return Result.ok({}, "保存失败: " + err.message);
-        else return Result.ok({}, "保存成功~");
+        if (err != null)
+          return Result.err(-1, null, "保存失败: " + err.message);
+        else {
+          onFinish(config);
+          return Result.ok({}, "保存成功~");
+        }
       },
     },
   };
+}
+
+/**
+ * 更新前校验和处理
+ * @param {*} config 更新前配置
+ * @returns code, message, data
+ */
+function beforeUpdate(config) {
+  var preChatApi = config.autoReply.chatApi;
+  return {
+    code: 0,
+    message: "校验成功",
+    data: {
+      chatApi: preChatApi,
+    },
+  };
+}
+
+/**
+ * 更新后校验和处理
+ * @param {*} config 更新后配置
+ * @returns code, message, data
+ */
+function afterUpdate(config) {
+  if (config.autoReply.useAutoReply) {
+    if (Objects.isNull(config.autoReply.chatApi)) {
+      return {
+        code: -1,
+        message: "请选择有效的群聊AI接口",
+      };
+    }
+    if (Objects.isNull(config.autoReply.chatApiKey)) {
+      return {
+        code: -1,
+        message: "请输入有效的群聊AI ApiKey",
+      };
+    }
+  }
+  if (config.autoReply.useVisual) {
+    if (Objects.isNull(config.autoReply.visualApi)) {
+      return {
+        code: -1,
+        message: "请选择有效的视觉AI接口",
+      };
+    }
+    if (Objects.isNull(config.autoReply.visualApiKey)) {
+      return {
+        code: -1,
+        message: "请输入有效的视觉AI ApiKey",
+      };
+    }
+    if (Objects.isNull(config.autoReply.visualModel)) {
+      return {
+        code: -1,
+        message: "请选择有效的视觉AI模型",
+      };
+    }
+  }
+  var newChatApi = config.autoReply.chatApi;
+  return {
+    code: 0,
+    message: "校验成功",
+    data: {
+      chatApi: newChatApi,
+    },
+  };
+}
+
+/**
+ * 前后配置比较处理
+ * @param {*} before beforeUpdate 阶段暂存结果
+ * @param {*} after afterUpdate 阶段暂存结果
+ * @param {*} config 配置
+ * @returns code, message
+ */
+function validate(before, after, config) {
+  var origin = before.data;
+  var after = after.data;
+  if (origin.chatApi != after.chatApi) {
+    config.autoReply.chatModel = "";
+  }
+  return {
+    code: 0,
+    message: "校验成功",
+  };
+}
+
+/**
+ * 配置更新后回调
+ * @param {*} config
+ */
+function onFinish(config) {
+  var chatInstance = chatMap[config.autoReply.chatApi];
+  chatInstance[ChatInterface.getModelMap]();
 }
 
 function getChatModels() {

@@ -1,3 +1,6 @@
+# 日报开关，若开启，BOT会启用日报命令和定时发送任务
+useDailyReport: true
+
 # alapi_token，无则置空即可
 alapiToken: ""
 

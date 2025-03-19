@@ -19,7 +19,7 @@ export class dailyReport extends plugin {
         },
       ],
     });
-    if (this.Config.push) {
+    if (this.Config.useDailyReport && this.Config.push) {
       this.task = Object.defineProperties(
         {},
         {
@@ -54,6 +54,7 @@ export class dailyReport extends plugin {
   }
 
   async dailyReport(e) {
+    if(!this.Config.useDailyReport) return false;
     if (e && e.message_type != "group") {
       await e.reply("功能只对群聊开放");
       return true;

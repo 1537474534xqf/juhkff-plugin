@@ -48,6 +48,7 @@ export class autoReply extends plugin {
   }
 
   async autoReply(e) {
+    if(!this.Config.useAutoReply) return false;
     if (e.message_type != "group") return false;
     // 避免重复保存上下文
     // 借助siliconflow-plugin保存群聊上下文

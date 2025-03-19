@@ -52,7 +52,6 @@ export class Siliconflow {
       image,
       input
     );
-    // 如果 DeepSeek-R1 失败，尝试使用 DeepSeek-V3
     return response;
   }
 
@@ -105,8 +104,4 @@ export class Siliconflow {
 
 export const visualMap = {
   siliconflow: Siliconflow,
-};
-
-export const apiList = {
-  siliconflow: "https://api.siliconflow.cn/v1",
 };

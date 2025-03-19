@@ -1,3 +1,6 @@
+# 偷图功能开关
+useEmojiSave: true
+
 # 指定特定群的回复概率、发送偷的图的概率，格式如下
 # groupRate:
 #   - groupList:
