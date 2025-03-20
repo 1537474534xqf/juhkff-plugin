@@ -85,28 +85,16 @@ export function supportGuoba() {
             "AI接口选择，如果开启解析URL，则该接口也会用于URL内容总结",
           component: "Select",
           componentProps: {
-            options: [
-              { label: "deepseek", value: "deepseek" },
-              { label: "siliconflow", value: "siliconflow" },
-            ],
+            options: listAllChatApi(),
           },
         },
         {
           field: "autoReply.chatApiKey",
           label: "群聊AI ApiKey",
-          bottomHelpMessage: "deepseek的apiKey或siliconflow的apiKey",
+          bottomHelpMessage: "填写AI接口和ApiKey后，务必先保存并刷新页面，再选择下面的选项，否则部分选项无法显示！",
           component: "Input",
         },
-        {
-          field: "autoReply.chatModel",
-          label: "群聊AI模型",
-          bottomHelpMessage:
-            "选择AI接口，写入正确的ApiKey，保存并刷新页面后，再选择该项",
-          component: "Select",
-          componentProps: {
-            options: getChatModels(),
-          },
-        },
+        ...appendIfShouldInputSelf(),
         {
           field: "autoReply.defaultChatRate",
           label: "默认主动回复率",
@@ -401,6 +389,7 @@ export function supportGuoba() {
   };
 }
 
+/********************************** Config 更新生命周期 **********************************/
 /**
  * 更新前校验和处理
  * @param {*} config 更新前配置
@@ -495,6 +484,12 @@ function onFinish(config) {
   chatInstance[ChatInterface.getModelMap]();
 }
 
+/********************************** 函数调用 **********************************/
+
+/**
+ * 获取群聊AI模型
+ * @returns 群聊AI模型列表
+ */
 function getChatModels() {
   var chatApi = setting.getConfig("autoReply").chatApi;
   var chatInstance = chatMap[chatApi];
@@ -504,4 +499,54 @@ function getChatModels() {
     result.push({ label: key, value: key });
   }
   return result;
+}
+
+/**
+ * 获取群聊AI接口列表
+ * @returns 群聊AI接口列表
+ */
+function listAllChatApi() {
+  var chatKeys = Object.keys(chatMap);
+  var result = [];
+  for (const key of chatKeys) {
+    result.push({ label: key, value: key });
+  }
+  return result;
+}
+
+function chooseModelComponentType() {
+  var chatApi = setting.getConfig("autoReply").chatApi;
+  var chatInstance = chatMap[chatApi];
+  return chatInstance.ComponentType;
+}
+
+function appendIfShouldInputSelf() {
+  var chatApi = setting.getConfig("autoReply").chatApi;
+  var chatInstance = chatMap[chatApi];
+  if (chatInstance.shouldInputSelf) {
+    var subSchemas = [{
+      field: "autoReply.chatModel",
+      label: "群聊AI模型",
+      bottomHelpMessage:
+        "保存并刷新页面后，再选择或填写该项！",
+      component: "Input",
+    }, {
+      field: "autoReply.apiCustomUrl",
+      label: "模型请求URL",
+      bottomHelpMessage: "格式一般以http(s)开头，以/chat/completions结尾",
+      component: "Input",
+    }]
+  } else {
+    var subSchemas = [{
+      field: "autoReply.chatModel",
+      label: "群聊AI模型",
+      bottomHelpMessage:
+        "保存并刷新页面后，再选择或填写该项！",
+      component: "Select",
+      componentProps: {
+        options: getChatModels(),
+      },
+    }]
+  }
+  return subSchemas;
 }

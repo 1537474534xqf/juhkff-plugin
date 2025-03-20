@@ -19,6 +19,9 @@ chatApiKey:
 # 模型选择
 chatModel: deepseek-chat
 
+# 模型请求URL
+apiCustomUrl:
+
 # 默认触发主动回复的概率
 defaultChatRate: 0.1
 
