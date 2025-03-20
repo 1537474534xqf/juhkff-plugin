@@ -41,10 +41,15 @@ git clone https://gitee.com/juhkff/juhkff-plugin.git ./plugins/juhkff-plugin
 pnpm install --filter=juhkff-plugin
 ```
 
-## ApiKey 相关
+## API 相关
 
 - SiliconFlow 官网申请 ApiKey: https://cloud.siliconflow.cn/account/ak
 - DeepSeek 官网申请 ApiKey: https://platform.deepseek.com/
+- 火山方舟 官网申请 ApiKey 和创建应用: https://console.volcengine.com/ark/
+
+### 一点使用经验
+
+火山方舟创建应用时，如果想使用联网搜索，最好将联网内容插件全勾选，不然搜索内容可能过时或质量较差
 
 ## 插件配置
 
