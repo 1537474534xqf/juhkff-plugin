@@ -48,7 +48,7 @@ export class autoReply extends plugin {
   }
 
   async autoReply(e) {
-    if(!this.Config.useAutoReply) return false;
+    if (!this.Config.useAutoReply) return false;
     if (e.message_type != "group") return false;
     // 避免重复保存上下文
     // 借助siliconflow-plugin保存群聊上下文
@@ -73,16 +73,19 @@ export class autoReply extends plugin {
       return false;
     }
 
-    let chatRate = this.Config.defaultChatRate; // 主动回复概率
+    var chatRate = this.Config.defaultChatRate; // 主动回复概率
+    var replyAtBot = this.Config.defaultReplyAtBot; // 是否回复@机器人的消息
     // 如果 groupRate 配置存在且不为空
     if (this.Config.groupChatRate && this.Config.groupChatRate.length > 0) {
-      for (let config of this.Config.groupChatRate) {
+      for (var config of this.Config.groupChatRate) {
         // 确保 config.groupList 是数组，以避免 undefined 的情况
         if (
           Array.isArray(config.groupList) &&
           config.groupList.includes(e.group_id)
         ) {
-          if (config.chatRate) chatRate = config.chatRate;
+          // if(config.chatRate) 会将0概率认为是为false，改成如下写法
+          if (config.chatRate !== undefined && config.chatRate !== null) chatRate = config.chatRate;
+          if (config.replyAtBot !== undefined && config.replyAtBot !== null) replyAtBot = config.replyAtBot;
           break;
         }
       }
@@ -91,7 +94,7 @@ export class autoReply extends plugin {
     var answer = undefined;
     var answer_time = undefined;
     // 如果@了bot，就直接回复
-    if (e.atBot || Math.random() < Number(chatRate)) {
+    if ((e.atBot && replyAtBot) || Math.random() < Number(chatRate)) {
       answer = await this.generate_answer(e, msg);
       if (!e.atBot && (!answer || answer.startsWith("[autoReply]"))) {
         // 如果自主发言失败不提示

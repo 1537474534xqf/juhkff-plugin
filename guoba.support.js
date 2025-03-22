@@ -97,7 +97,7 @@ export function supportGuoba() {
         ...appendIfShouldInputSelf(),
         {
           field: "autoReply.defaultChatRate",
-          label: "默认主动回复率",
+          label: "主动回复概率",
           bottomHelpMessage: "概率小数[0,1]，越高越容易触发主动回复",
           component: "InputNumber",
           componentProps: {
@@ -108,9 +108,16 @@ export function supportGuoba() {
           required: true,
         },
         {
+          field: "autoReply.defaultReplyAtBot",
+          label: "@BOT时回复",
+          bottomHelpMessage: "当有人@BOT时，BOT是否回复。如果关闭，@BOT也会走概率回复",
+          component: "Switch",
+          required: true,
+        },
+        {
           field: "autoReply.groupChatRate",
-          label: "特定群主动回复率",
-          bottomHelpMessage: "该项优先于默认概率",
+          label: "特定群设置",
+          bottomHelpMessage: "该项优先于默认设置",
           component: "GSubForm",
           componentProps: {
             multiple: true,
@@ -134,6 +141,16 @@ export function supportGuoba() {
                 },
                 required: true,
               },
+              {
+                field: "replyAtBot",
+                label: "@BOT时回复",
+                component: "Switch",
+                componentProps: {
+                  defaultChecked: true,
+                },
+                bottomHelpMessage: "不管是还是否，都要点一下才能提交",
+                required: true,
+              }
             ],
           },
         },
