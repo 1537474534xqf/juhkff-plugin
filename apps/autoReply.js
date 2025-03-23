@@ -9,6 +9,7 @@ import { formatDateDetail } from "#juhkff.date";
 import { ChatInterface, chatMap } from "#juhkff.api.chat";
 import Objects from "#juhkff.kits";
 import { EMOTION_KEY } from "#juhkff.redis";
+import { parseImage_Visual, parseJson_Visual, parseUrl_Visual } from "../utils/handle_visual";
 
 /**
  * 主动群聊插件
@@ -50,6 +51,19 @@ export class autoReply extends plugin {
   async autoReply(e) {
     if (!this.Config.useAutoReply) return false;
     if (e.message_type != "group") return false;
+    if (this.Config.useVisual && this.Config.visualReplaceChat) {
+      await this.visualProcess(e);
+    } else {
+      await this.commonProcess(e);
+    }
+  }
+
+  /**
+   * @description: 通用处理（不使用视觉模型覆盖原接口）
+   * @param {*} e 
+   * @returns 
+   */
+  async commonProcess(e) {
     // 避免重复保存上下文
     // 借助siliconflow-plugin保存群聊上下文
     var time = Date.now();
@@ -64,14 +78,104 @@ export class autoReply extends plugin {
       await parseUrl(e);
     }
     // 通过自定义的e.j_msg拼接完整消息内容
-    var msg = e.j_msg.map((msg) => msg.text).join(" ");
-    logger.info(`[autoReply]解析后的消息内容: ${msg}`);
+    var msg;
+    if (!this.Config.useVisual || !this.Config.visualReplaceChat) {
+      // 如果不使用视觉模型或仅使用视觉模型分析图片
+      msg = e.j_msg.map((msg) => msg.text).join(" ");
+      logger.info(`[autoReply]解析后的消息内容: ${msg}`);
 
-    if (msg) msg = msg.trim();
-    if (!msg || msg == "") {
-      // logger.info('[潜伏模板]非通常消息，不回复')
-      return false;
+      if (msg) msg = msg.trim();
+      if (!msg || msg == "") {
+        // logger.info('[潜伏模板]非通常消息，不回复')
+        return false;
+      }
+    } else {
+      // 视觉模型存储的消息体
+      msg = {
+        image_list: [],
+        text: []
+      };
+      for (var i = 0; i < e.j_msg.length; i++) {
+        if (e.j_msg[i].type == "img2base64") {
+          msg.push({
+            type: "image_url",
+            image_url: {
+              detail: "auto",
+              url: e.j_msg[i].text,
+            }
+          })
+          break;
+        } else {
+          msg.push({
+            type: "text",
+            text: e.j_msg[i].text
+          });
+        }
+      }
     }
+
+    var chatRate = this.Config.defaultChatRate; // 主动回复概率
+    var replyAtBot = this.Config.defaultReplyAtBot; // 是否回复@机器人的消息
+    // 如果 groupRate 配置存在且不为空
+    if (this.Config.groupChatRate && this.Config.groupChatRate.length > 0) {
+      for (var config of this.Config.groupChatRate) {
+        // 确保 config.groupList 是数组，以避免 undefined 的情况
+        if (
+          Array.isArray(config.groupList) &&
+          config.groupList.includes(e.group_id)
+        ) {
+          // if(config.chatRate) 会将0概率认为是为false，改成如下写法
+          if (config.chatRate !== undefined && config.chatRate !== null) chatRate = config.chatRate;
+          if (config.replyAtBot !== undefined && config.replyAtBot !== null) replyAtBot = config.replyAtBot;
+          break;
+        }
+      }
+    }
+
+    var answer = undefined;
+    var answer_time = undefined;
+    // 如果@了bot，就直接回复
+    if ((e.atBot && replyAtBot) || Math.random() < Number(chatRate)) {
+      answer = await this.generate_answer(e, msg);
+      if (!e.atBot && (!answer || answer.startsWith("[autoReply]"))) {
+        // 如果自主发言失败不提示
+      } else {
+        await e.reply(answer);
+        answer_time = Date.now();
+      }
+    }
+    if (this.Config.useContext) {
+      // 保存用户消息
+      var content = chatDate + " - " + e.sender.card + "：" + msg;
+      await this.saveContext(time, e.group_id, e.message_id, "user", content);
+      // 保存AI回复
+      if (answer && !answer.startsWith("[autoReply]")) {
+        await this.saveContext(answer_time, e.group_id, 0, "assistant", answer);
+      }
+    }
+    return false;
+  }
+
+  /**
+   * @description: 视觉模型处理
+   * @param {*} e 
+   */
+  async visualProcess(e) {
+    // 避免重复保存上下文
+    // 借助siliconflow-plugin保存群聊上下文
+    var time = Date.now();
+    let chatDate = await formatDateDetail(time);
+    await parseImage_Visual(e);
+    // 处理引用消息，获取图片和文本
+    await parseSourceMessage_Visual(e);
+    // 处理分享链接
+    await parseJson_Visual(e);
+    if (this.Config.attachUrlAnalysis) {
+      // 处理URL
+      await parseUrl_Visual(e);
+    }
+    // 通过自定义的e.j_msg拼接完整消息内容
+    await parseText_Visual(e);
 
     var chatRate = this.Config.defaultChatRate; // 主动回复概率
     var replyAtBot = this.Config.defaultReplyAtBot; // 是否回复@机器人的消息

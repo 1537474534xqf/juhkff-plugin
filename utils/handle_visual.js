@@ -16,90 +16,68 @@ function getConfig() {
 }
 
 /**
- * 由于会生成插件专属消息处理列表j_msg，该方法必须作为消息处理的第一个函数
+ * 视觉模型版handle：由于会生成插件专属消息处理列表j_msg，该方法必须作为消息处理的第一个函数
  * @param {} e
  */
-export async function parseImage(e) {
-  if (!e.j_msg) e.j_msg = [];
-  for (let i = 0; i < e.message.length; i++) {
-    if (e.message[i].type == "image") {
-      if (!getConfig().useVisual) continue;
-      if (!getConfig().visualReplaceChat) {
-        var url = e.message[i].url;
-        var result = await analyseImage(
-          url,
-          "该图片是否为表情包，只输出是或否，不要加标点符号"
-        );
-        logger.info(`[parseImage]图片是否为表情包: ${result}`);
-        if (result === "是") {
-          // 表情包不加入消息
-          continue;
-        } else {
-          var analyseMsg = await analyseImage(url, "提取图中关键信息");
-          e.j_msg.push({
-            text: `<发送图片，图片内容的分析结果——${analyseMsg}>`,
-            type: "img2text",
-          });
-        }
-      } else {
-        // 使用视觉AI处理群聊回复的话就直接把img2base64存起来
-        var url = e.message[i].url;
-        var base64 = await url2Base64(url);
-        e.j_msg.push({ text: base64, type: "img2base64" });
-      }
-    } else {
-      // text和json等其他类型的消息在该方法中不做处理
-      e.j_msg.push(e.message[i]);
+export async function parseImage_Visual(e) {
+  if (!e.j_msg) e.j_msg = {
+    sourceImg: [],
+    sourceText: "",
+    img: [],
+    text: "",
+    notProcessed: e.message
+  };
+
+  for (let i = 0; i < e.j_msg.notProcessed.length; i++) {
+    if (e.j_msg.notProcessed[i].type == "image") {
+      // 使用视觉AI处理群聊回复的话就直接把img2base64存起来
+      var url = e.j_msg.notProcessed[i].url;
+      var base64 = await url2Base64(url);
+      e.j_msg.img.push(base64);
+      e.j_msg.notProcessed.splice(i, 1);
+      i--;
     }
   }
 }
 
 /**
- * 确保该方法在parseImage之后执行
+ * 视觉模型版handle：确保该方法在parseImage之后执行
  * @param {*} e
  * @returns
  */
-export async function parseSourceMessage(e) {
+export async function parseSourceMessage_Visual(e) {
   if (!e.j_msg) return;
-  for (let i = 0; i < e.j_msg.length; i++) {
-    if (e.j_msg[i].type === "reply") {
+  for (let i = 0; i < e.j_msg.notProcessed.length; i++) {
+    if (e.j_msg.notProcessed[i].type === "reply") {
       // 优先从redis中获取引用消息
-      var redis_source = await get_source_message(e.group_id, e.j_msg[i].id);
+      var redis_source = await get_source_message(e.group_id, e.j_msg.notProcessed[i].id);
       if (redis_source != undefined) {
+        //TODO 修改redis内容格式
         var msg = `[回复 ${redis_source}]`;
-        e.j_msg[i] = { text: msg, type: "reply" };
+        e.j_msg.notProcessed[i] = { text: msg, type: "reply" };
+
+        e.j_msg.notProcessed.splice(i, 1);
+        i--;
         continue;
       }
 
-      var reply = await e.getReply(e.j_msg[i].id);
+      var reply = await e.getReply(e.j_msg.notProcessed[i].id);
       if (reply) {
         let senderTime = undefined; // 存储发送者时间
         let senderNickname = ""; // 存储发送者昵称
-        let msg = []; // 存储发送者消息
+        var msg = []; // 收集文本消息
 
         // 获取发送者昵称和时间
         senderTime = await formatDateDetail(reply.time * 1000);
         senderNickname = reply.sender?.card || reply.sender?.nickname;
         for (var val of reply.message) {
           if (val.type == "image") {
-            if (!getConfig().useVisual) continue;
-            var result = await analyseImage(
-              val.url,
-              "该图片是否为表情包，只输出是或否"
-            );
-            logger.info(`[parseSourceMessage]图片是否为表情包: ${result}`);
-            if (result == "是") {
-              // 表情包不加入消息
-              continue;
-            } else {
-              var analyseMsg = await analyseImage(
-                val.url,
-                "提取图中关键信息，以中文的自然语言的形式回答"
-              );
-              msg.push(`<发送图片，内容: ${analyseMsg}>`);
-            }
+            // 使用视觉AI处理群聊回复的话就直接把img2base64存起来
+            var url = val.url;
+            var base64 = await url2Base64(url);
+            e.j_msg.sourceImg.push(base64);
           } else if (val.type == "text") {
-            msg.push(val.text); // 收集文本消息
+            msg.push(val.text);
           } else if (val.type == "file") {
             // 不支持消息中的文件
             continue;
@@ -116,11 +94,10 @@ export async function parseSourceMessage(e) {
         } else {
           quotedLines = msg.map((line) => `${line}`).join(" ");
         }
-        e.j_msg[i] = {
-          text: `[回复 ${senderTime} - ${senderNickname}：${quotedLines}]`,
-          type: "reply",
-        };
+        e.j_msg.sourceText = `[回复 ${senderTime} - ${senderNickname}：${quotedLines}]`;
       }
+      e.j_msg.notProcessed.splice(i, 1);
+      i--;
     }
   }
   return e;
@@ -131,13 +108,13 @@ export async function parseSourceMessage(e) {
  * @param {} e
  * @returns
  */
-export async function parseJson(e) {
+export async function parseJson_Visual(e) {
   if (!e.j_msg) return;
-  for (let i = 0; i < e.j_msg.length; i++) {
-    if (e.j_msg[i].type === "json") {
-      var result = analyseJsonMessage(e.j_msg[i].data);
+  for (let i = 0; i < e.j_msg.notProcessed.length; i++) {
+    if (e.j_msg.notProcessed[i].type === "json") {
+      var result = analyseJsonMessage(e.j_msg.notProcessed[i].data);
       if (result) {
-        e.j_msg[i] = { text: result, type: "json2text" };
+        e.j_msg.notProcessed[i] = { text: result, type: "json2text" };
       }
     }
   }
@@ -163,14 +140,14 @@ function analyseJsonMessage(message) {
  * @param {*} e
  * @returns
  */
-export async function parseUrl(e) {
+export async function parseUrl_Visual(e) {
   if (!e.j_msg) return;
   // 更新正则表达式以匹配包含中文和空格的URL
   const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/gi;
   var matches;
-  for (let i = 0; i < e.j_msg.length; i++) {
-    if (e.j_msg[i].type === "text") {
-      let message = e.j_msg[i].text;
+  for (let i = 0; i < e.j_msg.notProcessed.length; i++) {
+    if (e.j_msg.notProcessed[i].type === "text") {
+      let message = e.j_msg.notProcessed[i].text;
       matches = message.match(urlRegex) || [];
       if (matches.length > 0) {
         // 替换原始消息
@@ -204,7 +181,6 @@ export async function parseUrl(e) {
           }
           var config = getConfig();
           // 借助chatApi对提取的内容进行总结
-          var chatApi = config.chatApi;
           var apiKey = config.chatApiKey;
           var model = config.chatModel;
           var Constructor = chatMap[config.chatApi];
@@ -216,15 +192,31 @@ export async function parseUrl(e) {
             [{ role: "user", content: extractResult.content }],
             (useSystemRole = false)
           );
-          e.j_msg[i].text = e.j_msg[i].text.replace(
+          e.j_msg.notProcessed[i].text = e.j_msg.notProcessed[i].text.replace(
             url,
             `<分享URL，URL内容的分析结果——${result}>`
           );
-          e.j_msg[i].type = "url2text";
+          e.j_msg.notProcessed[i].type = "url2text";
         }
       }
     }
   }
+}
+
+export async function parseText_Visual(e) {
+  var msg = "";
+  // notProcessed 中的文本提取成一个 text
+  if (e.j_msg.notProcessed && e.j_msg.notProcessed.length > 0) {
+    for (let i = 0; i < e.j_msg.notProcessed.length; i++) {
+      if (e.j_msg.notProcessed[i].hasOwnProperty('text')) {
+        msg += e.j_msg.notProcessed[i].text + " ";
+        e.j_msg.notProcessed.splice(i, 1);
+        i--;
+      }
+    }
+    msg = msg.trim();
+  }
+  e.j_msg.text = msg;
 }
 
 /**

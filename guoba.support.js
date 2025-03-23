@@ -156,8 +156,14 @@ export function supportGuoba() {
         },
         {
           field: "autoReply.useVisual",
-          label: "是否使用视觉AI",
+          label: "是否使用视觉AI接口",
           bottomHelpMessage: "开启此选项可对图片进行识别并应用于上下文记忆",
+          component: "Switch",
+        },
+        {
+          field: "autoReply.visualReplaceChat",
+          label: "视觉AI替代群聊AI",
+          bottomHelpMessage: "开启此选项，视觉AI将替代群聊AI，群聊AI设置将失效；关闭此选项，视觉AI仅会将图片转文本存入上下文。群聊AI准确度高于视觉AI时建议关闭",
           component: "Switch",
         },
         {

@@ -27,7 +27,7 @@ ChatInterface.generateRequest = async function ({
   historyMessages = [],
   image_list = {},
   image_type = false,
-  useSystemRole = true,
+  useSystemRole = true
 }) { };
 
 ChatInterface.getModelMap = function () { };
@@ -50,7 +50,7 @@ class ChatApi {
     historyMessages = [],
     image_list = {},
     image_type = false,
-    useSystemRole = true,
+    useSystemRole = true
   }) { }
 }
 
@@ -93,7 +93,7 @@ export class Siliconflow extends ChatApi {
     historyMessages = [],
     image_list = {},
     image_type = false,
-    useSystemRole = true,
+    useSystemRole = true
   }) {
     // 构造请求体
     var request = {

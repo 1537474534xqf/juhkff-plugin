@@ -54,6 +54,8 @@ export async function url2Base64(url, isReturnBuffer = false) {
       timeout: 60000, // 设置超时时间为60秒
     });
 
+    /*
+    // 移除图片大小限制
     const contentLength =
       response.headers?.["content-length"] || response.headers?.get("size");
     const maxSizeInBytes = 10 * 1024 * 1024; // 10MB in bytes
@@ -62,6 +64,8 @@ export async function url2Base64(url, isReturnBuffer = false) {
       logger.error("[tools]图片大小超过10MB，请使用大小合适的图片");
       return null;
     }
+    */
+
     // 返回 Buffer
     if (isReturnBuffer) return Buffer.from(response.data, "binary");
 
