@@ -20,13 +20,14 @@ function getConfig() {
  * @param {} e
  */
 export async function parseImage_Visual(e) {
-  if (!e.j_msg) e.j_msg = {
-    sourceImg: [],
-    sourceText: "",
-    img: [],
-    text: "",
-    notProcessed: e.message
-  };
+  if (!e.j_msg)
+    e.j_msg = {
+      sourceImg: [],
+      sourceText: "",
+      img: [],
+      text: "",
+      notProcessed: e.message,
+    };
 
   for (let i = 0; i < e.j_msg.notProcessed.length; i++) {
     if (e.j_msg.notProcessed[i].type == "image") {
@@ -50,7 +51,10 @@ export async function parseSourceMessage_Visual(e) {
   for (let i = 0; i < e.j_msg.notProcessed.length; i++) {
     if (e.j_msg.notProcessed[i].type === "reply") {
       // 优先从redis中获取引用消息
-      var redis_source = await get_source_message(e.group_id, e.j_msg.notProcessed[i].id);
+      var redis_source = await get_source_message(
+        e.group_id,
+        e.j_msg.notProcessed[i].id
+      );
       if (redis_source != undefined) {
         //TODO 修改redis内容格式
         var msg = `[回复 ${redis_source}]`;
@@ -94,7 +98,7 @@ export async function parseSourceMessage_Visual(e) {
         } else {
           quotedLines = msg.map((line) => `${line}`).join(" ");
         }
-        e.j_msg.sourceText = `[回复 ${senderTime} - ${senderNickname}：${quotedLines}]`;
+        e.j_msg.sourceText = `[引用 ${senderTime} - ${senderNickname}：${quotedLines}]`;
       }
       e.j_msg.notProcessed.splice(i, 1);
       i--;
@@ -208,7 +212,7 @@ export async function parseText_Visual(e) {
   // notProcessed 中的文本提取成一个 text
   if (e.j_msg.notProcessed && e.j_msg.notProcessed.length > 0) {
     for (let i = 0; i < e.j_msg.notProcessed.length; i++) {
-      if (e.j_msg.notProcessed[i].hasOwnProperty('text')) {
+      if (e.j_msg.notProcessed[i].hasOwnProperty("text")) {
         msg += e.j_msg.notProcessed[i].text + " ";
         e.j_msg.notProcessed.splice(i, 1);
         i--;
@@ -258,10 +262,177 @@ function isSkippedUrl(url) {
   );
 }
 
-export async function getImageUniqueId(e) {
-  let image = e.message.filter((item) => item.type === "image");
-  if (image.length > 0) {
-    return image[0].url;
+/**
+ *
+ * @param {*} e
+ * @description e.j_msg = {sourceImg: [], sourceText: "", img: [], text: "", notProcessed: []}
+ * @param {*} sourceImages 引用图片数组
+ * @param {*} currentImages 正文图片数组
+ * @returns answer 回复内容
+ */
+export async function generate_answer_visual(e) {
+  var chatApi = this.Config.visualApi;
+  let apiKey = this.Config.visualApiKey;
+  let model = this.Config.visualModel;
+  if (!apiKey || apiKey == "") {
+    logger.error("[autoReply]请先在autoReply.yaml中设置visualApiKey");
+    return "[autoReply]请先在autoReply.yaml中设置visualApiKey";
   }
-  return null;
+  if (!model || model == "") {
+    logger.error("[autoReply]请先在autoReply.yaml中设置visualModel");
+    return "[autoReply]请先在autoReply.yaml中设置visualModel";
+  }
+
+  // TODO 获取历史对话
+  let historyMessages = [];
+  if (this.Config.useContext) {
+    historyMessages = await loadContextVisual(e.group_id);
+    logger.info(`[autoReply]加载历史对话: ${historyMessages.length} 条`);
+  }
+
+  // 如果启用了情感，并且redis中不存在情感，则进行情感生成
+  if (this.Config.useEmotion && Objects.isNull(await redis.get(EMOTION_KEY))) {
+    redis.set(EMOTION_KEY, await emotionGenerateVisual(), {
+      EX: 24 * 60 * 60,
+    });
+  }
+
+  let answer = await sendChatRequestVisual(
+    e.j_msg,
+    chatApi,
+    apiKey,
+    model,
+    historyMessages
+  );
+  // 使用正则表达式去掉字符串 answer 开头的换行符
+  answer = answer.replace(/^\n/, "");
+  return answer;
+}
+
+/**
+ * @description: 自动提示词
+ * @param {*} j_msg 插件自定义消息结构体
+ * @param {*} chatApi 使用的AI接口
+ * @param {*} apiKey
+ * @param {*} model 使用的API模型
+ * @param {*} opt 图片参数
+ * @return {string}
+ */
+async function sendChatRequestVisual(
+  j_msg,
+  chatApi,
+  apiKey,
+  model = "",
+  historyMessages = [],
+  useSystemRole = true
+) {
+  var chatInstance = visualMap[chatApi];
+  if (!chatInstance) return "[autoReply]请在autoReply.yaml中设置有效的AI接口";
+  var result = await chatInstance[ChatInterface.generateRequest]({
+    apiKey,
+    model,
+    j_msg,
+    historyMessages,
+    useSystemRole,
+  });
+  return result;
+}
+
+// 保存对话上下文
+export async function saveContextVisual(
+  time,
+  groupId,
+  message_id = 0,
+  role,
+  j_msg
+) {
+  try {
+    const maxHistory = this.Config.maxHistoryLength;
+    const key = `juhkff:auto_reply:${groupId}:${time}`;
+
+    // message_id = 0时，表示是AI回复
+    var saveContent = {
+      message_id: message_id,
+      role: role,
+      content: j_msg,
+    };
+    await redis.set(key, JSON.stringify(saveContent), { EX: 12 * 60 * 60 }); // 12小时过期
+
+    // 获取该群的所有消息
+    var keys = await redis.keys(`juhkff:auto_reply:${groupId}:*`);
+    keys.sort((a, b) => {
+      const timeA = parseInt(a.split(":")[3]);
+      const timeB = parseInt(b.split(":")[3]);
+      return timeB - timeA; // 按时间戳降序排序
+    });
+
+    // 如果超出限制，删除旧消息
+    if (keys.length > maxHistory) {
+      const keysToDelete = keys.slice(maxHistory);
+      for (const key of keysToDelete) {
+        await redis.del(key);
+      }
+    }
+
+    return true;
+  } catch (error) {
+    logger.error("[autoReply]保存上下文失败:", error);
+    return false;
+  }
+}
+
+// 加载群历史对话
+export async function loadContextVisual(groupId) {
+  try {
+    const maxHistory = this.Config.maxHistoryLength;
+
+    // 获取该群的所有消息
+    const keys = await redis.keys(`juhkff:auto_reply:${groupId}:*`);
+    keys.sort((a, b) => {
+      const timeA = parseInt(a.split(":")[3]);
+      const timeB = parseInt(b.split(":")[3]);
+      return timeA - timeB; // 按时间戳升序排序
+    });
+
+    // 只获取最近的N条消息
+    const recentKeys = keys.slice(-maxHistory);
+    const messages = [];
+
+    for (const key of recentKeys) {
+      const data = await redis.get(key);
+      if (data) {
+        messages.push(JSON.parse(data));
+      }
+    }
+
+    return messages;
+  } catch (error) {
+    logger.error("[autoReply]加载上下文失败:", error);
+    return [];
+  }
+}
+
+/**
+ * @description: 情感生成
+ * @param {*}
+ * @return {*}
+ * @author: JUHKFF
+ */
+export async function emotionGenerateVisual() {
+  var chatApi = this.Config.chatApi;
+  let apiKey = this.Config.chatApiKey;
+  let model = this.Config.chatModel;
+  if (Objects.hasNull(chatApi, apiKey, model)) {
+    return null;
+  }
+  var emotion = await this.sendChatRequest(
+    this.Config.emotionGeneratePrompt,
+    chatApi,
+    apiKey,
+    model,
+    [],
+    false
+  );
+  logger.info(`[autoReply]情感生成: ${emotion}`);
+  return emotion;
 }

@@ -53,7 +53,7 @@ export async function analyseImage(image, input) {
     visualApiKey,
     model,
     image,
-    input
+    { text: input }
   );
   return result;
 }

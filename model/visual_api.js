@@ -1,3 +1,5 @@
+import Objects from "#juhkff.kits";
+import { text } from "express";
 import fetch from "node-fetch";
 
 export const VisualInterface = {
@@ -14,12 +16,12 @@ export const VisualInterface = {
 VisualInterface.generateRequest = async function ({
   apiKey,
   model,
-  input,
+  j_msg,
   historyMessages = [],
-  useSystemRole = true
-}) { };
+  useSystemRole = true,
+}) {};
 
-VisualInterface.getModelMap = function () { };
+VisualInterface.getModelMap = function () {};
 
 class VisualApi {
   constructor() {
@@ -30,17 +32,16 @@ class VisualApi {
     this.shouldInputSelf = false;
   }
 
-  [VisualInterface.getModelMap]() { }
+  [VisualInterface.getModelMap]() {}
 
   async [VisualInterface.generateRequest]({
     apiKey,
     model,
-    input,
+    j_msg,
     historyMessages = [],
-    useSystemRole = true
-  }) { }
+    useSystemRole = true,
+  }) {}
 }
-
 
 export class Siliconflow extends VisualApi {
   constructor() {
@@ -67,16 +68,16 @@ export class Siliconflow extends VisualApi {
         this.ModelMap = modelMap;
       })
       .catch((error) => {
-        logger.error("[autoReply] 获取模型失败：", error);
+        logger.error("[autoReply] 获取视觉模型失败：", error);
       });
   }
 
   async [VisualInterface.generateRequest]({
     apiKey,
     model,
-    input,
+    j_msg,
     historyMessages = [],
-    useSystemRole = true
+    useSystemRole = true,
   }) {
     if (!this.modelMap[model]) {
       logger.error("[autoReply]不支持的视觉模型：" + model);
@@ -100,14 +101,14 @@ export class Siliconflow extends VisualApi {
 
     var response = await this.modelMap[model](
       JSON.parse(JSON.stringify(request)),
-      input,
+      j_msg,
       historyMessages,
       useSystemRole
     );
     return response;
   }
 
-  async commonRequest(request, input, historyMessages, useSystemRole) {
+  async commonRequest(request, j_msg, historyMessages, useSystemRole) {
     if (useSystemRole) {
       var systemContent = await generateSystemContent(
         this.Config.useEmotion,
@@ -118,16 +119,88 @@ export class Siliconflow extends VisualApi {
     // 添加历史对话
     if (historyMessages && historyMessages.length > 0) {
       historyMessages.forEach((msg) => {
+        var content = [];
+        if (!Objects.isNull(j_msg.sourceImg)) {
+          for (const img of j_msg.sourceImg) {
+            content.push({
+              type: "image_url",
+              image_url: {
+                detail: "auto",
+                url: img,
+              },
+            });
+            content.push({
+              type: "text",
+              text: "引用消息中的图片",
+            });
+          }
+        }
+        if (!Objects.isNull(j_msg.img)) {
+          for (const img of j_msg.img) {
+            content.push({
+              type: "image_url",
+              image_url: {
+                detail: "auto",
+                url: img,
+              },
+            });
+          }
+        }
+        // TODO 引用消息文本和消息正文拼接，不参与描述引用图片，先按这种逻辑实现试试
+        var finalMsg = j_msg.sourceText + j_msg.text;
+        if (!Objects.isNull(finalMsg)) {
+          content.push({
+            type: "text",
+            text: finalMsg,
+          });
+        }
         request.options.body.messages.push({
           role: msg.role,
           content: msg.content,
         });
       });
     }
+    // j_msg = {sourceImg: [], sourceText: "", img: [], text: "", notProcessed: []}
     // 添加消息内容
+    var content = [];
+    if (!Objects.isNull(j_msg.sourceImg)) {
+      for (const img of j_msg.sourceImg) {
+        content.push({
+          type: "image_url",
+          image_url: {
+            detail: "auto",
+            url: img,
+          },
+        });
+        content.push({
+          type: "text",
+          text: "引用消息中的图片",
+        });
+      }
+    }
+    if (!Objects.isNull(j_msg.img)) {
+      for (const img of j_msg.img) {
+        content.push({
+          type: "image_url",
+          image_url: {
+            detail: "auto",
+            url: img,
+          },
+        });
+      }
+    }
+    // TODO 引用消息文本和消息正文拼接，不参与描述引用图片，先按这种逻辑实现试试
+    var finalMsg = j_msg.sourceText + j_msg.text;
+    if (!Objects.isNull(finalMsg)) {
+      content.push({
+        type: "text",
+        text: finalMsg,
+      });
+    }
+
     request.options.body.messages.push({
       role: "user",
-      content: input,
+      content: content,
     });
 
     logger.mark(`[autoReply]视觉模型API调用`);
@@ -174,14 +247,19 @@ async function generateSystemContent(useEmotion, chatPrompt) {
   var emotionPrompt = await redis.get(EMOTION_KEY);
   return {
     role: "system",
-    // todo 按deepseek-r1的模板修正格式，之后有问题再说
-    content: [{
-      type: "text",
-      text: useEmotion ? `${chatPrompt} \n 你的情感倾向——${emotionPrompt.replace(/\n/g, "").replace(/\s+/g, "")}` : chatPrompt
-    }]
+    content: [
+      {
+        type: "text",
+        text: useEmotion
+          ? `${chatPrompt} \n 你的情感倾向——${emotionPrompt
+              .replace(/\n/g, "")
+              .replace(/\s+/g, "")}`
+          : chatPrompt,
+      },
+    ],
   };
 }
 
 export const visualMap = {
-  siliconflow: Siliconflow,
+  siliconflow: new Siliconflow(),
 };
