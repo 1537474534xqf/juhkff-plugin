@@ -59,6 +59,9 @@ visualApiKey:
 # 视觉模型选择，可选项：Qwen/Qwen2-VL-72B-Instruct
 visualModel:
 
+# 视觉模型请求URL
+visualApiCustomUrl:
+
 # 用于生成绘画的预设
 textToPaintPrompt:
   请按照我的提供的要求，用一句话英文生成一组Midjourney指令，指令由：{人物形象},{场景},{氛围},{镜头},{照明},{绘画风格},{建筑风格},{参考画家},{高画质关键词}

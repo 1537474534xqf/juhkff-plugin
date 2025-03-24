@@ -4,6 +4,7 @@ import { pluginResources } from "#juhkff.path";
 import setting from "#juhkff.setting";
 import { ChatInterface, chatMap } from "#juhkff.api.chat";
 import Objects from "#juhkff.kits";
+import { visualMap } from "#juhkff.api.visual";
 
 // 支持锅巴
 export function supportGuoba() {
@@ -172,7 +173,7 @@ export function supportGuoba() {
           bottomHelpMessage: "可选项：siliconflow",
           component: "Select",
           componentProps: {
-            options: [{ label: "siliconflow", value: "siliconflow" }],
+            options: listAllVisualApi(),
           },
         },
         {
@@ -181,20 +182,7 @@ export function supportGuoba() {
           bottomHelpMessage: "目前仅支持siliconflow的apiKey",
           component: "Input",
         },
-        {
-          field: "autoReply.visualModel",
-          label: "视觉AI模型选择",
-          bottomHelpMessage: "目前仅支持Qwen/Qwen2-VL-72B-Instruct",
-          component: "Select",
-          componentProps: {
-            options: [
-              {
-                label: "Qwen/Qwen2-VL-72B-Instruct（视觉）",
-                value: "Qwen/Qwen2-VL-72B-Instruct",
-              },
-            ],
-          },
-        },
+        ...appendIfShouldInputSelfVisual(),
         {
           field: "autoReply.chatPrompt",
           label: "群聊预设",
@@ -524,6 +512,17 @@ function getChatModels() {
   return result;
 }
 
+function getVisualModels() {
+  var visualApi = setting.getConfig("autoReply").visualApi;
+  var chatInstance = visualMap[visualApi];
+  if (!chatInstance) return ["请选择有效的视觉AI接口"];
+  var result = [];
+  for (const key of Object.keys(chatInstance.ModelMap)) {
+    result.push({ label: key, value: key });
+  }
+  return result;
+}
+
 /**
  * 获取群聊AI接口列表
  * @returns 群聊AI接口列表
@@ -532,6 +531,19 @@ function listAllChatApi() {
   var chatKeys = Object.keys(chatMap);
   var result = [];
   for (const key of chatKeys) {
+    result.push({ label: key, value: key });
+  }
+  return result;
+}
+
+/**
+ * 获取视觉AI接口列表
+ * @returns 视觉AI接口列表
+ */
+function listAllVisualApi() {
+  var visualKeys = Object.keys(visualMap);
+  var result = [];
+  for (const key of visualKeys) {
     result.push({ label: key, value: key });
   }
   return result;
@@ -568,6 +580,37 @@ function appendIfShouldInputSelf() {
       component: "Select",
       componentProps: {
         options: getChatModels(),
+      },
+    }]
+  }
+  return subSchemas;
+}
+
+
+function appendIfShouldInputSelfVisual() {
+  var visualApi = setting.getConfig("autoReply").visualApi;
+  var chatInstance = visualMap[visualApi];
+  if (chatInstance.shouldInputSelf) {
+    var subSchemas = [{
+      field: "autoReply.visualModel",
+      label: "视觉AI模型",
+      bottomHelpMessage:
+        "保存并刷新页面后，再选择或填写该项！",
+      component: "Input",
+    }, {
+      field: "autoReply.visualApiCustomUrl",
+      label: "视觉模型请求URL",
+      component: "Input",
+    }]
+  } else {
+    var subSchemas = [{
+      field: "autoReply.visualModel",
+      label: "视觉AI模型",
+      bottomHelpMessage:
+        "保存并刷新页面后，再选择或填写该项！",
+      component: "Select",
+      componentProps: {
+        options: getVisualModels(),
       },
     }]
   }

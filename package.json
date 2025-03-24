@@ -15,6 +15,7 @@
     "#juhkff.setting": "./model/setting.js",
     "#juhkff.date": "./utils/date.js",
     "#juhkff.handle": "./utils/handle.js",
+    "#juhkff.handle.visual":"./utils/handle_visual.js",
     "#juhkff.helper": "./utils/helper.js",
     "#juhkff.net": "./utils/net.js",
     "#juhkff.page": "./utils/page.js",

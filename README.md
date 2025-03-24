@@ -75,6 +75,13 @@ pnpm install --filter=juhkff-plugin
   - [x] 同一图片在指定时间长度内被发送两次，则被视为表情并偷取
 - [ ] TODO...
 
+## 主动群聊预览
+
+<details>
+  <summary><b>真实情景</b> 可以据此判断是否符合使用预期</summary>
+  <img src="./resources/images/preview.jpg"/>
+</details>
+
 ## 支持与贡献
 
 如果你喜欢这个项目，请不妨点个 Star🌟，这是对开发者最大的动力

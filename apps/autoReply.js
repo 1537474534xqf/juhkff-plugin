@@ -8,17 +8,16 @@ import {
   saveContext,
 } from "#juhkff.handle";
 import { formatDateDetail } from "#juhkff.date";
-import { ChatInterface, chatMap } from "#juhkff.api.chat";
 import Objects from "#juhkff.kits";
-import { EMOTION_KEY } from "#juhkff.redis";
 import {
   generate_answer_visual,
   parseImage_Visual,
   parseJson_Visual,
+  parseSourceMessage_Visual,
   parseText_Visual,
   parseUrl_Visual,
   saveContextVisual,
-} from "../utils/handle_visual";
+} from "#juhkff.handle.visual";
 
 /**
  * 主动群聊插件
@@ -203,7 +202,9 @@ export class autoReply extends plugin {
           e.group_id,
           0,
           "assistant",
-          answer
+          {
+            text: answer,
+          }
         );
       }
     }

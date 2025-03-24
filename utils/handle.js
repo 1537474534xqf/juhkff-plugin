@@ -8,6 +8,7 @@ import { formatDateDetail } from "#juhkff.date";
 import { extractUrlContent, analyseImage } from "#juhkff.helper";
 import { url2Base64 } from "#juhkff.net";
 import { get_source_message } from "#juhkff.redis";
+import { EMOTION_KEY } from "#juhkff.redis";
 import setting from "#juhkff.setting";
 import _ from "lodash";
 
@@ -275,9 +276,9 @@ function isSkippedUrl(url) {
    * @returns answer 回复内容
    */
 export async function generate_answer(e, msg) {
-  var chatApi = this.Config.chatApi;
-  let apiKey = this.Config.chatApiKey;
-  let model = this.Config.chatModel;
+  var chatApi = getConfig().chatApi;
+  let apiKey = getConfig().chatApiKey;
+  let model = getConfig().chatModel;
   if (!apiKey || apiKey == "") {
     logger.error("[autoReply]请先在autoReply.yaml中设置chatApiKey");
     return "[autoReply]请先在autoReply.yaml中设置chatApiKey";
@@ -289,14 +290,14 @@ export async function generate_answer(e, msg) {
 
   // 获取历史对话
   let historyMessages = [];
-  if (this.Config.useContext) {
+  if (getConfig().useContext) {
     historyMessages = await loadContext(e.group_id);
     logger.info(`[autoReply]加载历史对话: ${historyMessages.length} 条`);
   }
 
   // 如果启用了情感，并且redis中不存在情感，则进行情感生成
   if (
-    this.Config.useEmotion &&
+    getConfig().useEmotion &&
     Objects.isNull(await redis.get(EMOTION_KEY))
   ) {
     redis.set(EMOTION_KEY, await emotionGenerate(), {
@@ -348,7 +349,7 @@ async function sendChatRequest(
 // 保存对话上下文
 export async function saveContext(time, groupId, message_id = 0, role, message) {
   try {
-    const maxHistory = this.Config.maxHistoryLength;
+    const maxHistory = getConfig().maxHistoryLength;
     const key = `juhkff:auto_reply:${groupId}:${time}`;
 
     // message_id = 0时，表示是AI回复
@@ -385,7 +386,7 @@ export async function saveContext(time, groupId, message_id = 0, role, message) 
 // 加载群历史对话
 export async function loadContext(groupId) {
   try {
-    const maxHistory = this.Config.maxHistoryLength;
+    const maxHistory = getConfig().maxHistoryLength;
 
     // 获取该群的所有消息
     const keys = await redis.keys(`juhkff:auto_reply:${groupId}:*`);
@@ -420,14 +421,14 @@ export async function loadContext(groupId) {
    * @author: JUHKFF
    */
 export async function emotionGenerate() {
-  var chatApi = this.Config.chatApi;
-  let apiKey = this.Config.chatApiKey;
-  let model = this.Config.chatModel;
+  var chatApi = getConfig().chatApi;
+  let apiKey = getConfig().chatApiKey;
+  let model = getConfig().chatModel;
   if (Objects.hasNull(chatApi, apiKey, model)) {
     return null;
   }
   var emotion = await this.sendChatRequest(
-    this.Config.emotionGeneratePrompt,
+    getConfig().emotionGeneratePrompt,
     chatApi,
     apiKey,
     model,

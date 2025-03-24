@@ -3,11 +3,12 @@
  * @description: 原始消息处理相关
  */
 
-import { ChatInterface, chatMap } from "#juhkff.api.chat";
+import { VisualInterface, visualMap } from "#juhkff.api.visual";
 import { formatDateDetail } from "#juhkff.date";
 import { extractUrlContent, analyseImage } from "#juhkff.helper";
 import { url2Base64 } from "#juhkff.net";
 import { get_source_message } from "#juhkff.redis";
+import { EMOTION_KEY } from "#juhkff.redis";
 import setting from "#juhkff.setting";
 import _ from "lodash";
 
@@ -189,7 +190,7 @@ export async function parseUrl_Visual(e) {
           var model = config.chatModel;
           var Constructor = chatMap[config.chatApi];
           var chatInstance = new Constructor();
-          var result = await chatInstance[ChatInterface.generateRequest](
+          var result = await chatInstance[VisualInterface.generateRequest](
             apiKey,
             model,
             "根据从URL抓取的信息，以自然语言简练地总结URL中的主要内容，其中无关信息可以过滤掉",
@@ -271,9 +272,9 @@ function isSkippedUrl(url) {
  * @returns answer 回复内容
  */
 export async function generate_answer_visual(e) {
-  var chatApi = this.Config.visualApi;
-  let apiKey = this.Config.visualApiKey;
-  let model = this.Config.visualModel;
+  var chatApi = getConfig().visualApi;
+  let apiKey = getConfig().visualApiKey;
+  let model = getConfig().visualModel;
   if (!apiKey || apiKey == "") {
     logger.error("[autoReply]请先在autoReply.yaml中设置visualApiKey");
     return "[autoReply]请先在autoReply.yaml中设置visualApiKey";
@@ -285,13 +286,13 @@ export async function generate_answer_visual(e) {
 
   // TODO 获取历史对话
   let historyMessages = [];
-  if (this.Config.useContext) {
+  if (getConfig().useContext) {
     historyMessages = await loadContextVisual(e.group_id);
     logger.info(`[autoReply]加载历史对话: ${historyMessages.length} 条`);
   }
 
   // 如果启用了情感，并且redis中不存在情感，则进行情感生成
-  if (this.Config.useEmotion && Objects.isNull(await redis.get(EMOTION_KEY))) {
+  if (getConfig().useEmotion && Objects.isNull(await redis.get(EMOTION_KEY))) {
     redis.set(EMOTION_KEY, await emotionGenerateVisual(), {
       EX: 24 * 60 * 60,
     });
@@ -328,7 +329,7 @@ async function sendChatRequestVisual(
 ) {
   var chatInstance = visualMap[chatApi];
   if (!chatInstance) return "[autoReply]请在autoReply.yaml中设置有效的AI接口";
-  var result = await chatInstance[ChatInterface.generateRequest]({
+  var result = await chatInstance[VisualInterface.generateRequest]({
     apiKey,
     model,
     j_msg,
@@ -347,7 +348,7 @@ export async function saveContextVisual(
   j_msg
 ) {
   try {
-    const maxHistory = this.Config.maxHistoryLength;
+    const maxHistory = getConfig().maxHistoryLength;
     const key = `juhkff:auto_reply:${groupId}:${time}`;
 
     // message_id = 0时，表示是AI回复
@@ -384,7 +385,7 @@ export async function saveContextVisual(
 // 加载群历史对话
 export async function loadContextVisual(groupId) {
   try {
-    const maxHistory = this.Config.maxHistoryLength;
+    const maxHistory = getConfig().maxHistoryLength;
 
     // 获取该群的所有消息
     const keys = await redis.keys(`juhkff:auto_reply:${groupId}:*`);
@@ -419,14 +420,14 @@ export async function loadContextVisual(groupId) {
  * @author: JUHKFF
  */
 export async function emotionGenerateVisual() {
-  var chatApi = this.Config.chatApi;
-  let apiKey = this.Config.chatApiKey;
-  let model = this.Config.chatModel;
+  var chatApi = getConfig().visualApi;
+  let apiKey = getConfig().visualApiKey;
+  let model = getConfig().visualModel;
   if (Objects.hasNull(chatApi, apiKey, model)) {
     return null;
   }
-  var emotion = await this.sendChatRequest(
-    this.Config.emotionGeneratePrompt,
+  var emotion = await sendChatRequestVisual(
+    { text: getConfig().emotionGeneratePrompt },
     chatApi,
     apiKey,
     model,

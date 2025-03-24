@@ -1,4 +1,6 @@
 import Objects from "#juhkff.kits";
+import setting from "#juhkff.setting";
+import axios from "axios";
 import { text } from "express";
 import fetch from "node-fetch";
 
@@ -19,9 +21,9 @@ VisualInterface.generateRequest = async function ({
   j_msg,
   historyMessages = [],
   useSystemRole = true,
-}) {};
+}) { };
 
-VisualInterface.getModelMap = function () {};
+VisualInterface.getModelMap = function () { };
 
 class VisualApi {
   constructor() {
@@ -32,7 +34,7 @@ class VisualApi {
     this.shouldInputSelf = false;
   }
 
-  [VisualInterface.getModelMap]() {}
+  [VisualInterface.getModelMap]() { }
 
   async [VisualInterface.generateRequest]({
     apiKey,
@@ -40,7 +42,7 @@ class VisualApi {
     j_msg,
     historyMessages = [],
     useSystemRole = true,
-  }) {}
+  }) { }
 }
 
 export class Siliconflow extends VisualApi {
@@ -51,6 +53,7 @@ export class Siliconflow extends VisualApi {
   }
 
   [VisualInterface.getModelMap]() {
+    /*
     this.ModelMap = {};
     var responsePromise = axios.get(`${this.ApiBaseUrl}/models?type=image`, {
       headers: {
@@ -70,6 +73,15 @@ export class Siliconflow extends VisualApi {
       .catch((error) => {
         logger.error("[autoReply] 获取视觉模型失败：", error);
       });
+    */
+    this.ModelMap = {
+      "Qwen/Qwen2.5-VL-72B-Instruct": this.commonRequest.bind(this),
+      "Pro/Qwen/Qwen2.5-VL-7B-Instruct": this.commonRequest.bind(this),
+      "Qwen/QVQ-72B-Preview": this.commonRequest.bind(this),
+      "Qwen/Qwen2-VL-72B-Instruct": this.commonRequest.bind(this),
+      "deepseek-ai/deepseek-vl2": this.commonRequest.bind(this),
+      "Pro/Qwen/Qwen2-VL-7B-Instruct": this.commonRequest.bind(this),
+    }
   }
 
   async [VisualInterface.generateRequest]({
@@ -120,8 +132,8 @@ export class Siliconflow extends VisualApi {
     if (historyMessages && historyMessages.length > 0) {
       historyMessages.forEach((msg) => {
         var content = [];
-        if (!Objects.isNull(j_msg.sourceImg)) {
-          for (const img of j_msg.sourceImg) {
+        if (!Objects.isNull(msg.sourceImg)) {
+          for (const img of msg.sourceImg) {
             content.push({
               type: "image_url",
               image_url: {
@@ -135,8 +147,8 @@ export class Siliconflow extends VisualApi {
             });
           }
         }
-        if (!Objects.isNull(j_msg.img)) {
-          for (const img of j_msg.img) {
+        if (!Objects.isNull(msg.img)) {
+          for (const img of msg.img) {
             content.push({
               type: "image_url",
               image_url: {
@@ -147,7 +159,7 @@ export class Siliconflow extends VisualApi {
           }
         }
         // TODO 引用消息文本和消息正文拼接，不参与描述引用图片，先按这种逻辑实现试试
-        var finalMsg = j_msg.sourceText + j_msg.text;
+        var finalMsg = msg.sourceText + msg.text;
         if (!Objects.isNull(finalMsg)) {
           content.push({
             type: "text",
@@ -252,8 +264,8 @@ async function generateSystemContent(useEmotion, chatPrompt) {
         type: "text",
         text: useEmotion
           ? `${chatPrompt} \n 你的情感倾向——${emotionPrompt
-              .replace(/\n/g, "")
-              .replace(/\s+/g, "")}`
+            .replace(/\n/g, "")
+            .replace(/\s+/g, "")}`
           : chatPrompt,
       },
     ],
