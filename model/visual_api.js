@@ -133,6 +133,7 @@ export class Siliconflow extends VisualApi {
     if (historyMessages && historyMessages.length > 0) {
       historyMessages.forEach((history) => {
         var content = [];
+        var hasContent = false;
         var msg = history.content;
         if (!Objects.isNull(msg.sourceImg)) {
           for (const img of msg.sourceImg) {
@@ -148,6 +149,7 @@ export class Siliconflow extends VisualApi {
             type: "text",
             text: "以上为引用消息中的图片",
           });
+          hasContent = true;
         }
         if (!Objects.isNull(msg.img)) {
           for (const img of msg.img) {
@@ -159,6 +161,7 @@ export class Siliconflow extends VisualApi {
               },
             });
           }
+          hasContent = true;
         }
         // TODO 引用消息文本和消息正文拼接，不参与描述引用图片，先按这种逻辑实现试试
         var finalMsg = "";
@@ -177,11 +180,15 @@ export class Siliconflow extends VisualApi {
               text: history.time + " - " + history.nickName + "：" + finalMsg,
             });
           }
+          hasContent = true;
         }
-        request.options.body.messages.push({
-          role: history.role,
-          content: content,
-        });
+        // TODO 如果content只有notProcessed部分有内容，例如发送默认表情(type==face)情况，就直接跳过不加
+        if (hasContent) {
+          request.options.body.messages.push({
+            role: history.role,
+            content: content,
+          });
+        }
       });
     }
     // j_msg = {sourceImg: [], sourceText: "", img: [], text: "", notProcessed: []}
