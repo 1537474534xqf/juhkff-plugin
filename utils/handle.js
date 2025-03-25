@@ -275,7 +275,7 @@ function isSkippedUrl(url) {
    * @param {*} currentImages 正文图片数组
    * @returns answer 回复内容
    */
-export async function generate_answer(e, msg) {
+export async function generateAnswer(e, msg) {
   var chatApi = getConfig().chatApi;
   let apiKey = getConfig().chatApiKey;
   let model = getConfig().chatModel;

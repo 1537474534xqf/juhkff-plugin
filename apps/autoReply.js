@@ -1,21 +1,21 @@
 import setting from "#juhkff.setting";
+import { formatDateDetail } from "#juhkff.date";
+import Objects from "#juhkff.kits";
 import {
   parseImage,
   parseSourceMessage,
   parseJson,
   parseUrl,
-  generate_answer,
+  generateAnswer,
   saveContext,
 } from "#juhkff.handle";
-import { formatDateDetail } from "#juhkff.date";
-import Objects from "#juhkff.kits";
 import {
-  generate_answer_visual,
-  parseImage_Visual,
-  parseJson_Visual,
-  parseSourceMessage_Visual,
-  parseText_Visual,
-  parseUrl_Visual,
+  parseImageVisual,
+  parseSourceMessageVisual,
+  parseJsonVisual,
+  parseUrlVisual,
+  parseTextVisual,
+  generateAnswerVisual,
   saveContextVisual,
 } from "#juhkff.handle.visual";
 
@@ -119,7 +119,7 @@ export class autoReply extends plugin {
     var answer_time = undefined;
     // 如果@了bot，就直接回复
     if ((e.atBot && replyAtBot) || Math.random() < Number(chatRate)) {
-      answer = await generate_answer(e, msg);
+      answer = await generateAnswer(e, msg);
       if (!e.atBot && (!answer || answer.startsWith("[autoReply]"))) {
         // 如果自主发言失败不提示
       } else {
@@ -148,17 +148,17 @@ export class autoReply extends plugin {
     // 借助siliconflow-plugin保存群聊上下文
     var time = Date.now();
     let chatDate = await formatDateDetail(time);
-    await parseImage_Visual(e);
+    await parseImageVisual(e);
     // 处理引用消息，获取图片和文本
-    await parseSourceMessage_Visual(e);
+    await parseSourceMessageVisual(e);
     // 处理分享链接
-    await parseJson_Visual(e);
+    await parseJsonVisual(e);
     if (this.Config.attachUrlAnalysis) {
       // 处理URL
-      await parseUrl_Visual(e);
+      await parseUrlVisual(e);
     }
     // 通过自定义的e.j_msg拼接完整消息内容
-    await parseText_Visual(e);
+    await parseTextVisual(e);
 
     var chatRate = this.Config.defaultChatRate; // 主动回复概率
     var replyAtBot = this.Config.defaultReplyAtBot; // 是否回复@机器人的消息
@@ -185,7 +185,7 @@ export class autoReply extends plugin {
     var answer_date = undefined;
     // 如果@了bot，就直接回复
     if ((e.atBot && replyAtBot) || Math.random() < Number(chatRate)) {
-      answer = await generate_answer_visual(e);
+      answer = await generateAnswerVisual(e);
       if (!e.atBot && (!answer || answer.startsWith("[autoReply]"))) {
         // 如果自主发言失败不提示
       } else {

@@ -74,6 +74,7 @@ export class Siliconflow extends VisualApi {
         logger.error("[autoReply] 获取视觉模型失败：", error);
       });
     */
+    // TODO SF官网的API竟然不能查询特定Tag，只能自己写在这了，时不时更新一下
     this.ModelMap = {
       "Qwen/Qwen2.5-VL-72B-Instruct": this.commonRequest.bind(this),
       "Pro/Qwen/Qwen2.5-VL-7B-Instruct": this.commonRequest.bind(this),

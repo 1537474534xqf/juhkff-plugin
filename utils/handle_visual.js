@@ -20,7 +20,7 @@ function getConfig() {
  * 视觉模型版handle：由于会生成插件专属消息处理列表j_msg，该方法必须作为消息处理的第一个函数
  * @param {} e
  */
-export async function parseImage_Visual(e) {
+export async function parseImageVisual(e) {
   if (!e.j_msg)
     e.j_msg = {
       sourceImg: [],
@@ -47,7 +47,7 @@ export async function parseImage_Visual(e) {
  * @param {*} e
  * @returns
  */
-export async function parseSourceMessage_Visual(e) {
+export async function parseSourceMessageVisual(e) {
   if (!e.j_msg) return;
   for (let i = 0; i < e.j_msg.notProcessed.length; i++) {
     if (e.j_msg.notProcessed[i].type === "reply") {
@@ -121,7 +121,7 @@ export async function parseSourceMessage_Visual(e) {
  * @param {} e
  * @returns
  */
-export async function parseJson_Visual(e) {
+export async function parseJsonVisual(e) {
   if (!e.j_msg) return;
   for (let i = 0; i < e.j_msg.notProcessed.length; i++) {
     if (e.j_msg.notProcessed[i].type === "json") {
@@ -153,7 +153,7 @@ function analyseJsonMessage(message) {
  * @param {*} e
  * @returns
  */
-export async function parseUrl_Visual(e) {
+export async function parseUrlVisual(e) {
   if (!e.j_msg) return;
   // 更新正则表达式以匹配包含中文和空格的URL
   const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/gi;
@@ -216,7 +216,7 @@ export async function parseUrl_Visual(e) {
   }
 }
 
-export async function parseText_Visual(e) {
+export async function parseTextVisual(e) {
   var msg = "";
   // notProcessed 中的文本提取成一个 text
   if (e.j_msg.notProcessed && e.j_msg.notProcessed.length > 0) {
@@ -279,7 +279,7 @@ function isSkippedUrl(url) {
  * @param {*} currentImages 正文图片数组
  * @returns answer 回复内容
  */
-export async function generate_answer_visual(e) {
+export async function generateAnswerVisual(e) {
   var chatApi = getConfig().visualApi;
   let apiKey = getConfig().visualApiKey;
   let model = getConfig().visualModel;
