@@ -168,7 +168,7 @@ export function supportGuoba() {
           field: "autoReply.visualReplaceChat",
           label: "视觉AI替代群聊AI",
           bottomHelpMessage:
-            "开启此选项，视觉AI将替代群聊AI，群聊AI设置将失效；关闭此选项，视觉AI仅会将图片转文本存入上下文。群聊AI准确度高于视觉AI时建议关闭",
+            "开启此选项，视觉AI将替代群聊AI，群聊AI设置将失效；关闭此选项（并开启视觉AI接口），视觉AI仅会将图片转文本存入上下文。群聊AI准确度高于视觉AI时可关闭该项",
           component: "Switch",
         },
         {
