@@ -182,6 +182,7 @@ export class autoReply extends plugin {
 
     var answer = undefined;
     var answer_time = undefined;
+    var answer_date = undefined;
     // 如果@了bot，就直接回复
     if ((e.atBot && replyAtBot) || Math.random() < Number(chatRate)) {
       answer = await generate_answer_visual(e);
@@ -190,18 +191,29 @@ export class autoReply extends plugin {
       } else {
         await e.reply(answer);
         answer_time = Date.now();
+        answer_date = await formatDateDetail(answer_time);
       }
     }
     if (this.Config.useContext) {
       // 保存用户消息
-      await saveContextVisual(time, e.group_id, e.message_id, "user", e.j_msg);
+      await saveContextVisual(
+        time,
+        chatDate,
+        e.group_id,
+        e.message_id,
+        "user",
+        e.sender.card,
+        e.j_msg
+      );
       // 保存AI回复
       if (answer && !answer.startsWith("[autoReply]")) {
         await saveContextVisual(
           answer_time,
+          answer_date,
           e.group_id,
           0,
           "assistant",
+          "群BOT", // TODO 机器人的nickName，以后可以添加自定义名称的功能，现在该项暂时没用
           {
             text: answer,
           }

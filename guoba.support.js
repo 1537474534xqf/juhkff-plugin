@@ -5,6 +5,7 @@ import setting from "#juhkff.setting";
 import { ChatInterface, chatMap } from "#juhkff.api.chat";
 import Objects from "#juhkff.kits";
 import { visualMap } from "#juhkff.api.visual";
+import { removeSubKeys, EMOTION_KEY } from "#juhkff.redis";
 
 // 支持锅巴
 export function supportGuoba() {
@@ -92,7 +93,8 @@ export function supportGuoba() {
         {
           field: "autoReply.chatApiKey",
           label: "群聊AI ApiKey",
-          bottomHelpMessage: "填写AI接口和ApiKey后，务必先保存并刷新页面，再选择下面的选项，否则部分选项无法显示！",
+          bottomHelpMessage:
+            "填写AI接口和ApiKey后，务必先保存并刷新页面，再选择下面的选项，否则部分选项无法显示！",
           component: "Input",
         },
         ...appendIfShouldInputSelf(),
@@ -111,7 +113,8 @@ export function supportGuoba() {
         {
           field: "autoReply.defaultReplyAtBot",
           label: "@BOT时回复",
-          bottomHelpMessage: "当有人@BOT时，BOT是否回复。如果关闭，@BOT也会走概率回复",
+          bottomHelpMessage:
+            "当有人@BOT时，BOT是否回复。如果关闭，@BOT也会走概率回复",
           component: "Switch",
           required: true,
         },
@@ -151,7 +154,7 @@ export function supportGuoba() {
                 },
                 bottomHelpMessage: "不管是还是否，都要点一下才能提交",
                 required: true,
-              }
+              },
             ],
           },
         },
@@ -164,7 +167,8 @@ export function supportGuoba() {
         {
           field: "autoReply.visualReplaceChat",
           label: "视觉AI替代群聊AI",
-          bottomHelpMessage: "开启此选项，视觉AI将替代群聊AI，群聊AI设置将失效；关闭此选项，视觉AI仅会将图片转文本存入上下文。群聊AI准确度高于视觉AI时建议关闭",
+          bottomHelpMessage:
+            "开启此选项，视觉AI将替代群聊AI，群聊AI设置将失效；关闭此选项，视觉AI仅会将图片转文本存入上下文。群聊AI准确度高于视觉AI时建议关闭",
           component: "Switch",
         },
         {
@@ -408,11 +412,13 @@ export function supportGuoba() {
  */
 function beforeUpdate(config) {
   var preChatApi = config.autoReply.chatApi;
+  var preVisualReplaceChat = config.autoReply.visualReplaceChat;
   return {
     code: 0,
     message: "校验成功",
     data: {
       chatApi: preChatApi,
+      visualReplaceChat: preVisualReplaceChat,
     },
   };
 }
@@ -458,11 +464,13 @@ function afterUpdate(config) {
     }
   }
   var newChatApi = config.autoReply.chatApi;
+  var newVisualReplaceChat = config.autoReply.visualReplaceChat;
   return {
     code: 0,
     message: "校验成功",
     data: {
       chatApi: newChatApi,
+      visualReplaceChat: newVisualReplaceChat,
     },
   };
 }
@@ -479,6 +487,10 @@ function validate(before, after, config) {
   var after = after.data;
   if (origin.chatApi != after.chatApi) {
     config.autoReply.chatModel = "";
+  }
+  // 因为实现逻辑和结构体不同，所以切换时删除之前的redis存储
+  if (origin.visualReplaceChat != after.visualReplaceChat) {
+    removeSubKeys("juhkff:auto_reply", EMOTION_KEY).then(() => {});
   }
   return {
     code: 0,
@@ -559,60 +571,65 @@ function appendIfShouldInputSelf() {
   var chatApi = setting.getConfig("autoReply").chatApi;
   var chatInstance = chatMap[chatApi];
   if (chatInstance.shouldInputSelf) {
-    var subSchemas = [{
-      field: "autoReply.chatModel",
-      label: "群聊AI模型",
-      bottomHelpMessage:
-        "保存并刷新页面后，再选择或填写该项！",
-      component: "Input",
-    }, {
-      field: "autoReply.apiCustomUrl",
-      label: "模型请求URL",
-      bottomHelpMessage: "格式一般以http(s)开头，以/chat/completions结尾",
-      component: "Input",
-    }]
-  } else {
-    var subSchemas = [{
-      field: "autoReply.chatModel",
-      label: "群聊AI模型",
-      bottomHelpMessage:
-        "保存并刷新页面后，再选择或填写该项！",
-      component: "Select",
-      componentProps: {
-        options: getChatModels(),
+    var subSchemas = [
+      {
+        field: "autoReply.chatModel",
+        label: "群聊AI模型",
+        bottomHelpMessage: "保存并刷新页面后，再选择或填写该项！",
+        component: "Input",
       },
-    }]
+      {
+        field: "autoReply.apiCustomUrl",
+        label: "模型请求URL",
+        bottomHelpMessage: "格式一般以http(s)开头，以/chat/completions结尾",
+        component: "Input",
+      },
+    ];
+  } else {
+    var subSchemas = [
+      {
+        field: "autoReply.chatModel",
+        label: "群聊AI模型",
+        bottomHelpMessage: "保存并刷新页面后，再选择或填写该项！",
+        component: "Select",
+        componentProps: {
+          options: getChatModels(),
+        },
+      },
+    ];
   }
   return subSchemas;
 }
-
 
 function appendIfShouldInputSelfVisual() {
   var visualApi = setting.getConfig("autoReply").visualApi;
   var chatInstance = visualMap[visualApi];
   if (chatInstance.shouldInputSelf) {
-    var subSchemas = [{
-      field: "autoReply.visualModel",
-      label: "视觉AI模型",
-      bottomHelpMessage:
-        "保存并刷新页面后，再选择或填写该项！",
-      component: "Input",
-    }, {
-      field: "autoReply.visualApiCustomUrl",
-      label: "视觉模型请求URL",
-      component: "Input",
-    }]
-  } else {
-    var subSchemas = [{
-      field: "autoReply.visualModel",
-      label: "视觉AI模型",
-      bottomHelpMessage:
-        "保存并刷新页面后，再选择或填写该项！",
-      component: "Select",
-      componentProps: {
-        options: getVisualModels(),
+    var subSchemas = [
+      {
+        field: "autoReply.visualModel",
+        label: "视觉AI模型",
+        bottomHelpMessage: "保存并刷新页面后，再选择或填写该项！",
+        component: "Input",
       },
-    }]
+      {
+        field: "autoReply.visualApiCustomUrl",
+        label: "视觉模型请求URL",
+        component: "Input",
+      },
+    ];
+  } else {
+    var subSchemas = [
+      {
+        field: "autoReply.visualModel",
+        label: "视觉AI模型",
+        bottomHelpMessage: "保存并刷新页面后，再选择或填写该项！",
+        component: "Select",
+        componentProps: {
+          options: getVisualModels(),
+        },
+      },
+    ];
   }
   return subSchemas;
 }

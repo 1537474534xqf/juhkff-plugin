@@ -1,7 +1,7 @@
 import Objects from "#juhkff.kits";
+import { EMOTION_KEY } from "#juhkff.redis";
 import setting from "#juhkff.setting";
 import axios from "axios";
-import { text } from "express";
 import fetch from "node-fetch";
 
 export const VisualInterface = {
@@ -21,9 +21,9 @@ VisualInterface.generateRequest = async function ({
   j_msg,
   historyMessages = [],
   useSystemRole = true,
-}) { };
+}) {};
 
-VisualInterface.getModelMap = function () { };
+VisualInterface.getModelMap = function () {};
 
 class VisualApi {
   constructor() {
@@ -34,7 +34,7 @@ class VisualApi {
     this.shouldInputSelf = false;
   }
 
-  [VisualInterface.getModelMap]() { }
+  [VisualInterface.getModelMap]() {}
 
   async [VisualInterface.generateRequest]({
     apiKey,
@@ -42,7 +42,7 @@ class VisualApi {
     j_msg,
     historyMessages = [],
     useSystemRole = true,
-  }) { }
+  }) {}
 }
 
 export class Siliconflow extends VisualApi {
@@ -81,7 +81,7 @@ export class Siliconflow extends VisualApi {
       "Qwen/Qwen2-VL-72B-Instruct": this.commonRequest.bind(this),
       "deepseek-ai/deepseek-vl2": this.commonRequest.bind(this),
       "Pro/Qwen/Qwen2-VL-7B-Instruct": this.commonRequest.bind(this),
-    }
+    };
   }
 
   async [VisualInterface.generateRequest]({
@@ -91,7 +91,7 @@ export class Siliconflow extends VisualApi {
     historyMessages = [],
     useSystemRole = true,
   }) {
-    if (!this.modelMap[model]) {
+    if (!this.ModelMap[model]) {
       logger.error("[autoReply]不支持的视觉模型：" + model);
       return "[autoReply]不支持的视觉模型：" + model;
     }
@@ -111,7 +111,7 @@ export class Siliconflow extends VisualApi {
       },
     };
 
-    var response = await this.modelMap[model](
+    var response = await this.ModelMap[model](
       JSON.parse(JSON.stringify(request)),
       j_msg,
       historyMessages,
@@ -130,8 +130,9 @@ export class Siliconflow extends VisualApi {
     }
     // 添加历史对话
     if (historyMessages && historyMessages.length > 0) {
-      historyMessages.forEach((msg) => {
+      historyMessages.forEach((history) => {
         var content = [];
+        var msg = history.content;
         if (!Objects.isNull(msg.sourceImg)) {
           for (const img of msg.sourceImg) {
             content.push({
@@ -141,11 +142,11 @@ export class Siliconflow extends VisualApi {
                 url: img,
               },
             });
-            content.push({
-              type: "text",
-              text: "引用消息中的图片",
-            });
           }
+          content.push({
+            type: "text",
+            text: "以上为引用消息中的图片",
+          });
         }
         if (!Objects.isNull(msg.img)) {
           for (const img of msg.img) {
@@ -159,16 +160,26 @@ export class Siliconflow extends VisualApi {
           }
         }
         // TODO 引用消息文本和消息正文拼接，不参与描述引用图片，先按这种逻辑实现试试
-        var finalMsg = msg.sourceText + msg.text;
+        var finalMsg = "";
+        if (!Objects.isNull(msg.sourceText)) finalMsg += msg.sourceText;
+        if (!Objects.isNull(msg.text)) finalMsg += msg.text;
         if (!Objects.isNull(finalMsg)) {
-          content.push({
-            type: "text",
-            text: finalMsg,
-          });
+          if (history.role == "assistant") {
+            // TODO 机器人的记录如果添加上时间戳和昵称，生成的结果容易也包含这些，看上去就很假
+            content.push({
+              type: "text",
+              text: finalMsg,
+            });
+          } else {
+            content.push({
+              type: "text",
+              text: history.time + " - " + history.nickName + "：" + finalMsg,
+            });
+          }
         }
         request.options.body.messages.push({
-          role: msg.role,
-          content: msg.content,
+          role: history.role,
+          content: content,
         });
       });
     }
@@ -184,11 +195,11 @@ export class Siliconflow extends VisualApi {
             url: img,
           },
         });
-        content.push({
-          type: "text",
-          text: "引用消息中的图片",
-        });
       }
+      content.push({
+        type: "text",
+        text: "以上为引用消息中的图片",
+      });
     }
     if (!Objects.isNull(j_msg.img)) {
       for (const img of j_msg.img) {
@@ -264,8 +275,8 @@ async function generateSystemContent(useEmotion, chatPrompt) {
         type: "text",
         text: useEmotion
           ? `${chatPrompt} \n 你的情感倾向——${emotionPrompt
-            .replace(/\n/g, "")
-            .replace(/\s+/g, "")}`
+              .replace(/\n/g, "")
+              .replace(/\s+/g, "")}`
           : chatPrompt,
       },
     ],

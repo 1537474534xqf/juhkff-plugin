@@ -6,11 +6,11 @@
 import { VisualInterface, visualMap } from "#juhkff.api.visual";
 import { formatDateDetail } from "#juhkff.date";
 import { extractUrlContent, analyseImage } from "#juhkff.helper";
+import Objects from "#juhkff.kits";
 import { url2Base64 } from "#juhkff.net";
 import { get_source_message } from "#juhkff.redis";
 import { EMOTION_KEY } from "#juhkff.redis";
 import setting from "#juhkff.setting";
-import _ from "lodash";
 
 function getConfig() {
   return setting.getConfig("autoReply");
@@ -54,13 +54,19 @@ export async function parseSourceMessage_Visual(e) {
       // 优先从redis中获取引用消息
       var redis_source = await get_source_message(
         e.group_id,
-        e.j_msg.notProcessed[i].id
+        e.j_msg.notProcessed[i].id,
+        true
       );
       if (redis_source != undefined) {
-        //TODO 修改redis内容格式
-        var msg = `[回复 ${redis_source}]`;
-        e.j_msg.notProcessed[i] = { text: msg, type: "reply" };
-
+        // TODO 目前只考虑一层回复，多层回复嵌套的情况先不考虑实现
+        if (!Objects.isNull(redis_source.content.img)) {
+          redis_source.content.img.forEach((base64) => {
+            e.j_msg.sourceImg.push(base64);
+          });
+        }
+        if (!Objects.isNull(redis_source.content.text)) {
+          e.j_msg.sourceText = `[引用 ${redis_source.time} - ${redis_source.nickName}：${redis_source.content.text}]`;
+        }
         e.j_msg.notProcessed.splice(i, 1);
         i--;
         continue;
@@ -91,6 +97,8 @@ export async function parseSourceMessage_Visual(e) {
             if (result) {
               msg.push(result);
             }
+          } else if (val.type == "reply") {
+            // TODO 重复嵌套回复暂时跳过不处理，后面可以考虑怎么完善这里的处理
           }
         }
         var quotedLines;
@@ -284,7 +292,7 @@ export async function generate_answer_visual(e) {
     return "[autoReply]请先在autoReply.yaml中设置visualModel";
   }
 
-  // TODO 获取历史对话
+  // 获取历史对话
   let historyMessages = [];
   if (getConfig().useContext) {
     historyMessages = await loadContextVisual(e.group_id);
@@ -342,9 +350,11 @@ async function sendChatRequestVisual(
 // 保存对话上下文
 export async function saveContextVisual(
   time,
+  date,
   groupId,
   message_id = 0,
   role,
+  nickName,
   j_msg
 ) {
   try {
@@ -355,6 +365,8 @@ export async function saveContextVisual(
     var saveContent = {
       message_id: message_id,
       role: role,
+      nickName: nickName,
+      time: date,
       content: j_msg,
     };
     await redis.set(key, JSON.stringify(saveContent), { EX: 12 * 60 * 60 }); // 12小时过期

@@ -6,11 +6,11 @@
 import { ChatInterface, chatMap } from "#juhkff.api.chat";
 import { formatDateDetail } from "#juhkff.date";
 import { extractUrlContent, analyseImage } from "#juhkff.helper";
+import Objects from "#juhkff.kits";
 import { url2Base64 } from "#juhkff.net";
 import { get_source_message } from "#juhkff.redis";
 import { EMOTION_KEY } from "#juhkff.redis";
 import setting from "#juhkff.setting";
-import _ from "lodash";
 
 function getConfig() {
   return setting.getConfig("autoReply");
@@ -427,7 +427,7 @@ export async function emotionGenerate() {
   if (Objects.hasNull(chatApi, apiKey, model)) {
     return null;
   }
-  var emotion = await this.sendChatRequest(
+  var emotion = await sendChatRequest(
     getConfig().emotionGeneratePrompt,
     chatApi,
     apiKey,

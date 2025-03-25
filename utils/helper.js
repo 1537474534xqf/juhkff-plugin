@@ -42,18 +42,15 @@ export async function analyseImage(image, input) {
   if (!image.startsWith("data:")) {
     image = await url2Base64(image);
   }
-  var Constructor = visualMap[visualApi];
-  var visualInstance;
-  if (Constructor) {
-    visualInstance = new Constructor();
-  } else {
+  var visualInstance = visualMap[visualApi];
+  if (!visualInstance) {
     return "[autoReply]请在autoReply.yaml中设置有效的视觉AI接口";
   }
-  var result = await visualInstance[VisualInterface.generateRequest](
-    visualApiKey,
-    model,
-    image,
-    { text: input }
-  );
+  var result = await visualInstance[VisualInterface.generateRequest]({
+    apiKey: visualApiKey,
+    model: model,
+    j_msg: { img: [image], text: input },
+    useSystemRole: false,
+  });
   return result;
 }
