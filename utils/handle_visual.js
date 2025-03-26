@@ -189,7 +189,7 @@ export async function parseUrlVisual(e) {
           }
           logger.info(`[URL处理]开始处理URL: ${url} = ${cleanUrl}`);
           const extractResult = await extractUrlContent(cleanUrl);
-          if (Objects.isNull(extractResult)) {
+          if (!Objects.isNull(extractResult)) {
             logger.info(`[URL处理]成功提取URL内容`);
             var config = getConfig();
             // 借助chatApi对提取的内容进行总结
