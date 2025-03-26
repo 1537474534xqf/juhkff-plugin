@@ -1,11 +1,11 @@
 import Objects from "#juhkff.kits";
 import { EMOTION_KEY } from "#juhkff.redis";
 import setting from "#juhkff.setting";
-import axios from "axios";
 import fetch from "node-fetch";
 
 export const VisualInterface = {
   generateRequest: Symbol("generateRequest"),
+  toolRequest: Symbol("toolRequest"),
   getModelMap: Symbol("getModelMap"),
 };
 
@@ -18,10 +18,13 @@ export const VisualInterface = {
 VisualInterface.generateRequest = async function ({
   apiKey,
   model,
+  nickName,
   j_msg,
   historyMessages = [],
   useSystemRole = true,
 }) {};
+
+VisualInterface.toolRequest = async function ({ apiKey, model, j_msg }) {};
 
 VisualInterface.getModelMap = function () {};
 
@@ -39,10 +42,13 @@ class VisualApi {
   async [VisualInterface.generateRequest]({
     apiKey,
     model,
+    nickName,
     j_msg,
     historyMessages = [],
     useSystemRole = true,
   }) {}
+
+  async [VisualInterface.toolRequest]({ apiKey, model, j_msg }) {}
 }
 
 export class Siliconflow extends VisualApi {
@@ -76,18 +82,37 @@ export class Siliconflow extends VisualApi {
     */
     // TODO SF官网的API竟然不能查询特定Tag，只能自己写在这了，时不时更新一下
     this.ModelMap = {
-      "Qwen/Qwen2.5-VL-72B-Instruct": this.commonRequest.bind(this),
-      "Pro/Qwen/Qwen2.5-VL-7B-Instruct": this.commonRequest.bind(this),
-      "Qwen/QVQ-72B-Preview": this.commonRequest.bind(this),
-      "Qwen/Qwen2-VL-72B-Instruct": this.commonRequest.bind(this),
-      "deepseek-ai/deepseek-vl2": this.commonRequest.bind(this),
-      "Pro/Qwen/Qwen2-VL-7B-Instruct": this.commonRequest.bind(this),
+      "Qwen/Qwen2.5-VL-72B-Instruct": {
+        chat: this.commonRequest.bind(this),
+        tool: this.toolRequest.bind(this),
+      },
+      "Pro/Qwen/Qwen2.5-VL-7B-Instruct": {
+        chat: this.commonRequest.bind(this),
+        tool: this.toolRequest.bind(this),
+      },
+      "Qwen/QVQ-72B-Preview": {
+        chat: this.commonRequest.bind(this),
+        tool: this.toolRequest.bind(this),
+      },
+      "Qwen/Qwen2-VL-72B-Instruct": {
+        chat: this.commonRequest.bind(this),
+        tool: this.toolRequest.bind(this),
+      },
+      "deepseek-ai/deepseek-vl2": {
+        chat: this.commonRequest.bind(this),
+        tool: this.toolRequest.bind(this),
+      },
+      "Pro/Qwen/Qwen2-VL-7B-Instruct": {
+        chat: this.commonRequest.bind(this),
+        tool: this.toolRequest.bind(this),
+      },
     };
   }
 
   async [VisualInterface.generateRequest]({
     apiKey,
     model,
+    nickName,
     j_msg,
     historyMessages = [],
     useSystemRole = true,
@@ -112,8 +137,9 @@ export class Siliconflow extends VisualApi {
       },
     };
 
-    var response = await this.ModelMap[model](
+    var response = await this.ModelMap[model].chat(
       JSON.parse(JSON.stringify(request)),
+      nickName,
       j_msg,
       historyMessages,
       useSystemRole
@@ -121,7 +147,115 @@ export class Siliconflow extends VisualApi {
     return response;
   }
 
-  async commonRequest(request, j_msg, historyMessages, useSystemRole) {
+  async [VisualInterface.toolRequest]({ apiKey, model, j_msg }) {
+    if (!this.ModelMap[model]) {
+      logger.error("[autoReply]不支持的视觉模型：" + model);
+      return "[autoReply]不支持的视觉模型：" + model;
+    }
+    var request = {
+      url: `${this.ApiBaseUrl}/chat/completions`,
+      options: {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: {
+          model: model,
+          messages: [],
+          stream: false,
+        },
+      },
+    };
+    var response = await this.ModelMap[model].tool(
+      JSON.parse(JSON.stringify(request)),
+      j_msg
+    );
+    return response;
+  }
+
+  /**
+   * 工具请求
+   * @param {*} request
+   * @param {*} j_msg:{img:[],text:[]}
+   */
+  async toolRequest(request, j_msg) {
+    var content = [];
+    if (!Objects.isNull(j_msg.img)) {
+      j_msg.img.forEach((base64) => {
+        content.push({
+          type: "image_url",
+          image_url: {
+            detail: "auto",
+            url: base64,
+          },
+        });
+      });
+    }
+    if (!Objects.isNull(j_msg.text)) {
+      j_msg.text.forEach((text) => {
+        content.push({
+          type: "text",
+          text: text,
+        });
+      });
+    }
+    request.options.body.messages.push({
+      role: "user",
+      content: content,
+    });
+
+    // 创建打印用副本
+    var logRequest = JSON.parse(JSON.stringify(request));
+    logRequest.options.body.messages.forEach((message) => {
+      var content = message.content;
+      content.forEach((item) => {
+        if (item.type == "image_url") {
+          // 截断前40位
+          item.image_url.url = item.image_url.url.substring(0, 40) + "...";
+        }
+      });
+    });
+
+    logger.mark(
+      `[autoReply]视觉模型 ${
+        logRequest.options.body.model
+      } API工具请求调用，请求内容：${JSON.stringify(logRequest, null, 2)}`
+    );
+    var response;
+    try {
+      request.options.body = JSON.stringify(request.options.body);
+      response = await fetch(request.url, request.options);
+
+      const data = await response.json();
+
+      if (data?.choices?.[0]?.message?.content) {
+        return data.choices[0].message.content;
+      } else {
+        logger.error(
+          "[autoReply]视觉模型API工具请求调用失败：",
+          JSON.stringify(data, null, 2)
+        );
+        return "[autoReply]视觉模型API工具请求调用失败，详情请查阅控制台。";
+      }
+    } catch (error) {
+      logger.error(
+        `[autoReply]视觉模型API工具请求调用失败, 请求返回结果：${JSON.stringify(
+          response
+        )}\n`,
+        error
+      );
+      return "[autoReply]视觉模型API工具请求调用失败，详情请查阅控制台。";
+    }
+  }
+
+  async commonRequest(
+    request,
+    nickeName,
+    j_msg,
+    historyMessages,
+    useSystemRole
+  ) {
     if (useSystemRole) {
       var systemContent = await generateSystemContent(
         this.Config.useEmotion,
@@ -229,11 +363,13 @@ export class Siliconflow extends VisualApi {
       });
     }
     // TODO 引用消息文本和消息正文拼接，不参与描述引用图片，先按这种逻辑实现试试
-    var finalMsg = j_msg.sourceText + j_msg.text;
+    var finalMsg = j_msg.text;
+    if (!Objects.isNull(finalMsg) && !Objects.isNull(j_msg.sourceText))
+      finalMsg = j_msg.sourceText + finalMsg;
     if (!Objects.isNull(finalMsg)) {
       content.push({
         type: "text",
-        text: finalMsg,
+        text: nickeName + "：" + finalMsg,
       });
     }
 

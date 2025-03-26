@@ -205,18 +205,17 @@ export async function parseUrl(e) {
           }
           var config = getConfig();
           // 借助chatApi对提取的内容进行总结
-          var chatApi = config.chatApi;
           var apiKey = config.chatApiKey;
           var model = config.chatModel;
-          var Constructor = chatMap[config.chatApi];
-          var chatInstance = new Constructor();
-          var result = await chatInstance[ChatInterface.generateRequest](
-            apiKey,
-            model,
-            "根据从URL抓取的信息，以自然语言简练地总结URL中的主要内容，其中无关信息可以过滤掉",
-            [{ role: "user", content: extractResult.content }],
-            (useSystemRole = false)
-          );
+          var chatInstance = chatMap[config.chatApi];
+          var result = await chatInstance[ChatInterface.generateRequest]({
+            apiKey: apiKey,
+            model: model,
+            input:
+              "根据从URL抓取的信息，以自然语言简练地总结URL中的主要内容，其中无关信息可以过滤掉",
+            historyMessages: [{ role: "user", content: extractResult.content }],
+            useSystemRole: false,
+          });
           e.j_msg[i].text = e.j_msg[i].text.replace(
             url,
             `<分享URL，URL内容的分析结果——${result}>`
@@ -268,13 +267,13 @@ function isSkippedUrl(url) {
 }
 
 /**
-   *
-   * @param {*} e
-   * @param {*} msg 正文消息
-   * @param {*} sourceImages 引用图片数组
-   * @param {*} currentImages 正文图片数组
-   * @returns answer 回复内容
-   */
+ *
+ * @param {*} e
+ * @param {*} msg 正文消息
+ * @param {*} sourceImages 引用图片数组
+ * @param {*} currentImages 正文图片数组
+ * @returns answer 回复内容
+ */
 export async function generateAnswer(e, msg) {
   var chatApi = getConfig().chatApi;
   let apiKey = getConfig().chatApiKey;
@@ -296,10 +295,7 @@ export async function generateAnswer(e, msg) {
   }
 
   // 如果启用了情感，并且redis中不存在情感，则进行情感生成
-  if (
-    getConfig().useEmotion &&
-    Objects.isNull(await redis.get(EMOTION_KEY))
-  ) {
+  if (getConfig().useEmotion && Objects.isNull(await redis.get(EMOTION_KEY))) {
     redis.set(EMOTION_KEY, await emotionGenerate(), {
       EX: 24 * 60 * 60,
     });
@@ -347,7 +343,13 @@ async function sendChatRequest(
 }
 
 // 保存对话上下文
-export async function saveContext(time, groupId, message_id = 0, role, message) {
+export async function saveContext(
+  time,
+  groupId,
+  message_id = 0,
+  role,
+  message
+) {
   try {
     const maxHistory = getConfig().maxHistoryLength;
     const key = `juhkff:auto_reply:${groupId}:${time}`;
@@ -415,11 +417,11 @@ export async function loadContext(groupId) {
 }
 
 /**
-   * @description: 情感生成
-   * @param {*}
-   * @return {*}
-   * @author: JUHKFF
-   */
+ * @description: 情感生成
+ * @param {*}
+ * @return {*}
+ * @author: JUHKFF
+ */
 export async function emotionGenerate() {
   var chatApi = getConfig().chatApi;
   let apiKey = getConfig().chatApiKey;

@@ -46,11 +46,10 @@ export async function analyseImage(image, input) {
   if (!visualInstance) {
     return "[autoReply]请在autoReply.yaml中设置有效的视觉AI接口";
   }
-  var result = await visualInstance[VisualInterface.generateRequest]({
+  var result = await visualInstance[VisualInterface.toolRequest]({
     apiKey: visualApiKey,
     model: model,
-    j_msg: { img: [image], text: input },
-    useSystemRole: false,
+    j_msg: { img: [image], text: [input] },
   });
   return result;
 }

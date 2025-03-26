@@ -194,17 +194,19 @@ export async function parseUrlVisual(e) {
           }
           var config = getConfig();
           // 借助chatApi对提取的内容进行总结
-          var apiKey = config.chatApiKey;
-          var model = config.chatModel;
-          var Constructor = chatMap[config.chatApi];
-          var chatInstance = new Constructor();
-          var result = await chatInstance[VisualInterface.generateRequest](
-            apiKey,
-            model,
-            "根据从URL抓取的信息，以自然语言简练地总结URL中的主要内容，其中无关信息可以过滤掉",
-            [{ role: "user", content: extractResult.content }],
-            (useSystemRole = false)
-          );
+          var apiKey = config.visualApiKey;
+          var model = config.visualModel;
+          var chatInstance = visualMap[config.visualApi];
+          var result = await chatInstance[VisualInterface.toolRequest]({
+            apiKey: apiKey,
+            model: model,
+            j_msg: {
+              text: [
+                extractResult.content,
+                "根据从URL抓取的信息，以自然语言简练地总结URL中的主要内容，其中无关信息可以过滤掉",
+              ],
+            },
+          });
           e.j_msg.notProcessed[i].text = e.j_msg.notProcessed[i].text.replace(
             url,
             `<分享URL，URL内容的分析结果——${result}>`
@@ -308,6 +310,7 @@ export async function generateAnswerVisual(e) {
 
   let answer = await sendChatRequestVisual(
     e.j_msg,
+    e.sender.card,
     chatApi,
     apiKey,
     model,
@@ -321,6 +324,7 @@ export async function generateAnswerVisual(e) {
 /**
  * @description: 自动提示词
  * @param {*} j_msg 插件自定义消息结构体
+ * @param {*} nickName 发送者昵称
  * @param {*} chatApi 使用的AI接口
  * @param {*} apiKey
  * @param {*} model 使用的API模型
@@ -329,6 +333,7 @@ export async function generateAnswerVisual(e) {
  */
 async function sendChatRequestVisual(
   j_msg,
+  nickName,
   chatApi,
   apiKey,
   model = "",
@@ -340,6 +345,7 @@ async function sendChatRequestVisual(
   var result = await chatInstance[VisualInterface.generateRequest]({
     apiKey,
     model,
+    nickeName,
     j_msg,
     historyMessages,
     useSystemRole,
