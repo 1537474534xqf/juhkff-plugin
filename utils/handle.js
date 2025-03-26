@@ -200,27 +200,27 @@ export async function parseUrl(e) {
           }
           logger.info(`[URL处理]开始处理URL: ${url} = ${cleanUrl}`);
           const extractResult = await extractUrlContent(cleanUrl);
-          if (extractResult) {
+          if (Objects.isNull(extractResult)) {
             logger.info(`[URL处理]成功提取URL内容`);
+            var config = getConfig();
+            // 借助chatApi对提取的内容进行总结
+            var apiKey = config.chatApiKey;
+            var model = config.chatModel;
+            var chatInstance = chatMap[config.chatApi];
+            var result = await chatInstance[ChatInterface.generateRequest]({
+              apiKey: apiKey,
+              model: model,
+              input:
+                "根据从URL抓取的信息，以自然语言简练地总结URL中的主要内容，其中无关信息可以过滤掉",
+              historyMessages: [{ role: "user", content: extractResult.content }],
+              useSystemRole: false,
+            });
+            e.j_msg[i].text = e.j_msg[i].text.replace(
+              url,
+              `<分享URL，URL内容的分析结果——${result}>`
+            );
+            e.j_msg[i].type = "url2text";
           }
-          var config = getConfig();
-          // 借助chatApi对提取的内容进行总结
-          var apiKey = config.chatApiKey;
-          var model = config.chatModel;
-          var chatInstance = chatMap[config.chatApi];
-          var result = await chatInstance[ChatInterface.generateRequest]({
-            apiKey: apiKey,
-            model: model,
-            input:
-              "根据从URL抓取的信息，以自然语言简练地总结URL中的主要内容，其中无关信息可以过滤掉",
-            historyMessages: [{ role: "user", content: extractResult.content }],
-            useSystemRole: false,
-          });
-          e.j_msg[i].text = e.j_msg[i].text.replace(
-            url,
-            `<分享URL，URL内容的分析结果——${result}>`
-          );
-          e.j_msg[i].type = "url2text";
         }
       }
     }
