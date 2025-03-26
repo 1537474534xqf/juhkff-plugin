@@ -345,7 +345,7 @@ async function sendChatRequestVisual(
   var result = await chatInstance[VisualInterface.generateRequest]({
     apiKey,
     model,
-    nickeName,
+    nickName,
     j_msg,
     historyMessages,
     useSystemRole,
@@ -438,20 +438,19 @@ export async function loadContextVisual(groupId) {
  * @author: JUHKFF
  */
 export async function emotionGenerateVisual() {
-  var chatApi = getConfig().visualApi;
   let apiKey = getConfig().visualApiKey;
   let model = getConfig().visualModel;
-  if (Objects.hasNull(chatApi, apiKey, model)) {
+  if (Objects.hasNull(apiKey, model)) {
     return null;
   }
-  var emotion = await sendChatRequestVisual(
-    { text: getConfig().emotionGeneratePrompt },
-    chatApi,
-    apiKey,
-    model,
-    [],
-    false
-  );
+  var chatInstance = visualMap[getConfig().visualApi];
+  var emotion = await chatInstance[VisualInterface.toolRequest]({
+    apiKey: apiKey,
+    model: model,
+    j_msg: {
+      text: [getConfig().emotionGeneratePrompt],
+    },
+  });
   logger.info(`[autoReply]情感生成: ${emotion}`);
   return emotion;
 }
