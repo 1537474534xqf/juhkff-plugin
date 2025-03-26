@@ -27,7 +27,7 @@ export async function parseImageVisual(e) {
       sourceText: "",
       img: [],
       text: "",
-      notProcessed: e.message,
+      notProcessed: e.message.slice(),
     };
 
   for (let i = 0; i < e.j_msg.notProcessed.length; i++) {

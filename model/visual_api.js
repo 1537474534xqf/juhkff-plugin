@@ -147,7 +147,7 @@ export class Siliconflow extends VisualApi {
           }
           content.push({
             type: "text",
-            text: "以上为引用消息中的图片",
+            text: "上述图片中可能包含装饰性图片/表情包（如无文字梗图、通用表情符号或纯娱乐性meme），此类视觉元素不携带实质性信息，在后续内容生成时应予以忽略",
           });
           hasContent = true;
         }
@@ -161,6 +161,10 @@ export class Siliconflow extends VisualApi {
               },
             });
           }
+          content.push({
+            type: "text",
+            text: "上述图片中可能包含装饰性图片/表情包（如无文字梗图、通用表情符号或纯娱乐性meme），此类视觉元素不携带实质性信息，在后续内容生成时应予以忽略",
+          });
           hasContent = true;
         }
         // TODO 引用消息文本和消息正文拼接，不参与描述引用图片，先按这种逻辑实现试试
@@ -206,7 +210,7 @@ export class Siliconflow extends VisualApi {
       }
       content.push({
         type: "text",
-        text: "以上为引用消息中的图片",
+        text: "上述图片中可能包含装饰性图片/表情包（如无文字梗图、通用表情符号或纯娱乐性meme），此类视觉元素不携带实质性信息，在后续内容生成时应予以忽略",
       });
     }
     if (!Objects.isNull(j_msg.img)) {
@@ -219,6 +223,10 @@ export class Siliconflow extends VisualApi {
           },
         });
       }
+      content.push({
+        type: "text",
+        text: "上述图片中可能包含装饰性图片/表情包（如无文字梗图、通用表情符号或纯娱乐性meme），此类视觉元素不携带实质性信息，在后续内容生成时应予以忽略",
+      });
     }
     // TODO 引用消息文本和消息正文拼接，不参与描述引用图片，先按这种逻辑实现试试
     var finalMsg = j_msg.sourceText + j_msg.text;
@@ -234,7 +242,23 @@ export class Siliconflow extends VisualApi {
       content: content,
     });
 
-    logger.mark(`[autoReply]视觉模型API调用`);
+    // 创建打印用副本
+    var logRequest = JSON.parse(JSON.stringify(request));
+    logRequest.options.body.messages.forEach((message) => {
+      var content = message.content;
+      content.forEach((item) => {
+        if (item.type == "image_url") {
+          // 截断前40位
+          item.image_url.url = item.image_url.url.substring(0, 40) + "...";
+        }
+      });
+    });
+
+    logger.mark(
+      `[autoReply]视觉模型 ${
+        logRequest.options.body.model
+      } API调用，请求内容：${JSON.stringify(logRequest, null, 2)}`
+    );
     var response;
     try {
       request.options.body = JSON.stringify(request.options.body);
