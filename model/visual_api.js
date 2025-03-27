@@ -214,6 +214,9 @@ export class Siliconflow extends VisualApi {
           // 截断前40位
           item.image_url.url = item.image_url.url.substring(0, 40) + "...";
         }
+        if (item.type == "text" && item.text.length > 40) {
+          item.text = item.text.substring(0, 40) + "...";
+        }
       });
     });
 
@@ -387,6 +390,9 @@ export class Siliconflow extends VisualApi {
           // 截断前40位
           item.image_url.url = item.image_url.url.substring(0, 40) + "...";
         }
+        if (item.type == "text" && item.text.length > 40) {
+          item.text = item.text.substring(0, 40) + "...";
+        }
       });
     });
 
@@ -443,8 +449,8 @@ async function generateSystemContent(useEmotion, chatPrompt) {
         type: "text",
         text: useEmotion
           ? `${chatPrompt} \n 你的情感倾向——${emotionPrompt
-              .replace(/\n/g, "")
-              .replace(/\s+/g, "")}`
+            .replace(/\n/g, "")
+            .replace(/\s+/g, "")}`
           : chatPrompt,
       },
     ],
