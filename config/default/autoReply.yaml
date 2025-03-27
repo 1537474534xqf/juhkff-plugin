@@ -1,5 +1,5 @@
 # 主动群聊开关
-useAutoReply: true
+useAutoReply: false
 
 # 是否解析消息中包含的链接，确保chatApi生效时开启，可能会降低AI回复准确度
 attachUrlAnalysis: false
@@ -11,13 +11,13 @@ useContext: true
 maxHistoryLength: 5
 
 # AI接口选择，如果attachUrlAnalysis开启，则该接口也会用于URL内容总结。可选项：deepseek,siliconflow
-chatApi: deepseek
+chatApi: 
 
 # 群聊ApiKey
 chatApiKey:
 
 # 模型选择
-chatModel: deepseek-chat
+chatModel: 
 
 # 模型请求URL
 apiCustomUrl:

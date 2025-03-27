@@ -4,7 +4,7 @@ import { pluginResources } from "#juhkff.path";
 import setting from "#juhkff.setting";
 import { ChatInterface, chatMap } from "#juhkff.api.chat";
 import Objects from "#juhkff.kits";
-import { visualMap } from "#juhkff.api.visual";
+import { VisualInterface, visualMap } from "#juhkff.api.visual";
 import { removeSubKeys, EMOTION_KEY } from "#juhkff.redis";
 
 // 支持锅巴
@@ -94,7 +94,7 @@ export function supportGuoba() {
           field: "autoReply.chatApiKey",
           label: "群聊AI ApiKey",
           bottomHelpMessage:
-            "填写AI接口和ApiKey后，务必先保存并刷新页面，再选择下面的选项，否则部分选项无法显示！",
+            "填写AI接口和ApiKey、确保主动群聊开关开启后，务必先保存并刷新页面，否则模型无法选择！",
           component: "Input",
         },
         ...appendIfShouldInputSelf(),
@@ -183,7 +183,8 @@ export function supportGuoba() {
         {
           field: "autoReply.visualApiKey",
           label: "视觉AI ApiKey",
-          bottomHelpMessage: "目前仅支持siliconflow的apiKey",
+          bottomHelpMessage:
+            "填写AI接口和ApiKey、确保视觉AI接口开启后，务必先保存并刷新页面，否则模型无法选择！",
           component: "Input",
         },
         ...appendIfShouldInputSelfVisual(),
@@ -456,12 +457,14 @@ function afterUpdate(config) {
         message: "请输入有效的视觉AI ApiKey",
       };
     }
+    /*
     if (Objects.isNull(config.autoReply.visualModel)) {
       return {
         code: -1,
         message: "请选择有效的视觉AI模型",
       };
     }
+    */
   }
   var newChatApi = config.autoReply.chatApi;
   var newVisualReplaceChat = config.autoReply.visualReplaceChat;
@@ -504,7 +507,12 @@ function validate(before, after, config) {
  */
 function onFinish(config) {
   var chatInstance = chatMap[config.autoReply.chatApi];
-  chatInstance[ChatInterface.getModelMap]();
+  if (config.autoReply.useAutoReply)
+    chatInstance?.[ChatInterface.getModelMap]();
+
+  var visualInstance = visualMap[config.autoReply.visualApi];
+  if (config.autoReply.useVisual)
+    visualInstance?.[VisualInterface.getModelMap]();
 }
 
 /********************************** 函数调用 **********************************/
@@ -516,7 +524,7 @@ function onFinish(config) {
 function getChatModels() {
   var chatApi = setting.getConfig("autoReply").chatApi;
   var chatInstance = chatMap[chatApi];
-  if (!chatInstance) return ["请选择有效的群聊AI接口"];
+  if (!chatInstance) return ["请选择有效的群聊AI接口"]; /// 实际上没有选项
   var result = [];
   for (const key of Object.keys(chatInstance.ModelMap)) {
     result.push({ label: key, value: key });
@@ -527,7 +535,7 @@ function getChatModels() {
 function getVisualModels() {
   var visualApi = setting.getConfig("autoReply").visualApi;
   var chatInstance = visualMap[visualApi];
-  if (!chatInstance) return ["请选择有效的视觉AI接口"];
+  if (!chatInstance) return ["请选择有效的视觉AI接口"]; // 实际上没有选项
   var result = [];
   for (const key of Object.keys(chatInstance.ModelMap)) {
     result.push({ label: key, value: key });
@@ -570,12 +578,12 @@ function chooseModelComponentType() {
 function appendIfShouldInputSelf() {
   var chatApi = setting.getConfig("autoReply").chatApi;
   var chatInstance = chatMap[chatApi];
-  if (chatInstance.shouldInputSelf) {
+  if (chatInstance?.shouldInputSelf) {
     var subSchemas = [
       {
         field: "autoReply.chatModel",
         label: "群聊AI模型",
-        bottomHelpMessage: "保存并刷新页面后，再选择或填写该项！",
+        bottomHelpMessage: "确保开关开启，保存并刷新页面后，再选择或填写该项！",
         component: "Input",
       },
       {
@@ -590,7 +598,7 @@ function appendIfShouldInputSelf() {
       {
         field: "autoReply.chatModel",
         label: "群聊AI模型",
-        bottomHelpMessage: "保存并刷新页面后，再选择或填写该项！",
+        bottomHelpMessage: "确保开关开启，保存并刷新页面后，再选择或填写该项！",
         component: "Select",
         componentProps: {
           options: getChatModels(),
@@ -604,12 +612,12 @@ function appendIfShouldInputSelf() {
 function appendIfShouldInputSelfVisual() {
   var visualApi = setting.getConfig("autoReply").visualApi;
   var chatInstance = visualMap[visualApi];
-  if (chatInstance.shouldInputSelf) {
+  if (chatInstance?.shouldInputSelf) {
     var subSchemas = [
       {
         field: "autoReply.visualModel",
         label: "视觉AI模型",
-        bottomHelpMessage: "保存并刷新页面后，再选择或填写该项！",
+        bottomHelpMessage: "确保开关开启，保存并刷新页面后，再选择或填写该项！",
         component: "Input",
       },
       {
@@ -623,7 +631,7 @@ function appendIfShouldInputSelfVisual() {
       {
         field: "autoReply.visualModel",
         label: "视觉AI模型",
-        bottomHelpMessage: "保存并刷新页面后，再选择或填写该项！",
+        bottomHelpMessage: "确保开关开启，保存并刷新页面后，再选择或填写该项！",
         component: "Select",
         componentProps: {
           options: getVisualModels(),
