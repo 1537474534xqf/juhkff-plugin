@@ -63,6 +63,8 @@ class Setting {
             // delete config[app][key];
           }
         }
+        // 手动删除不应同步的配置
+        delete defaultConfig["oldPrompt"];
         // 新增配置同步到用户配置文件中
         for (var key in defaultConfig) {
           config[app][key] = defaultConfig[key];
