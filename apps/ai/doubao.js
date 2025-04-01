@@ -13,7 +13,7 @@ export class doubao extends plugin {
                 {
                     // 匹配以 #视频生成豆包 开头的消息
                     reg: "^#视频生成豆包.*",
-                    fnc: "videoGenerate"
+                    fnc: "videoGenerate",
                 }
             ],
         });

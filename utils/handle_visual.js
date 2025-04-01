@@ -316,8 +316,8 @@ export async function generateAnswerVisual(e) {
     model,
     historyMessages
   );
-  // 使用正则表达式去掉字符串 answer 开头的换行符
-  answer = answer.replace(/^\n/, "");
+  // 使用正则表达式去掉字符串 answer 头尾的换行符
+  answer = answer.replace(/^\n+|\n+$/g, "");
   return answer;
 }
 
