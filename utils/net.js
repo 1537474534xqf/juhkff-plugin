@@ -6,6 +6,7 @@
 import fs from "fs";
 import https from "https";
 import fetch from "node-fetch";
+import path from "path";
 import axios from "axios";
 import { DOMParser } from "xmldom";
 
@@ -16,6 +17,10 @@ import { DOMParser } from "xmldom";
  * @returns {Promise<void>}
  */
 export async function downloadFile(url, dest) {
+  //自动创建子文件夹
+  if (!fs.existsSync(path.dirname(dest))) {
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+  }
   return new Promise((resolve, reject) => {
     const file = fs.createWriteStream(dest);
     https
@@ -69,7 +74,10 @@ export async function url2Base64(url, isReturnBuffer = false) {
     // 返回 Buffer
     if (isReturnBuffer) return Buffer.from(response.data, "binary");
 
-    return `data:image/jpeg;base64,${Buffer.from(response.data, "binary").toString("base64")}`;
+    return `data:image/jpeg;base64,${Buffer.from(
+      response.data,
+      "binary"
+    ).toString("base64")}`;
   } catch (error) {
     logger.error(
       `[tools]下载引用图片错误，可能是图片链接已失效，使用的图片链接：\n` + url
@@ -80,7 +88,7 @@ export async function url2Base64(url, isReturnBuffer = false) {
 
 /**
  * 发送 GET 请求
- * @param {string} url 请求链接 
+ * @param {string} url 请求链接
  * @returns {json} 请求结果
  */
 export async function get(url) {
@@ -104,7 +112,7 @@ export async function get(url) {
 
 /**
  * 发送 GET 请求获取 XML
- * @param {*} url 请求链接 
+ * @param {*} url 请求链接
  * @returns {Document} 解析后的 XML DOM 对象
  */
 export async function getXML(url) {

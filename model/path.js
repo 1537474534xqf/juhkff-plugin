@@ -11,5 +11,6 @@ const pluginRoot = path.dirname(_dirname);
 const pluginName = path.basename(pluginRoot);
 // 插件资源目录 /../../plugins/juhkff-plugin/resources
 const pluginResources = path.join(pluginRoot, "resources");
+const pluginData = path.join(pluginRoot, "data");
 
-export { _path, pluginName, pluginRoot, pluginResources };
+export { _path, pluginName, pluginRoot, pluginResources, pluginData };

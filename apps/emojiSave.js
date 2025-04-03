@@ -1,7 +1,7 @@
 import fs from "fs";
 import setting from "#juhkff.setting";
 import { downloadFile } from "#juhkff.net";
-import { _path, pluginResources, pluginRoot } from "#juhkff.path";
+import { _path, pluginResources, pluginData } from "#juhkff.path";
 import path from "path";
 
 /**
@@ -32,12 +32,7 @@ export class emojiSave extends plugin {
   async emojiSave(e) {
     if (!this.Config.useEmojiSave) return false;
     if (e.message_type != "group") return false;
-    var emojiSaveDir = path.join(
-      pluginRoot,
-      "data",
-      `${e.group_id}`,
-      "emoji_save"
-    );
+    var emojiSaveDir = path.join(pluginData, `${e.group_id}`, "emoji_save");
     let replyRate = this.Config.defaultReplyRate; // 回复表情概率
     let emojiRate = this.Config.defaultEmojiRate; // 发送偷的图的概率
 
@@ -116,7 +111,7 @@ export class emojiSave extends plugin {
           let randomIndex = Math.floor(Math.random() * list.length);
           var emojiUrl = path.join(emojiSaveDir, list[randomIndex]);
           logger.info(`[emojiSave]发送表情: ${emojiUrl}`);
-          e.reply([segment.image(emojiUrl)]);
+          await e.reply([segment.image(emojiUrl)]);
         }
       } catch (error) {
         logger.error(`[emojiSave]表情发送失败: ${error}`);

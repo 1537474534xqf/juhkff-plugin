@@ -12,6 +12,8 @@ class Setting {
 
     this.dataPath = path.join(pluginRoot, "data");
     this.data = {};
+
+    this.appFile = {};
   }
 
   initConfig() {
@@ -26,19 +28,27 @@ class Setting {
     );
     for (const defaultFile of files) {
       const app = path.basename(defaultFile, ".yaml");
-      if (!fs.existsSync(path.join(this.configPath, `${app}.yaml`))) {
+      // 获取相对于 defaultConfigDir 的路径，并去掉 .yaml 扩展名
+      const relativePath = path.relative(defaultConfigDir, defaultFile);
+      const dirPath = path.dirname(path.join(this.configPath, relativePath));
+      if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+      }
+      if (!fs.existsSync(path.join(this.configPath, `${relativePath}`))) {
         // 复制 default 内对应的 yaml 文件到 config/*.yaml 中
         fs.copyFileSync(
-          path.join(defaultConfigDir, `${app}.yaml`),
-          path.join(this.configPath, `${app}.yaml`)
+          path.join(defaultConfigDir, `${relativePath}`),
+          path.join(this.configPath, `${relativePath}`)
         );
         logger.info(`已复制 ${app} 默认配置文件`);
       }
-      var file = path.join(this.configPath, `${app}.yaml`);
+      var file = path.join(this.configPath, `${relativePath}`);
       if (app in config) {
         logger.error(`[${app}] 配置文件不止一个`);
         return false;
       }
+
+      appFile[app] = file;
 
       try {
         // 先读取用户配置文件
@@ -87,10 +97,8 @@ class Setting {
     // 保存
     for (var app in this.config) {
       try {
-        fs.writeFileSync(
-          path.join(this.configPath, `${app}.yaml`),
-          YAML.stringify(this.config[app])
-        );
+        var filePath = this.appFile[app];
+        fs.writeFileSync(filePath, YAML.stringify(this.config[app]));
       } catch (error) {
         logger.error(`[${app}.yaml] 格式错误 ${error}`);
         return error;
@@ -125,15 +133,12 @@ class Setting {
     const files = fs.readdirSync(dir);
     files.forEach((file) => {
       const filePath = path.join(dir, file);
-      fileList.push(filePath);
-      /*
       const stat = fs.statSync(filePath);
       if (stat.isDirectory()) {
-        getAllFiles(filePath, fileList);
+        this.getAllFiles(filePath, fileList);
       } else {
         fileList.push(filePath);
       }
-      */
     });
     return fileList;
   }

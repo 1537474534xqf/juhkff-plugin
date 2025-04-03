@@ -355,6 +355,23 @@ export function supportGuoba() {
             ],
           },
         },
+        {
+          label: "豆包",
+          // 第四个分组标记开始
+          component: "SOFT_GROUP_BEGIN",
+        },
+        {
+          field: "douBao.useDouBao",
+          label: "豆包开关",
+          bottomHelpMessage: "若开启，会启用豆包相关功能",
+          component: "Switch",
+        },
+        {
+          field: "douBao.apiKey",
+          label: "豆包 ApiKey",
+          bottomHelpMessage: "官网: https://console.volcengine.com/ark/",
+          component: "Input",
+        },
       ],
       // 获取配置数据方法（用于前端填充显示数据）
       getConfigData() {
