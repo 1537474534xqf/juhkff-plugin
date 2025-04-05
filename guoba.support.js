@@ -363,15 +363,33 @@ export function supportGuoba() {
         {
           field: "douBao.useDouBao",
           label: "豆包开关",
-          bottomHelpMessage: "若开启，会启用豆包相关功能",
+          bottomHelpMessage: "只有处于开启状态才会启用豆包相关功能",
           component: "Switch",
         },
         {
           field: "douBao.apiKey",
-          label: "豆包 ApiKey",
+          label: "ApiKey",
           bottomHelpMessage: "官网: https://console.volcengine.com/ark/",
           component: "Input",
         },
+        {
+          field: "douBao.useVideoGenerate",
+          label: "视频生成开关",
+          bottomHelpMessage: "若开启，会启用视频生成功能",
+          component: "Switch",
+        },
+        {
+          field: "douBao.videoGenerateUrl",
+          label: "视频生成URL",
+          bottomHelpMessage: "视频生成请求URL，官方没有变动就不需要改默认值",
+          component: "Input",
+        },
+        {
+          field: "douBao.videoGenerateModel",
+          label: "视频生成模型",
+          bottomHelpMessage: "官网文档模型ID: https://www.volcengine.com/docs/82379/1330310",
+          component: "Input",
+        }
       ],
       // 获取配置数据方法（用于前端填充显示数据）
       getConfigData() {
@@ -510,7 +528,7 @@ function validate(before, after, config) {
   }
   // 因为实现逻辑和结构体不同，所以切换时删除之前的redis存储
   if (origin.visualReplaceChat != after.visualReplaceChat) {
-    removeSubKeys("juhkff:auto_reply", EMOTION_KEY).then(() => {});
+    removeSubKeys("juhkff:auto_reply", EMOTION_KEY).then(() => { });
   }
   return {
     code: 0,

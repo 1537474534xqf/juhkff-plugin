@@ -7,13 +7,12 @@ import Objects from "#juhkff.kits";
 class Setting {
   constructor() {
     /** 用户设置 */
+    this.appFile = {};
     this.configPath = path.join(pluginRoot, "config");
     this.config = this.initConfig();
 
     this.dataPath = path.join(pluginRoot, "data");
     this.data = {};
-
-    this.appFile = {};
   }
 
   initConfig() {
@@ -48,7 +47,7 @@ class Setting {
         return false;
       }
 
-      appFile[app] = file;
+      this.appFile[app] = file;
 
       try {
         // 先读取用户配置文件

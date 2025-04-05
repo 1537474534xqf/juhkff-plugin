@@ -1,2 +1,38 @@
+# 总开关
 useDouBao: false
-apiKey:
+# 视频生成开关
+useVideoGenerate: false
+# 视频生成apiKey
+videoGenerateApiKey:
+# 请求地址
+videoGenerateUrl: https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks
+# 模型名称
+videoGenerateModel: doubao-seaweed-241128
+
+useImageGenerate: false
+# 请求地址
+imageGenerateUrl: https://visual.volcengineapi.com
+# accessKeyId
+imageGenerateAccessKeyId:
+# secretAccessKey
+imageGenerateSecretAccessKey:
+# 服务Region
+imageGenerateRegion: cn-north-1
+# 服务Service
+imageGenerateService: cv
+# Query参数：接口名
+imageGenerateAction: CVProcess
+# Query参数：版本号
+imageGenerateVersion: 2022-08-31
+# 算法名称
+imageGenerateReqKey: high_aes_general_v21_L
+# 模型版本名称
+imageGenerateModel: general_v2.1_L
+# 生成模式：general_v20_9B_pe美感版（默认）——美感更好，出图多样性更多；general_v20_9B_rephraser标准版——图文匹配度更好，结构表现更好
+imageGenerateType: general_v20_9B_pe
+# 开启文本扩写，会针对输入prompt进行扩写优化，如果输入prompt较短建议开启，如果输入prompt较长建议关闭
+imageGeneratePrellm: true
+# 内置的超分功能，开启后可将上述宽高均乘以2返回，此参数打开后延迟会有增加。如上述宽高均为512和512，此参数关闭出图 512*512 ，此参数打开出图1024 * 1024
+imageGenerateUseSr: true
+# 输出是否返回图片链接 （链接有效期为24小时）
+imageGenerateReturnUrl: false
