@@ -11,7 +11,7 @@ videoGenerateModel: doubao-seaweed-241128
 
 useImageGenerate: false
 # 请求地址
-imageGenerateUrl: https://visual.volcengineapi.com
+imageGenerateHost: visual.volcengineapi.com
 # accessKeyId
 imageGenerateAccessKeyId:
 # secretAccessKey
@@ -36,3 +36,21 @@ imageGeneratePrellm: true
 imageGenerateUseSr: true
 # 输出是否返回图片链接 （链接有效期为24小时）
 imageGenerateReturnUrl: false
+
+# 图生图
+# 算法名称
+imageGenerateWithImgReqKey: high_aes_scheduler_svr_controlnet_v2.0
+# 模型版本名称
+imageGenerateWithImgModel: general_controlnet_v2.0
+# 是否开启扩写。如果输入内容较短建议开启扩写，输入内容过长可根据情况进行关闭，否则可能会影响图文匹配程度。
+imageGenerateWithImgUseRephraser: true
+# 输出是否返回图片链接 （链接有效期为24小时）
+imageGenerateWithImgReturnUrl: false
+# 类似controlnet配置
+imageGenerateWithImgControlnetArgs:
+  # 可参考输入图的canny（轮廓边缘）、depth（景深）、pose（人物姿态）进行出图
+  - name: canny
+    # ControlNet强度
+    strength: 0.5
+    # Controlnet要处理的图片，取值为binary_data图片的下标
+    # binary_data_index: 1.0

@@ -4,7 +4,7 @@ import { pluginData } from "#juhkff.path";
 import path from "path";
 import fs from "fs";
 import setting from "#juhkff.setting";
-import { generateAuthoration } from "../../ai/doubao/auth";
+import { fetchDouBao } from "../../ai/doubao/auth.js";
 
 export class douBao extends plugin {
   constructor() {
@@ -22,6 +22,16 @@ export class douBao extends plugin {
           // 匹配以 #视频生成豆包 开头的消息
           reg: "^#视频生成豆包.*",
           fnc: "videoGenerate",
+        },
+        {
+          // 匹配以 #图片生成豆包 开头的消息
+          reg: "^#图片生成豆包.*",
+          fnc: "imageGenerate",
+        },
+        {
+          // 匹配以 #图片风格化豆包 开头的消息
+          reg: "^#图片风格化豆包.*",
+          fnc: "imageStyleTransfer",
         },
       ],
     });
@@ -86,25 +96,16 @@ export class douBao extends plugin {
   }
 
 
+  // --------------------------------------------------- 图片风格化 ---------------------------------------------------
+  async imageStyleTransfer(e) {
+
+  }
+
+
   // ---------------------------------------------------- 图片生成 ----------------------------------------------------
 
   get imageGenerateSuccessCode() {
     return 10000;
-  }
-
-  async imageGenerateAuth(x_date, body) {
-    return Objects.hasNull(this.Config.imageGenerateAccessKeyId, this.Config.imageGenerateSecretAccessKey) ? "" : generateAuthoration(
-      x_date,
-      this.Config.imageGenerateAccessKeyId,
-      this.Config.imageGenerateSecretAccessKey,
-      { "X-Date": x_date },
-      "POST",
-      this.Config.imageGenerateUrl,
-      { Action: this.Config.imageGenerateAction, Version: this.Config.imageGenerateVersion },
-      body,
-      this.Config.imageGenerateRegion,
-      this.Config.imageGenerateService
-    );
   }
 
   async imageGenerate(e) {
@@ -117,8 +118,10 @@ export class douBao extends plugin {
     var result = processMessage(e.message);
     var body = {};
     var width = null, height = null;
+    result.texts = result.texts.replace(/^#图片生成豆包/, "").trim();
     if (Objects.isNull(result.images)) {
       // 纯文本
+      // 将指令部分去除
       var strList = result.texts.split(" ");
       for (var i = 0; i < strList.length - 1; i++) {
         if (strList[i].startsWith("-w")) {
@@ -136,19 +139,14 @@ export class douBao extends plugin {
       body.use_pre_llm = this.Config.imageGeneratePrellm;
       body.use_sr = this.Config.imageGenerateUseSr;
       body.return_url = this.Config.imageGenerateReturnUrl;
+    } else {
+      // 图生图
+      body.req_key = this.Config.imageGenerateReqKey;
+      body.prompt = result.texts;
+      body.model_version = this.Config.imageGenerateModel;
     }
-    var x_date = new Date().toUTCString();
     await e.reply("正在生成图片，请稍等...");
-    var response = await fetch(this.Config.imageGenerateUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: this.imageGenerateAuth(x_date, body),
-        "X-Date": x_date,
-      },
-      body: JSON.stringify(body),
-    })
-    response = await response.json();
+    var response = await fetchDouBao(this.Config.imageGenerateAccessKeyId, this.Config.imageGenerateSecretAccessKey, "POST", body, this.Config.imageGenerateAction, this.Config.imageGenerateVersion, this.Config.imageGenerateRegion, this.Config.imageGenerateService);
     if (response.status === this.imageGenerateSuccessCode) {
       var base64 = response.data.binary_data_base64;
       if (!Objects.isNull(base64)) await e.reply([segment.image(`${base64}`)]);
