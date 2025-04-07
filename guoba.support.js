@@ -95,7 +95,7 @@ export function supportGuoba() {
           label: "群聊AI ApiKey",
           bottomHelpMessage:
             "填写AI接口和ApiKey、确保主动群聊开关开启后，务必先保存并刷新页面，否则模型无法选择！",
-          component: "Input",
+          component: "InputPassword",
         },
         ...appendIfShouldInputSelf(),
         {
@@ -185,16 +185,17 @@ export function supportGuoba() {
           label: "视觉AI ApiKey",
           bottomHelpMessage:
             "填写AI接口和ApiKey、确保视觉AI接口开启后，务必先保存并刷新页面，否则模型无法选择！",
-          component: "Input",
+          component: "InputPassword",
         },
         ...appendIfShouldInputSelfVisual(),
         {
           field: "autoReply.chatPrompt",
           label: "群聊预设",
           bottomHelpMessage: "定义BOT的人设或信息处理的基本逻辑",
-          component: "Input",
+          component: "InputTextArea",
           componentProps: {
             placeholder: "请输入群聊预设",
+            rows: 6,
           },
         },
         {
@@ -209,7 +210,7 @@ export function supportGuoba() {
           label: "定时生成情感时间",
           bottomHelpMessage:
             "秒[0,59] 分钟[0,59] 小时[0,23] 日期[1,31] 月份[1,12] 星期[0,7/SUN,SAT]",
-          component: "Input",
+          component: "EasyCron",
           componentProps: {
             placeholder: "*表示任意，?表示不指定（月日和星期互斥）",
           },
@@ -218,9 +219,10 @@ export function supportGuoba() {
           field: "autoReply.emotionGeneratePrompt",
           label: "情感生成预设",
           bottomHelpMessage: "BOT的每日心情生成所使用的预设",
-          component: "Input",
+          component: "InputTextArea",
           componentProps: {
             placeholder: "请输入心情预设",
+            rows: 3,
           },
         },
         {
@@ -257,7 +259,7 @@ export function supportGuoba() {
           label: "定时发送日报时间",
           bottomHelpMessage:
             "秒[0,59] 分钟[0,59] 小时[0,23] 日期[1,31] 月份[1,12] 星期[0,7/SUN,SAT]",
-          component: "Input",
+          component: "EasyCron",
           componentProps: {
             placeholder: "*表示任意，?表示不指定（月日和星期互斥）",
           },
@@ -367,28 +369,161 @@ export function supportGuoba() {
           component: "Switch",
         },
         {
-          field: "douBao.apiKey",
-          label: "ApiKey",
-          bottomHelpMessage: "官网: https://console.volcengine.com/ark/",
-          component: "Input",
-        },
-        {
           field: "douBao.useVideoGenerate",
           label: "视频生成开关",
           bottomHelpMessage: "若开启，会启用视频生成功能",
           component: "Switch",
         },
         {
-          field: "douBao.videoGenerateUrl",
-          label: "视频生成URL",
-          bottomHelpMessage: "视频生成请求URL，官方没有变动就不需要改默认值",
-          component: "Input",
+          field: "douBao.videoGenerateConfig",
+          label: "视频生成配置",
+          bottomHelpMessage: "视频生成相关的配置",
+          component: "GSubForm",
+          componentProps: {
+            style: {
+              maxHeight: '100px', // 设置最大高度
+              overflowY: 'auto'   // 添加垂直滚动条
+            },
+            multiple: false,
+            schemas: [
+              {
+                field: "videoGenerateApiKey",
+                label: "ApiKey",
+                bottomHelpMessage: "官网: https://console.volcengine.com/ark/",
+                component: "Input",
+              },
+              {
+                field: "useVideoGenerate",
+                label: "视频生成开关",
+                bottomHelpMessage: "若开启，会启用视频生成功能",
+                component: "Switch",
+              },
+              {
+                field: "videoGenerateUrl",
+                label: "视频生成URL",
+                bottomHelpMessage: "视频生成请求URL，官方没有变动就不需要改默认值",
+                component: "Input",
+              },
+              {
+                field: "videoGenerateModel",
+                label: "视频生成模型",
+                bottomHelpMessage: "官网文档模型ID: https://www.volcengine.com/docs/82379/1330310",
+                component: "Input",
+              },
+            ]
+          },
         },
         {
-          field: "douBao.videoGenerateModel",
-          label: "视频生成模型",
-          bottomHelpMessage: "官网文档模型ID: https://www.volcengine.com/docs/82379/1330310",
-          component: "Input",
+          field: "douBao.useImageGenerate",
+          label: "图片生成开关",
+          bottomHelpMessage: "若开启，会启用文生图/图生图功能",
+          component: "Switch",
+        },
+        {
+          field: "douBao.imageGenerateConfig",
+          label: "图片生成配置",
+          bottomHelpMessage: "图片生成相关的配置",
+          component: "GSubForm",
+          componentProps: {
+            style: {
+              maxHeight: '100px', // 设置最大高度
+              overflowY: 'auto'   // 添加垂直滚动条
+            },
+            multiple: false,
+            schemas: [
+              {
+                field: "imageGenerateAccessKeyId",
+                label: "AccessKeyId",
+                bottomHelpMessage:
+                  "必填！官网密钥: https://console.volcengine.com/iam/keymanage",
+                component: "InputPassword",
+              },
+              {
+                field: "imageGenerateSecretAccessKey",
+                label: "SecretAccessKey",
+                bottomHelpMessage:
+                  "必填！官网密钥: https://console.volcengine.com/iam/keymanage",
+                component: "InputPassword",
+              },
+              {
+                field: "imageGenerateHost",
+                label: "服务HOST",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值",
+                component: "Input",
+              },
+              {
+                field: "imageGenerateRegion",
+                label: "服务Region",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值",
+                component: "Input",
+              },
+              {
+                field: "imageGenerateService",
+                label: "服务名称",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值",
+                component: "Input",
+              },
+              {
+                field: "imageGenerateAction",
+                label: "服务Action",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值",
+                component: "Input",
+              },
+              {
+                field: "imageGenerateVersion",
+                label: "服务Version",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值",
+                component: "Input",
+              },
+              {
+                field: "imageGenerateReqKey",
+                label: "图片生成算法",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值",
+                component: "Input",
+              },
+              {
+                field: "imageGenerateModelVersion",
+                label: "模型版本名称",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值（为空时会自动取默认值，下面同理）",
+                component: "Input",
+              },
+              {
+                field: "imageGenerateReqScheduleConf",
+                label: "生成模式",
+                bottomHelpMessage:
+                  "置空则默认为`general_v20_9B_pe`美感版——美感更好，出图多样性更多；`general_v20_9B_rephraser`标准版——图文匹配度更好，结构表现更好",
+                component: "Input",
+              },
+              {
+                field: "imageGenerateUsePreLlm",
+                label: "开启文本扩写",
+                bottomHelpMessage:
+                  "会针对输入prompt进行扩写优化，如果输入prompt较短建议开启，如果输入prompt较长建议关闭",
+                component: "Switch",
+              },
+              {
+                field: "imageGenerateUseSr",
+                label: "开启超分",
+                bottomHelpMessage:
+                  "开启后可将生图宽高均乘以2，此参数打开后延迟会有增加。如上述宽高均为512和512，此参数关闭出图 512*512 ，此参数打开出图1024 * 1024",
+                component: "Switch",
+              },
+              {
+                field: "imageGenerateReturnUrl",
+                label: "只返回图片链接",
+                bottomHelpMessage:
+                  "是否只返回图片链接 （链接有效期为24小时）",
+                component: "Switch",
+              },
+            ],
+          }
         }
       ],
       // 获取配置数据方法（用于前端填充显示数据）

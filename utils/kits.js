@@ -33,28 +33,22 @@ export class Base64 {
     const binaryData = Buffer.from(base64, "base64");
 
     // 获取前几个字节作为魔数（magic number）
-    const magicNumber = binaryData.slice(0, 8).toString("hex").toUpperCase();
+    const magicNumber = binaryData.subarray(0, 2).toString("hex").toUpperCase();
 
     // 根据魔数确定图片类型
     switch (magicNumber) {
-      case "89504E470D0A1A0A":
+      case "8950":
         return "data:image/png;base64,";
-      case "FFD8FFE0":
-      case "FFD8FFE1":
-      case "FFD8FFE2":
-      case "FFD8FFE3":
-      case "FFD8FFE8":
+      case "FFD8":
         return "data:image/jpeg;base64,";
-      case "474946383761":
-      case "474946383961":
+      case "4749":
         return "data:image/gif;base64,";
       case "424D":
         return "data:image/bmp;base64,";
-      case "52494646":
-        // WebP文件的魔数后面跟着文件大小，再跟着57454250
+      case "5249":
         return "data:image/webp;base64,";
-      case "49492A00":
-      case "4D4D002A":
+      case "4949":
+      case "4D4D":
         return "data:image/tiff;base64,";
       default:
         return null;
