@@ -1,10 +1,11 @@
-import Objects from "#juhkff.kits";
+import Objects, { Base64 } from "#juhkff.kits";
 import { downloadFile, url2Base64 } from "#juhkff.net";
 import { pluginData } from "#juhkff.path";
 import path from "path";
 import fs from "fs";
 import setting from "#juhkff.setting";
 import { fetchDouBao } from "../../ai/doubao/auth.js";
+import { segment } from "oicq";
 
 export class douBao extends plugin {
   constructor() {
@@ -63,7 +64,10 @@ export class douBao extends plugin {
                 fs.readdirSync(dirPath2).forEach((file) => {
                   const filePath = path.join(dirPath2, file);
                   const fileStat = fs.statSync(filePath);
-                  if (fileStat.isFile() && fileStat.birthtimeMs < thirtyMinutesAgo) {
+                  if (
+                    fileStat.isFile() &&
+                    fileStat.birthtimeMs < thirtyMinutesAgo
+                  ) {
                     fs.unlinkSync(filePath);
                     console.log(`[douBao]已删除旧文件: ${filePath}`);
                   }
@@ -73,7 +77,7 @@ export class douBao extends plugin {
           }
         });
       } catch (err) {
-        console.error('清理任务执行出错:', err);
+        console.error("清理任务执行出错:", err);
       }
     }, 30 * 60 * 1000); // 每30分钟执行一次
   }
@@ -86,21 +90,17 @@ export class douBao extends plugin {
     if (!this.Config.useDouBao) return false;
     var helpMsg = `可用指令：[]中为可选项，()中为解释说明`;
     if (this.Config.useVideoGenerate)
-      helpMsg +=
-        `\n  #视频生成豆包 文本描述|图片 [宽高比] [5|10](视频秒数)`;
-    if (this.Config.useImageGenerate)
-      helpMsg +=
-        `\n  #图片生成豆包 文本描述 [-w 宽] [-h 高]`;
+      helpMsg += `\n  #视频生成豆包 文本描述|图片 [宽高比] [5|10](视频秒数)`;
+    if (this.Config.useImageGenerate) {
+      helpMsg += `\n  #图片生成豆包 文本描述 [-w 宽] [-h 高]`;
+      helpMsg += `\n  #图片生成豆包 文本描述 图片1|图片...(同宽高)`;
+    }
     await e.reply(helpMsg);
     return true;
   }
 
-
   // --------------------------------------------------- 图片风格化 ---------------------------------------------------
-  async imageStyleTransfer(e) {
-
-  }
-
+  async imageStyleTransfer(e) {}
 
   // ---------------------------------------------------- 图片生成 ----------------------------------------------------
 
@@ -111,17 +111,23 @@ export class douBao extends plugin {
   async imageGenerate(e) {
     if (!this.Config.useDouBao) return false;
     if (!this.Config.useImageGenerate) return true;
-    if (Objects.hasNull(this.Config.imageGenerateAccessKeyId, this.Config.imageGenerateSecretAccessKey)) {
+    if (
+      Objects.hasNull(
+        this.Config.imageGenerateAccessKeyId,
+        this.Config.imageGenerateSecretAccessKey
+      )
+    ) {
       await e.reply("请先设置accessKeyId和secretAccessKey");
       return true;
     }
-    var result = processMessage(e.message);
+    var result = await processMessage(e.message);
     var body = {};
-    var width = null, height = null;
+    var width = null,
+      height = null;
+    // 将指令部分去除
     result.texts = result.texts.replace(/^#图片生成豆包/, "").trim();
     if (Objects.isNull(result.images)) {
       // 纯文本
-      // 将指令部分去除
       var strList = result.texts.split(" ");
       for (var i = 0; i < strList.length - 1; i++) {
         if (strList[i].startsWith("-w")) {
@@ -132,36 +138,88 @@ export class douBao extends plugin {
       }
       body.req_key = this.Config.imageGenerateReqKey;
       body.prompt = result.texts;
-      body.model_version = this.Config.imageGenerateModel;
-      body.req_schedule_conf = this.Config.imageGenerateType;
+      if (!Objects.isNull(this.Config.imageGenerateModelVersion))
+        body.model_version = this.Config.imageGenerateModelVersion;
+      if (!Objects.isNull(this.Config.imageGenerateReqScheduleConf))
+        body.req_schedule_conf = this.Config.imageGenerateReqScheduleConf;
       if (!Objects.isNull(width)) body.width = width;
       if (!Objects.isNull(height)) body.height = height;
-      body.use_pre_llm = this.Config.imageGeneratePrellm;
-      body.use_sr = this.Config.imageGenerateUseSr;
-      body.return_url = this.Config.imageGenerateReturnUrl;
+      if (!Objects.isNull(this.Config.imageGenerateUsePreLlm))
+        body.use_pre_llm = this.Config.imageGenerateUsePreLlm;
+      if (!Objects.isNull(this.Config.imageGenerateUseSr))
+        body.use_sr = this.Config.imageGenerateUseSr;
+      if (!Objects.isNull(this.Config.imageGenerateReturnUrl))
+        body.return_url = this.Config.imageGenerateReturnUrl;
     } else {
       // 图生图
-      body.req_key = this.Config.imageGenerateReqKey;
+      var width = undefined,
+        height = undefined;
+      result.images.forEach((url) => {
+        //下载到本地
+        fastImageSize(url).then((dimensions) => {
+          if (width == undefined) width = dimensions.width;
+          if (height == undefined) height = dimensions.height;
+          if (width != dimensions.width || height != dimensions.height) {
+            e.reply("图片尺寸不一致，请重新发送");
+            return true;
+          }
+        });
+      });
+      body.req_key = this.Config.imageGenerateWithImgReqKey;
+      if (!Objects.isNull(this.Config.imageGenerateWithImgModelVersion))
+        body.model_version = this.Config.imageGenerateWithImgModelVersion;
+      body.image_urls = result.images;
       body.prompt = result.texts;
-      body.model_version = this.Config.imageGenerateModel;
+      if (!Objects.isNull(this.Config.imageGenerateWithImgUseRephraser))
+        body.use_rephraser = this.Config.imageGenerateWithImgUseRephraser;
+      if (!Objects.isNull(this.Config.imageGenerateWithImgReturnUrl))
+        body.return_url = this.Config.imageGenerateWithImgReturnUrl;
+      // TODO 不知道对不对
+      body.controlnet_args = [];
+      for (var i = 0; i < result.images.length; i++) {
+        body.controlnet_args.push({
+          type: this.Config.imageGenerateWithImgControlnetArgs.type,
+          strength: this.Config.imageGenerateWithImgControlnetArgs.strength,
+          binary_data_index: i,
+        });
+      }
     }
     await e.reply("正在生成图片，请稍等...");
-    var response = await fetchDouBao(this.Config.imageGenerateAccessKeyId, this.Config.imageGenerateSecretAccessKey, "POST", body, this.Config.imageGenerateAction, this.Config.imageGenerateVersion, this.Config.imageGenerateRegion, this.Config.imageGenerateService);
+    var response = await fetchDouBao(
+      this.Config.imageGenerateAccessKeyId,
+      this.Config.imageGenerateSecretAccessKey,
+      "POST",
+      body,
+      this.Config.imageGenerateAction,
+      this.Config.imageGenerateVersion,
+      this.Config.imageGenerateRegion,
+      this.Config.imageGenerateService
+    );
     if (response.status === this.imageGenerateSuccessCode) {
-      var base64 = response.data.binary_data_base64;
-      if (!Objects.isNull(base64)) await e.reply([segment.image(`${base64}`)]);
-      else if (!Objects.isNull(response.data.image_urls)) await e.reply(response.data.image_urls.join("\n"));
-      else await e.reply("请求成功但生成图片为空");
+      var segments = [];
+      if (!Objects.isNull(response.data.binary_data_base64)) {
+        response.data.binary_data_base64.forEach((base64, i) => {
+          if (!base64.startsWith("data:image/"))
+            segments.push(
+              segment.image(Base64.getBase64ImageType(base64) + base64)
+            );
+          else segments.push(segment.image(base64));
+        });
+      }
+      if (!Objects.isNull(response.data.image_urls))
+        segments.push(response.data.image_urls.join("\n"));
+      await e.reply(segments);
     } else {
       await e.reply(`生成图片失败:${response.message}`);
     }
   }
 
-
   // ---------------------------------------------------- 视频生成 ----------------------------------------------------
 
   get VideoGenerateApiKey() {
-    return Objects.isNull(this.Config.videoGenerateApiKey) ? "" : this.Config.videoGenerateApiKey;
+    return Objects.isNull(this.Config.videoGenerateApiKey)
+      ? ""
+      : this.Config.videoGenerateApiKey;
   }
 
   get VideoGenerateRequestPost() {
@@ -186,16 +244,22 @@ export class douBao extends plugin {
   }
 
   get VideoGenerateUrl() {
-    return Objects.isNull(this.Config.videoGenerateUrl) ? "" : this.Config.videoGenerateUrl;
+    return Objects.isNull(this.Config.videoGenerateUrl)
+      ? ""
+      : this.Config.videoGenerateUrl;
   }
 
   get VideoGenerateModel() {
-    return Objects.isNull(this.Config.videoGenerateModel) ? "" : this.Config.videoGenerateModel;
+    return Objects.isNull(this.Config.videoGenerateModel)
+      ? ""
+      : this.Config.videoGenerateModel;
   }
 
   get VideoGenerateBody() {
     return {
-      model: Objects.isNull(this.VideoGenerateModel) ? "" : this.VideoGenerateModel,
+      model: Objects.isNull(this.VideoGenerateModel)
+        ? ""
+        : this.VideoGenerateModel,
       content: [],
     };
   }
@@ -328,7 +392,7 @@ export class douBao extends plugin {
  * images: 图片部分
  * content: 按顺序排列的消息体
  */
-function processMessage(msgList) {
+async function processMessage(msgList) {
   var result = {
     texts: "",
     images: [],

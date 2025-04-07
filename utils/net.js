@@ -9,6 +9,7 @@ import fetch from "node-fetch";
 import path from "path";
 import axios from "axios";
 import { DOMParser } from "xmldom";
+import fastImageSize from "fast-image-size";
 
 /**
  * 下载文件
@@ -135,5 +136,26 @@ export async function getXML(url) {
   } catch (error) {
     console.error("Error fetching XML:", error);
     return null;
+  }
+}
+
+export async function getImageDimensions(url) {
+  try {
+    // 使用 axios 下载图片数据
+    const response = await axios.get(url, {
+      responseType: "arraybuffer",
+      timeout: 60000, // 设置超时时间为60秒
+    });
+
+    // 将响应数据转换为 Buffer
+    const buffer = Buffer.from(response.data, "binary");
+
+    // 使用 fast-image-size 获取图片尺寸
+    const size = fastImageSize(buffer);
+
+    return { width: size.width, height: size.height };
+  } catch (err) {
+    console.error("获取图片尺寸失败:", err);
+    return { width: 0, height: 0 }; // 返回默认值或抛出错误
   }
 }
