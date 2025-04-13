@@ -83,9 +83,10 @@ class Setting {
 
         // 优先使用用户配置文件，添加缺少的配置，便于版本更新同步
         mergeAndCleanConfig(config[app], defaultConfig);
-        
+
         // 手动删除不应同步的配置
         delete config[app]["oldPrompt"];
+        
         // 保存用户配置文件
         fs.writeFileSync(file, YAML.stringify(config[app]));
       } catch (error) {
