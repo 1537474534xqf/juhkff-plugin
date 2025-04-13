@@ -50,19 +50,21 @@ export class douBao extends plugin {
     );
 
     // 删除残留的视频文件
-    fs.readdirSync(pluginData).forEach((dir) => {
-      const dirPath = path.join(pluginData, dir);
-      if (fs.statSync(dirPath).isDirectory()) {
-        fs.readdirSync(dirPath).forEach((dir2) => {
-          const dirPath2 = path.join(dirPath, dir2);
-          if (fs.statSync(dirPath2).isDirectory() && dir2 === "video") {
-            fs.readdirSync(dirPath2).forEach((file) => {
-              fs.unlinkSync(path.join(dirPath2, file));
-            });
-          }
-        });
-      }
-    });
+    if (fs.existsSync(pluginData)) {
+      fs.readdirSync(pluginData).forEach((dir) => {
+        const dirPath = path.join(pluginData, dir);
+        if (fs.statSync(dirPath).isDirectory()) {
+          fs.readdirSync(dirPath).forEach((dir2) => {
+            const dirPath2 = path.join(dirPath, dir2);
+            if (fs.statSync(dirPath2).isDirectory() && dir2 === "video") {
+              fs.readdirSync(dirPath2).forEach((file) => {
+                fs.unlinkSync(path.join(dirPath2, file));
+              });
+            }
+          });
+        }
+      });
+    }
     // TODO 其实开关关了的话没必要启定时任务，暂时先这么写了
     if (this.Config.useDouBao) {
       this.cleanupInterval = setInterval(async () => {
