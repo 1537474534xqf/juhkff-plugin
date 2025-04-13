@@ -4,7 +4,7 @@ useDouBao: false
 useVideoGenerate: false
 videoGenerate:
   # 视频生成apiKey
-  apiKey:
+  apiKey: ""
   # 请求地址
   url: https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks
   # 模型名称
@@ -15,9 +15,9 @@ imageGenerate:
   # 请求Host
   host: visual.volcengineapi.com
   # accessKeyId
-  accessKeyId:
+  accessKeyId: ""
   # secretAccessKey
-  secretAccessKey:
+  secretAccessKey: ""
   # 服务Region
   region: cn-north-1
   # 服务Service
@@ -30,9 +30,9 @@ imageGenerate:
   reqKey: high_aes_general_v21_L
   # 以下为空的配置会取默认值
   # 模型版本名称
-  modelVersion:
+  modelVersion: ""
   # 生成模式：general_v20_9B_pe美感版（默认）——美感更好，出图多样性更多；general_v20_9B_rephraser标准版——图文匹配度更好，结构表现更好
-  reqScheduleConf:
+  reqScheduleConf: ""
   # 开启文本扩写，会针对输入prompt进行扩写优化，如果输入prompt较短建议开启，如果输入prompt较长建议关闭
   usePreLlm: true
   # 内置的超分功能，开启后可将上述宽高均乘以2返回，此参数打开后延迟会有增加。如上述宽高均为512和512，此参数关闭出图 512*512 ，此参数打开出图1024 * 1024
@@ -44,11 +44,11 @@ imageGenerate:
   # 算法名称
   withImgReqKey: high_aes_scheduler_svr_controlnet_v2.0
   # 模型版本名称
-  withImgModelVersion:
+  withImgModelVersion: ""
   # 是否开启扩写。如果输入内容较短建议开启扩写，输入内容过长可根据情况进行关闭，否则可能会影响图文匹配程度。
-  withImgUseRephraser:
+  withImgUseRephraser: true
   # 输出是否返回图片链接 （链接有效期为24小时）
-  withImgReturnUrl:
+  withImgReturnUrl: false
   # 类似controlnet配置
   withImgControlnetArgs:
     # 可参考输入图的canny（轮廓边缘）、depth（景深）、pose（人物姿态）进行出图

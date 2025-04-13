@@ -375,7 +375,7 @@ export function supportGuoba() {
           component: "Switch",
         },
         {
-          field: "douBao.videoGenerateConfig",
+          field: "douBao.videoGenerate",
           label: "视频生成配置",
           bottomHelpMessage: "视频生成相关的配置",
           component: "GSubForm",
@@ -384,28 +384,21 @@ export function supportGuoba() {
               maxHeight: '100px', // 设置最大高度
               overflowY: 'auto'   // 添加垂直滚动条
             },
-            multiple: false,
             schemas: [
               {
-                field: "videoGenerateApiKey",
+                field: "apiKey",
                 label: "ApiKey",
                 bottomHelpMessage: "官网: https://console.volcengine.com/ark/",
                 component: "Input",
               },
               {
-                field: "useVideoGenerate",
-                label: "视频生成开关",
-                bottomHelpMessage: "若开启，会启用视频生成功能",
-                component: "Switch",
-              },
-              {
-                field: "videoGenerateUrl",
+                field: "url",
                 label: "视频生成URL",
                 bottomHelpMessage: "视频生成请求URL，官方没有变动就不需要改默认值",
                 component: "Input",
               },
               {
-                field: "videoGenerateModel",
+                field: "model",
                 label: "视频生成模型",
                 bottomHelpMessage: "官网文档模型ID: https://www.volcengine.com/docs/82379/1330310",
                 component: "Input",
@@ -420,7 +413,7 @@ export function supportGuoba() {
           component: "Switch",
         },
         {
-          field: "douBao.imageGenerateConfig",
+          field: "douBao.imageGenerate",
           label: "图片生成配置",
           bottomHelpMessage: "图片生成相关的配置",
           component: "GSubForm",
@@ -429,98 +422,162 @@ export function supportGuoba() {
               maxHeight: '100px', // 设置最大高度
               overflowY: 'auto'   // 添加垂直滚动条
             },
-            multiple: false,
             schemas: [
               {
-                field: "imageGenerateAccessKeyId",
+                field: "accessKeyId",
                 label: "AccessKeyId",
                 bottomHelpMessage:
                   "必填！官网密钥: https://console.volcengine.com/iam/keymanage",
                 component: "InputPassword",
               },
               {
-                field: "imageGenerateSecretAccessKey",
+                field: "secretAccessKey",
                 label: "SecretAccessKey",
                 bottomHelpMessage:
                   "必填！官网密钥: https://console.volcengine.com/iam/keymanage",
                 component: "InputPassword",
               },
               {
-                field: "imageGenerateHost",
-                label: "服务HOST",
+                field: "host",
+                label: "服务Host",
                 bottomHelpMessage:
                   "官方没有变动就不需要改默认值",
                 component: "Input",
               },
               {
-                field: "imageGenerateRegion",
+                field: "region",
                 label: "服务Region",
                 bottomHelpMessage:
                   "官方没有变动就不需要改默认值",
                 component: "Input",
               },
               {
-                field: "imageGenerateService",
+                field: "service",
                 label: "服务名称",
                 bottomHelpMessage:
                   "官方没有变动就不需要改默认值",
                 component: "Input",
               },
               {
-                field: "imageGenerateAction",
+                field: "action",
                 label: "服务Action",
                 bottomHelpMessage:
                   "官方没有变动就不需要改默认值",
                 component: "Input",
               },
               {
-                field: "imageGenerateVersion",
+                field: "version",
                 label: "服务Version",
                 bottomHelpMessage:
                   "官方没有变动就不需要改默认值",
                 component: "Input",
               },
               {
-                field: "imageGenerateReqKey",
-                label: "图片生成算法",
+                component: "Divider"
+              },
+              {
+                field: "reqKey",
+                label: "文生图算法",
                 bottomHelpMessage:
                   "官方没有变动就不需要改默认值",
                 component: "Input",
               },
               {
-                field: "imageGenerateModelVersion",
-                label: "模型版本名称",
+                field: "modelVersion",
+                label: "模型名称",
                 bottomHelpMessage:
                   "官方没有变动就不需要改默认值（为空时会自动取默认值，下面同理）",
                 component: "Input",
               },
               {
-                field: "imageGenerateReqScheduleConf",
+                field: "reqScheduleConf",
                 label: "生成模式",
                 bottomHelpMessage:
                   "置空则默认为`general_v20_9B_pe`美感版——美感更好，出图多样性更多；`general_v20_9B_rephraser`标准版——图文匹配度更好，结构表现更好",
                 component: "Input",
               },
               {
-                field: "imageGenerateUsePreLlm",
-                label: "开启文本扩写",
+                field: "usePreLlm",
+                label: "文本扩写",
                 bottomHelpMessage:
                   "会针对输入prompt进行扩写优化，如果输入prompt较短建议开启，如果输入prompt较长建议关闭",
                 component: "Switch",
               },
               {
-                field: "imageGenerateUseSr",
-                label: "开启超分",
+                field: "useSr",
+                label: "超分",
                 bottomHelpMessage:
                   "开启后可将生图宽高均乘以2，此参数打开后延迟会有增加。如上述宽高均为512和512，此参数关闭出图 512*512 ，此参数打开出图1024 * 1024",
                 component: "Switch",
               },
               {
-                field: "imageGenerateReturnUrl",
-                label: "只返回图片链接",
+                field: "returnUrl",
+                label: "只返回链接",
                 bottomHelpMessage:
                   "是否只返回图片链接 （链接有效期为24小时）",
                 component: "Switch",
+              },
+              {
+                component: "Divider"
+              },
+              {
+                field: "withImgReqKey",
+                label: "图生图算法",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值",
+                component: "Input",
+              },
+              {
+                field: "withImgModelVersion",
+                label: "模型名称",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值（为空时会自动取默认值，下面同理）",
+                component: "Input",
+              },
+              {
+                field: "withImgUseRephraser",
+                label: "文本扩写",
+                bottomHelpMessage:
+                  "如果输入内容较短建议开启扩写，输入内容过长可根据情况进行关闭，否则可能会影响图文匹配程度",
+                component: "Switch",
+              },
+              {
+                field: "withImgReturnUrl",
+                label: "只返回链接",
+                bottomHelpMessage:
+                  "是否只返回图片链接 （链接有效期为24小时）",
+                component: "Switch",
+              },
+              {
+                field: "withImgControlnetArgs",
+                label: "图生图配置",
+                bottomHelpMessage:
+                  "参考模式和强度设置",
+                component: "GSubForm",
+                componentProps: {
+                  schemas: [
+                    {
+                      field: "type",
+                      label: "图生图参考模式",
+                      bottomHelpMessage:
+                        "可参考输入图的canny（轮廓边缘）、depth（景深）、pose（人物姿态）进行出图",
+                      component: "Input",
+                      placeholder: "canny | depth | pose",
+                    },
+                    {
+                      field: "strength",
+                      label: "图生图参考的强度",
+                      bottomHelpMessage:
+                        "数值范围(0.0, 1.0]，数值越大越接近参考图",
+                      component: "InputNumber",
+                      componentProps: {
+                        min: 0,
+                        max: 1,
+                        step: 0.01,
+                      },
+                    }
+                  ]
+                },
               },
             ],
           }
@@ -529,14 +586,7 @@ export function supportGuoba() {
       // 获取配置数据方法（用于前端填充显示数据）
       getConfigData() {
         var config = setting.getAllConfig();
-        var guobaConfig = {};
-        //将二层配置转为一层配置
-        for (var app in config) {
-          for (var key in config[app]) {
-            guobaConfig[`${app}.${key}`] = config[app][key];
-          }
-        }
-        return guobaConfig;
+        return config;
       },
       // 设置配置的方法（前端点确定后调用的方法）
       setConfigData(data, { Result }) {
