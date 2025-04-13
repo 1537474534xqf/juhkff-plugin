@@ -11,16 +11,16 @@ useContext: true
 maxHistoryLength: 5
 
 # AI接口选择，如果attachUrlAnalysis开启，则该接口也会用于URL内容总结。可选项：deepseek,siliconflow
-chatApi: 
+chatApi: ""
 
 # 群聊ApiKey
-chatApiKey:
+chatApiKey: ""
 
 # 模型选择
-chatModel: 
+chatModel: ""
 
 # 模型请求URL
-apiCustomUrl:
+apiCustomUrl: ""
 
 # 默认触发主动回复的概率
 defaultChatRate: 0.1
@@ -51,16 +51,16 @@ useVisual: false
 visualReplaceChat: false
 
 # 视觉AI接口选择
-visualApi:
+visualApi: ""
 
 # 视觉模型 Api Key
-visualApiKey:
+visualApiKey: ""
 
 # 视觉模型选择，可选项：Qwen/Qwen2-VL-72B-Instruct
-visualModel:
+visualModel: ""
 
 # 视觉模型请求URL
-visualApiCustomUrl:
+visualApiCustomUrl: ""
 
 # 用于生成绘画的预设
 textToPaintPrompt:

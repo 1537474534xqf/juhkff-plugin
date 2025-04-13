@@ -95,7 +95,7 @@ export function supportGuoba() {
           label: "群聊AI ApiKey",
           bottomHelpMessage:
             "填写AI接口和ApiKey、确保主动群聊开关开启后，务必先保存并刷新页面，否则模型无法选择！",
-          component: "Input",
+          component: "InputPassword",
         },
         ...appendIfShouldInputSelf(),
         {
@@ -185,16 +185,17 @@ export function supportGuoba() {
           label: "视觉AI ApiKey",
           bottomHelpMessage:
             "填写AI接口和ApiKey、确保视觉AI接口开启后，务必先保存并刷新页面，否则模型无法选择！",
-          component: "Input",
+          component: "InputPassword",
         },
         ...appendIfShouldInputSelfVisual(),
         {
           field: "autoReply.chatPrompt",
           label: "群聊预设",
           bottomHelpMessage: "定义BOT的人设或信息处理的基本逻辑",
-          component: "Input",
+          component: "InputTextArea",
           componentProps: {
             placeholder: "请输入群聊预设",
+            rows: 6,
           },
         },
         {
@@ -209,7 +210,7 @@ export function supportGuoba() {
           label: "定时生成情感时间",
           bottomHelpMessage:
             "秒[0,59] 分钟[0,59] 小时[0,23] 日期[1,31] 月份[1,12] 星期[0,7/SUN,SAT]",
-          component: "Input",
+          component: "EasyCron",
           componentProps: {
             placeholder: "*表示任意，?表示不指定（月日和星期互斥）",
           },
@@ -218,9 +219,10 @@ export function supportGuoba() {
           field: "autoReply.emotionGeneratePrompt",
           label: "情感生成预设",
           bottomHelpMessage: "BOT的每日心情生成所使用的预设",
-          component: "Input",
+          component: "InputTextArea",
           componentProps: {
             placeholder: "请输入心情预设",
+            rows: 3,
           },
         },
         {
@@ -257,7 +259,7 @@ export function supportGuoba() {
           label: "定时发送日报时间",
           bottomHelpMessage:
             "秒[0,59] 分钟[0,59] 小时[0,23] 日期[1,31] 月份[1,12] 星期[0,7/SUN,SAT]",
-          component: "Input",
+          component: "EasyCron",
           componentProps: {
             placeholder: "*表示任意，?表示不指定（月日和星期互斥）",
           },
@@ -355,18 +357,236 @@ export function supportGuoba() {
             ],
           },
         },
+        {
+          label: "豆包",
+          // 第四个分组标记开始
+          component: "SOFT_GROUP_BEGIN",
+        },
+        {
+          field: "douBao.useDouBao",
+          label: "豆包开关",
+          bottomHelpMessage: "只有处于开启状态才会启用豆包相关功能",
+          component: "Switch",
+        },
+        {
+          field: "douBao.useVideoGenerate",
+          label: "视频生成开关",
+          bottomHelpMessage: "若开启，会启用视频生成功能",
+          component: "Switch",
+        },
+        {
+          field: "douBao.videoGenerate",
+          label: "视频生成配置",
+          bottomHelpMessage: "视频生成相关的配置",
+          component: "GSubForm",
+          componentProps: {
+            style: {
+              maxHeight: '100px', // 设置最大高度
+              overflowY: 'auto'   // 添加垂直滚动条
+            },
+            schemas: [
+              {
+                field: "apiKey",
+                label: "ApiKey",
+                bottomHelpMessage: "官网: https://console.volcengine.com/ark/",
+                component: "Input",
+              },
+              {
+                field: "url",
+                label: "视频生成URL",
+                bottomHelpMessage: "视频生成请求URL，官方没有变动就不需要改默认值",
+                component: "Input",
+              },
+              {
+                field: "model",
+                label: "视频生成模型",
+                bottomHelpMessage: "官网文档模型ID: https://www.volcengine.com/docs/82379/1330310",
+                component: "Input",
+              },
+            ]
+          },
+        },
+        {
+          field: "douBao.useImageGenerate",
+          label: "图片生成开关",
+          bottomHelpMessage: "若开启，会启用文生图/图生图功能",
+          component: "Switch",
+        },
+        {
+          field: "douBao.imageGenerate",
+          label: "图片生成配置",
+          bottomHelpMessage: "图片生成相关的配置",
+          component: "GSubForm",
+          componentProps: {
+            style: {
+              maxHeight: '100px', // 设置最大高度
+              overflowY: 'auto'   // 添加垂直滚动条
+            },
+            schemas: [
+              {
+                field: "accessKeyId",
+                label: "AccessKeyId",
+                bottomHelpMessage:
+                  "必填！官网密钥: https://console.volcengine.com/iam/keymanage",
+                component: "InputPassword",
+              },
+              {
+                field: "secretAccessKey",
+                label: "SecretAccessKey",
+                bottomHelpMessage:
+                  "必填！官网密钥: https://console.volcengine.com/iam/keymanage",
+                component: "InputPassword",
+              },
+              {
+                field: "host",
+                label: "服务Host",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值",
+                component: "Input",
+              },
+              {
+                field: "region",
+                label: "服务Region",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值",
+                component: "Input",
+              },
+              {
+                field: "service",
+                label: "服务名称",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值",
+                component: "Input",
+              },
+              {
+                field: "action",
+                label: "服务Action",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值",
+                component: "Input",
+              },
+              {
+                field: "version",
+                label: "服务Version",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值",
+                component: "Input",
+              },
+              {
+                component: "Divider"
+              },
+              {
+                field: "reqKey",
+                label: "文生图算法",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值",
+                component: "Input",
+              },
+              {
+                field: "modelVersion",
+                label: "模型名称",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值（为空时会自动取默认值，下面同理）",
+                component: "Input",
+              },
+              {
+                field: "reqScheduleConf",
+                label: "生成模式",
+                bottomHelpMessage:
+                  "置空则默认为`general_v20_9B_pe`美感版——美感更好，出图多样性更多；`general_v20_9B_rephraser`标准版——图文匹配度更好，结构表现更好",
+                component: "Input",
+              },
+              {
+                field: "usePreLlm",
+                label: "文本扩写",
+                bottomHelpMessage:
+                  "会针对输入prompt进行扩写优化，如果输入prompt较短建议开启，如果输入prompt较长建议关闭",
+                component: "Switch",
+              },
+              {
+                field: "useSr",
+                label: "超分",
+                bottomHelpMessage:
+                  "开启后可将生图宽高均乘以2，此参数打开后延迟会有增加。如上述宽高均为512和512，此参数关闭出图 512*512 ，此参数打开出图1024 * 1024",
+                component: "Switch",
+              },
+              {
+                field: "returnUrl",
+                label: "只返回链接",
+                bottomHelpMessage:
+                  "是否只返回图片链接 （链接有效期为24小时）",
+                component: "Switch",
+              },
+              {
+                component: "Divider"
+              },
+              {
+                field: "withImgReqKey",
+                label: "图生图算法",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值",
+                component: "Input",
+              },
+              {
+                field: "withImgModelVersion",
+                label: "模型名称",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值（为空时会自动取默认值，下面同理）",
+                component: "Input",
+              },
+              {
+                field: "withImgUseRephraser",
+                label: "文本扩写",
+                bottomHelpMessage:
+                  "如果输入内容较短建议开启扩写，输入内容过长可根据情况进行关闭，否则可能会影响图文匹配程度",
+                component: "Switch",
+              },
+              {
+                field: "withImgReturnUrl",
+                label: "只返回链接",
+                bottomHelpMessage:
+                  "是否只返回图片链接 （链接有效期为24小时）",
+                component: "Switch",
+              },
+              {
+                field: "withImgControlnetArgs",
+                label: "图生图配置",
+                bottomHelpMessage:
+                  "参考模式和强度设置",
+                component: "GSubForm",
+                componentProps: {
+                  schemas: [
+                    {
+                      field: "type",
+                      label: "图生图参考模式",
+                      bottomHelpMessage:
+                        "可参考输入图的canny（轮廓边缘）、depth（景深）、pose（人物姿态）进行出图",
+                      component: "Input",
+                      placeholder: "canny | depth | pose",
+                    },
+                    {
+                      field: "strength",
+                      label: "图生图参考的强度",
+                      bottomHelpMessage:
+                        "数值范围(0.0, 1.0]，数值越大越接近参考图",
+                      component: "InputNumber",
+                      componentProps: {
+                        min: 0,
+                        max: 1,
+                        step: 0.01,
+                      },
+                    }
+                  ]
+                },
+              },
+            ],
+          }
+        }
       ],
       // 获取配置数据方法（用于前端填充显示数据）
       getConfigData() {
         var config = setting.getAllConfig();
-        var guobaConfig = {};
-        //将二层配置转为一层配置
-        for (var app in config) {
-          for (var key in config[app]) {
-            guobaConfig[`${app}.${key}`] = config[app][key];
-          }
-        }
-        return guobaConfig;
+        return config;
       },
       // 设置配置的方法（前端点确定后调用的方法）
       setConfigData(data, { Result }) {
@@ -493,7 +713,7 @@ function validate(before, after, config) {
   }
   // 因为实现逻辑和结构体不同，所以切换时删除之前的redis存储
   if (origin.visualReplaceChat != after.visualReplaceChat) {
-    removeSubKeys("juhkff:auto_reply", EMOTION_KEY).then(() => {});
+    removeSubKeys("juhkff:auto_reply", EMOTION_KEY).then(() => { });
   }
   return {
     code: 0,

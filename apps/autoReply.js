@@ -30,7 +30,7 @@ export class autoReply extends plugin {
       name: "[扎克芙芙]主动回复群聊",
       dsc: "主动回复群聊",
       event: "message",
-      priority: 9999,
+      priority: 9999, // 优先级，越小越先执行
       rule: [
         {
           reg: "^((?!#).)*$", // 匹配所有非#开头的文本

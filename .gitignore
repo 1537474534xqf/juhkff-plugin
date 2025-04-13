@@ -1,5 +1,5 @@
-config/*.yaml
-!config/default/*.yaml
+config/*
+!config/default
 data
 node_modules
 pnpm-lock.yaml

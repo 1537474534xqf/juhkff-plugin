@@ -7,6 +7,7 @@ import Objects from "#juhkff.kits";
 class Setting {
   constructor() {
     /** 用户设置 */
+    this.appFile = {};
     this.configPath = path.join(pluginRoot, "config");
     this.config = this.initConfig();
 
@@ -26,19 +27,27 @@ class Setting {
     );
     for (const defaultFile of files) {
       const app = path.basename(defaultFile, ".yaml");
-      if (!fs.existsSync(path.join(this.configPath, `${app}.yaml`))) {
+      // 获取相对于 defaultConfigDir 的路径，并去掉 .yaml 扩展名
+      const relativePath = path.relative(defaultConfigDir, defaultFile);
+      const dirPath = path.dirname(path.join(this.configPath, relativePath));
+      if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+      }
+      if (!fs.existsSync(path.join(this.configPath, `${relativePath}`))) {
         // 复制 default 内对应的 yaml 文件到 config/*.yaml 中
         fs.copyFileSync(
-          path.join(defaultConfigDir, `${app}.yaml`),
-          path.join(this.configPath, `${app}.yaml`)
+          path.join(defaultConfigDir, `${relativePath}`),
+          path.join(this.configPath, `${relativePath}`)
         );
         logger.info(`已复制 ${app} 默认配置文件`);
       }
-      var file = path.join(this.configPath, `${app}.yaml`);
+      var file = path.join(this.configPath, `${relativePath}`);
       if (app in config) {
         logger.error(`[${app}] 配置文件不止一个`);
         return false;
       }
+
+      this.appFile[app] = file;
 
       try {
         // 先读取用户配置文件
@@ -54,21 +63,26 @@ class Setting {
           }
         }
 
-        // 优先使用用户配置文件，添加缺少的配置，便于版本更新同步
-        for (var key in config[app]) {
-          if (key in defaultConfig) {
-            delete defaultConfig[key];
-          } else {
-            // 用户配置中多余的配置
-            // delete config[app][key];
+        // 新增方法来处理多层级配置
+        function mergeAndCleanConfig(userConfig, defaultConfig) {
+          for (var key in defaultConfig) {
+            if (userConfig.hasOwnProperty(key)) {
+              if (typeof userConfig[key] === 'object' && userConfig[key] !== null && typeof defaultConfig[key] === 'object' && defaultConfig[key] !== null) {
+                // 递归处理嵌套对象
+                mergeAndCleanConfig(userConfig[key], defaultConfig[key]);
+              } else {
+                // 删除 defaultConfig 中存在的键
+                delete defaultConfig[key];
+              }
+            } else {
+              // 用户配置中没有的配置，添加到用户配置中
+              userConfig[key] = defaultConfig[key];
+            }
           }
         }
-        // 手动删除不应同步的配置
-        delete defaultConfig["oldPrompt"];
-        // 新增配置同步到用户配置文件中
-        for (var key in defaultConfig) {
-          config[app][key] = defaultConfig[key];
-        }
+
+        // 优先使用用户配置文件，添加缺少的配置，便于版本更新同步
+        mergeAndCleanConfig(config[app], defaultConfig);
         // 保存用户配置文件
         fs.writeFileSync(file, YAML.stringify(config[app]));
       } catch (error) {
@@ -89,10 +103,8 @@ class Setting {
     // 保存
     for (var app in this.config) {
       try {
-        fs.writeFileSync(
-          path.join(this.configPath, `${app}.yaml`),
-          YAML.stringify(this.config[app])
-        );
+        var filePath = this.appFile[app];
+        fs.writeFileSync(filePath, YAML.stringify(this.config[app]));
       } catch (error) {
         logger.error(`[${app}.yaml] 格式错误 ${error}`);
         return error;
@@ -127,15 +139,12 @@ class Setting {
     const files = fs.readdirSync(dir);
     files.forEach((file) => {
       const filePath = path.join(dir, file);
-      fileList.push(filePath);
-      /*
       const stat = fs.statSync(filePath);
       if (stat.isDirectory()) {
-        getAllFiles(filePath, fileList);
+        this.getAllFiles(filePath, fileList);
       } else {
         fileList.push(filePath);
       }
-      */
     });
     return fileList;
   }

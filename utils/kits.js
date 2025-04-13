@@ -26,3 +26,32 @@ export default class Objects {
     return objs.some((obj) => Objects.isNull(obj));
   }
 }
+
+export class Base64 {
+  static getBase64ImageType(base64) {
+    // 将Base64数据解码为二进制数据
+    const binaryData = Buffer.from(base64, "base64");
+
+    // 获取前几个字节作为魔数（magic number）
+    const magicNumber = binaryData.subarray(0, 2).toString("hex").toUpperCase();
+
+    // 根据魔数确定图片类型
+    switch (magicNumber) {
+      case "8950":
+        return "data:image/png;base64,";
+      case "FFD8":
+        return "data:image/jpeg;base64,";
+      case "4749":
+        return "data:image/gif;base64,";
+      case "424D":
+        return "data:image/bmp;base64,";
+      case "5249":
+        return "data:image/webp;base64,";
+      case "4949":
+      case "4D4D":
+        return "data:image/tiff;base64,";
+      default:
+        return null;
+    }
+  }
+}
