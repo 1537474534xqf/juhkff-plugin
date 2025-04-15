@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from 'url';
 
 const _filename = fileURLToPath(import.meta.url);
 // 插件根目录 /../../plugins/juhkff-plugin
@@ -30,6 +30,7 @@ const files = await getFiles(path.join(pluginRoot, "apps")).then((files) =>
 );
 
 files.forEach((file) => {
+  file = pathToFileURL(file).href;  // 支持 Windows 路径
   ret.push(import(file));
 });
 
