@@ -81,24 +81,6 @@ export function supportGuoba() {
           },
         },
         {
-          field: "autoReply.chatApi",
-          label: "群聊AI接口选择",
-          bottomHelpMessage:
-            "AI接口选择，如果开启解析URL，则该接口也会用于URL内容总结",
-          component: "Select",
-          componentProps: {
-            options: listAllChatApi(),
-          },
-        },
-        {
-          field: "autoReply.chatApiKey",
-          label: "群聊AI ApiKey",
-          bottomHelpMessage:
-            "填写AI接口和ApiKey、确保主动群聊开关开启后，务必先保存并刷新页面，否则模型无法选择！",
-          component: "InputPassword",
-        },
-        ...appendIfShouldInputSelf(),
-        {
           field: "autoReply.defaultChatRate",
           label: "主动回复概率",
           bottomHelpMessage: "概率小数[0,1]，越高越容易触发主动回复",
@@ -159,36 +141,6 @@ export function supportGuoba() {
           },
         },
         {
-          field: "autoReply.useVisual",
-          label: "是否使用视觉AI接口",
-          bottomHelpMessage: "开启此选项可对图片进行识别并应用于上下文记忆",
-          component: "Switch",
-        },
-        {
-          field: "autoReply.visualReplaceChat",
-          label: "视觉AI替代群聊AI",
-          bottomHelpMessage:
-            "开启此选项，视觉AI将替代群聊AI，群聊AI设置将失效；关闭此选项（并开启视觉AI接口），视觉AI仅会将图片转文本存入上下文。群聊AI准确度高于视觉AI时可关闭该项。切换此选项会清空已经记录的上下文",
-          component: "Switch",
-        },
-        {
-          field: "autoReply.visualApi",
-          label: "视觉AI接口选择",
-          bottomHelpMessage: "可选项：siliconflow",
-          component: "Select",
-          componentProps: {
-            options: listAllVisualApi(),
-          },
-        },
-        {
-          field: "autoReply.visualApiKey",
-          label: "视觉AI ApiKey",
-          bottomHelpMessage:
-            "填写AI接口和ApiKey、确保视觉AI接口开启后，务必先保存并刷新页面，否则模型无法选择！",
-          component: "InputPassword",
-        },
-        ...appendIfShouldInputSelfVisual(),
-        {
           field: "autoReply.chatPrompt",
           label: "群聊预设",
           bottomHelpMessage: "定义BOT的人设或信息处理的基本逻辑",
@@ -225,6 +177,84 @@ export function supportGuoba() {
             rows: 3,
           },
         },
+        {
+          component: "Divider",
+          label: "常规接口配置",
+          componentProps: {
+            type: "horizontal",
+            style: {
+              fontWeight: "bold",
+              color: "rgb(76, 113, 201)",
+              fontSize: "16px",
+            },
+            // 前端写死了，这里写啥其实都没用
+            orientation: "left",
+            plain: true,
+          },
+        },
+        {
+          field: "autoReply.chatApi",
+          label: "群聊AI接口选择",
+          bottomHelpMessage:
+            "AI接口选择，如果开启解析URL，则该接口也会用于URL内容总结",
+          component: "Select",
+          componentProps: {
+            options: listAllChatApi(),
+          },
+        },
+        {
+          field: "autoReply.chatApiKey",
+          label: "群聊AI ApiKey",
+          bottomHelpMessage:
+            "填写AI接口和ApiKey、确保主动群聊开关开启后，务必先保存并刷新页面，否则模型无法选择！",
+          component: "InputPassword",
+        },
+        ...appendIfShouldInputSelf(),
+        {
+          component: "Divider",
+          label: "视觉接口配置",
+          componentProps: {
+            type: "horizontal",
+            style: {
+              fontWeight: "bold",
+              color: "rgb(76, 113, 201)",
+              fontSize: "16px",
+            },
+            // 前端写死了，这里写啥其实都没用
+            orientation: "left",
+            plain: true,
+          },
+        },
+        {
+          field: "autoReply.useVisual",
+          label: "是否使用视觉AI接口",
+          bottomHelpMessage: "开启此选项可对图片进行识别并应用于上下文记忆",
+          component: "Switch",
+        },
+        {
+          field: "autoReply.visualReplaceChat",
+          label: "视觉AI替代群聊AI",
+          bottomHelpMessage:
+            "开启此选项，视觉AI将替代群聊AI，常规接口配置将失效；关闭此选项（并开启视觉AI接口），视觉AI仅会将图片转文本存入上下文。群聊AI准确度高于视觉AI时可关闭该项。切换此选项会清空已经记录的上下文",
+          component: "Switch",
+        },
+        {
+          field: "autoReply.visualApi",
+          label: "视觉AI接口选择",
+          bottomHelpMessage: "可选项：siliconflow",
+          component: "Select",
+          componentProps: {
+            options: listAllVisualApi(),
+          },
+        },
+        {
+          field: "autoReply.visualApiKey",
+          label: "视觉AI ApiKey",
+          bottomHelpMessage:
+            "填写AI接口和ApiKey、确保视觉AI接口开启后，务必先保存并刷新页面，否则模型无法选择！",
+          component: "InputPassword",
+        },
+        ...appendIfShouldInputSelfVisual(),
         {
           label: "日报配置",
           // 第二个分组标记开始
@@ -365,8 +395,23 @@ export function supportGuoba() {
         {
           field: "douBao.useDouBao",
           label: "豆包开关",
-          bottomHelpMessage: "只有处于开启状态才会启用豆包相关功能",
+          bottomHelpMessage: "启用豆包相关功能，可使用`#豆包`命令查询可用指令",
           component: "Switch",
+        },
+        {
+          component: "Divider",
+          label: "视频生成",
+          componentProps: {
+            type: "horizontal",
+            style: {
+              fontWeight: "bold",
+              color: "rgb(76, 113, 201)",
+              fontSize: "16px",
+            },
+            // 前端写死了，这里写啥其实都没用
+            orientation: "left",
+            plain: true,
+          },
         },
         {
           field: "douBao.useVideoGenerate",
@@ -380,6 +425,9 @@ export function supportGuoba() {
           bottomHelpMessage: "视频生成相关的配置",
           component: "GSubForm",
           componentProps: {
+            modalProps: {
+              title: "视频生成配置"
+            },
             style: {
               maxHeight: '100px', // 设置最大高度
               overflowY: 'auto'   // 添加垂直滚动条
@@ -407,6 +455,21 @@ export function supportGuoba() {
           },
         },
         {
+          component: "Divider",
+          label: "图片生成",
+          componentProps: {
+            type: "horizontal",
+            style: {
+              fontWeight: "bold",
+              color: "rgb(76, 113, 201)",
+              fontSize: "16px",
+            },
+            // 前端写死了，这里写啥其实都没用
+            orientation: "left",
+            plain: true,
+          },
+        },
+        {
           field: "douBao.useImageGenerate",
           label: "图片生成开关",
           bottomHelpMessage: "若开启，会启用文生图/图生图功能",
@@ -418,6 +481,9 @@ export function supportGuoba() {
           bottomHelpMessage: "图片生成相关的配置",
           component: "GSubForm",
           componentProps: {
+            modalProps: {
+              title: "图片生成配置"
+            },
             style: {
               maxHeight: '100px', // 设置最大高度
               overflowY: 'auto'   // 添加垂直滚动条
@@ -473,7 +539,19 @@ export function supportGuoba() {
                 component: "Input",
               },
               {
-                component: "Divider"
+                component: "Divider",
+                label: "文生图",
+                componentProps: {
+                  type: "horizontal",
+                  style: {
+                    fontWeight: "bold",
+                    color: "rgb(76, 113, 201)",
+                    fontSize: "16px",
+                  },
+                  // 前端写死了，这里写啥其实都没用
+                  orientation: "left",
+                  plain: true,
+                },
               },
               {
                 field: "reqKey",
@@ -518,7 +596,19 @@ export function supportGuoba() {
                 component: "Switch",
               },
               {
-                component: "Divider"
+                component: "Divider",
+                label: "图生图",
+                componentProps: {
+                  type: "horizontal",
+                  style: {
+                    fontWeight: "bold",
+                    color: "rgb(76, 113, 201)",
+                    fontSize: "16px",
+                  },
+                  // 前端写死了，这里写啥其实都没用
+                  orientation: "left",
+                  plain: true,
+                },
               },
               {
                 field: "withImgReqKey",
@@ -744,7 +834,7 @@ function onFinish(config) {
 function getChatModels() {
   var chatApi = setting.getConfig("autoReply").chatApi;
   var chatInstance = chatMap[chatApi];
-  if (!chatInstance) return ["请选择有效的群聊AI接口"]; /// 实际上没有选项
+  if (!chatInstance) return [];
   var result = [];
   for (const key of Object.keys(chatInstance.ModelMap)) {
     result.push({ label: key, value: key });
@@ -755,7 +845,7 @@ function getChatModels() {
 function getVisualModels() {
   var visualApi = setting.getConfig("autoReply").visualApi;
   var chatInstance = visualMap[visualApi];
-  if (!chatInstance) return ["请选择有效的视觉AI接口"]; // 实际上没有选项
+  if (!chatInstance) return [];
   var result = [];
   for (const key of Object.keys(chatInstance.ModelMap)) {
     result.push({ label: key, value: key });
@@ -787,12 +877,6 @@ function listAllVisualApi() {
     result.push({ label: key, value: key });
   }
   return result;
-}
-
-function chooseModelComponentType() {
-  var chatApi = setting.getConfig("autoReply").chatApi;
-  var chatInstance = chatMap[chatApi];
-  return chatInstance.ComponentType;
 }
 
 function appendIfShouldInputSelf() {

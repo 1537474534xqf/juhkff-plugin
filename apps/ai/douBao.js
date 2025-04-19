@@ -211,9 +211,9 @@ export class douBao extends plugin {
         });
       }
     }
-    await e.reply("正在生成图片，请稍等...");
     var response = await this.fetchImageGenerate(body, { timeout: 0 });
     if (response.status === this.imageGenerateSuccessCode) {
+      await e.reply("正在生成图片，请稍等...");
       var segments = [];
       if (!Objects.isNull(response.data.binary_data_base64)) {
         // 其实只会返回一张图，但就这样吧，挺好的

@@ -25,28 +25,21 @@ export async function parseImage(e) {
   for (let i = 0; i < e.message.length; i++) {
     if (e.message[i].type == "image") {
       if (!getConfig().useVisual) continue;
-      if (!getConfig().visualReplaceChat) {
-        var url = e.message[i].url;
-        var result = await analyseImage(
-          url,
-          "该图片是否为表情包，只输出是或否，不要加标点符号"
-        );
-        logger.info(`[parseImage]图片是否为表情包: ${result}`);
-        if (result === "是") {
-          // 表情包不加入消息
-          continue;
-        } else {
-          var analyseMsg = await analyseImage(url, "提取图中关键信息");
-          e.j_msg.push({
-            text: `<发送图片，图片内容的分析结果——${analyseMsg}>`,
-            type: "img2text",
-          });
-        }
+      var url = e.message[i].url;
+      var result = await analyseImage(
+        url,
+        "该图片是否为表情包，只输出是或否，不要加标点符号"
+      );
+      logger.info(`[parseImage]图片是否为表情包: ${result}`);
+      if (result === "是") {
+        // 表情包不加入消息
+        continue;
       } else {
-        // 使用视觉AI处理群聊回复的话就直接把img2base64存起来
-        var url = e.message[i].url;
-        var base64 = await url2Base64(url);
-        e.j_msg.push({ text: base64, type: "img2base64" });
+        var analyseMsg = await analyseImage(url, "提取图中关键信息");
+        e.j_msg.push({
+          text: `<发送图片，图片内容的分析结果——${analyseMsg}>`,
+          type: "img2text",
+        });
       }
     } else {
       // text和json等其他类型的消息在该方法中不做处理

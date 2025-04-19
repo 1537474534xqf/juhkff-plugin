@@ -63,10 +63,11 @@ class Setting {
           }
         }
 
-        // 新增方法来处理多层级配置
+        // 处理多层级配置
         function mergeAndCleanConfig(userConfig, defaultConfig) {
           for (var key in defaultConfig) {
             if (userConfig.hasOwnProperty(key)) {
+              // userConfig[key] !== null ?
               if (typeof userConfig[key] === 'object' && userConfig[key] !== null && typeof defaultConfig[key] === 'object' && defaultConfig[key] !== null) {
                 // 递归处理嵌套对象
                 mergeAndCleanConfig(userConfig[key], defaultConfig[key]);
@@ -85,7 +86,7 @@ class Setting {
         mergeAndCleanConfig(config[app], defaultConfig);
 
         // 手动删除不应同步的配置
-        delete config[app]["oldPrompt"];
+        delete config[app]["oldPrompt"];  // 预设默认值更新
         
         // 保存用户配置文件
         fs.writeFileSync(file, YAML.stringify(config[app]));
