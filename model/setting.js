@@ -64,6 +64,7 @@ class Setting {
         }
 
         // 处理多层级配置
+        // TODO 增量更新时会很难处理，还涉及到列表的一些判断问题，很麻烦，直接写个建议重装得了
         function mergeAndCleanConfig(userConfig, defaultConfig) {
           for (var key in defaultConfig) {
             if (userConfig.hasOwnProperty(key)) {
