@@ -33,21 +33,10 @@ export class douBao extends plugin {
         {
           // 匹配以 #图片风格化豆包 开头的消息
           reg: "^#图片风格化豆包.*",
-          fnc: "imageStyleTransfer",
+          fnc: "imageStyle",
         },
       ],
     });
-
-    this.fetchImageGenerate = getServiceApi(
-      this.Config.imageGenerate.host,
-      this.Config.imageGenerate.accessKeyId,
-      this.Config.imageGenerate.secretAccessKey,
-      "POST",
-      this.Config.imageGenerate.action,
-      this.Config.imageGenerate.version,
-      this.Config.imageGenerate.region,
-      this.Config.imageGenerate.service
-    );
 
     // 删除残留的视频文件
     if (fs.existsSync(pluginData)) {
@@ -97,6 +86,20 @@ export class douBao extends plugin {
         }
       }, 30 * 60 * 1000); // 每30分钟执行一次
     }
+    // ---------------------------------------------------- ServiceApi ----------------------------------------------------
+    if (this.Config.useDouBao) {
+      this.fetchImageService = getServiceApi(
+        this.Config.imageService.host,
+        this.Config.imageService.accessKeyId,
+        this.Config.imageService.secretAccessKey,
+        "POST",
+        this.Config.imageService.action,
+        this.Config.imageService.version,
+        this.Config.imageService.region,
+        this.Config.imageService.service
+      );
+    }
+    // --------------------------------------------------------------------------------------------------------------------
   }
 
   get Config() {
@@ -112,12 +115,115 @@ export class douBao extends plugin {
       helpMsg += `\n  #图片生成豆包 文本描述 [-w 宽] [-h 高]`;
       helpMsg += `\n  #图片生成豆包 文本描述 图片1|图片...(同宽高)`;
     }
+    if (this.Config.useImageStyle) {
+      helpMsg += `\n  #图片风格化豆包 类型前缀 图片`;
+      helpMsg += `\n  #图片风格化豆包 类型列表`;
+    }
     await e.reply(helpMsg);
     return true;
   }
 
+  // ------------------------------------------------ 图片服务通用检查 -------------------------------------------------
+  async preCheck(e) {
+    if (
+      Objects.hasNull(
+        this.Config.imageService.accessKeyId,
+        this.Config.imageService.secretAccessKey
+      )
+    ) {
+      await e.reply("请先设置accessKeyId和secretAccessKey");
+      return false;
+    }
+  }
   // --------------------------------------------------- 图片风格化 ---------------------------------------------------
-  async imageStyleTransfer(e) { }
+
+  get imageStyleReqKeyMap() {
+    var reqKeyList = this.Config.imageStyle.reqKeyMap;
+    var reqKeyMap = {};
+    reqKeyList.forEach((item) => {
+      reqKeyMap[item.key] = item.value;
+    });
+    return reqKeyMap;
+  }
+
+  get iamgeStyleSubReqKeyMap() {
+    var subReqKeyList = this.Config.imageStyle.subReqKeyMap;
+    var subReqKeyMap = {};
+    subReqKeyList.forEach((item) => {
+      subReqKeyMap[item.key] = item.value;
+    });
+    return subReqKeyMap;
+  }
+
+  async imageStyle(e) {
+    if (!this.Config.useDouBao) return false;
+    if (!this.Config.useImageStyle) return true;
+    if (!this.preCheck(e)) return true;
+    var result = processMessage(e.message);
+    var body = {};
+    // 将指令部分去除并切分
+    result.texts = result.texts.replace(/^#图片风格化豆包/, "").trim().split(" ");
+    // 查询类型列表命令
+    if (result.texts.length == 1 && result.texts[0] == "类型列表") {
+      var typeList = Object.keys(this.imageStyleReqKeyMap);
+      var typeMsg = "可用类型列表：";
+      typeList.forEach((item) => {
+        typeMsg += `    ${item}`;
+      });
+      await e.reply(typeMsg);
+      return true;
+    }
+    if (Objects.isNull(result.images)) {
+      // 纯文本
+      await e.reply("请发送图片");
+      return true;
+    }
+    // 官方目前仅支持一张图片
+    if (Objects.isNull(result.texts) || result.texts.length != 1 || result.images.length != 1) {
+      await e.reply("请遵循格式 #图片风格化豆包 类型 图片");
+      return true;
+    }
+    var type = result.texts[0];
+    // 寻找匹配类型前缀
+    var typeList = Object.keys(this.imageStyleReqKeyMap);
+    typeList = typeList.filter((item) => {
+      return item.startsWith(type);
+    });
+    if (Objects.isNull(typeList)) {
+      await e.reply("请输入有效类型前缀");
+      return true;
+    }
+    if (typeList.length > 1) {
+      await e.reply("匹配到多个类型，请输入更精确的前缀");
+      return true;
+    }
+    type = typeList[0];
+    body.req_key = this.imageStyleReqKeyMap[type];
+    if (!Objects.isNull(this.iamgeStyleSubReqKeyMap[type]))
+      body.sub_req_key = this.iamgeStyleSubReqKeyMap[type];
+    body.image_urls = result.images;
+    body.return_url = this.Config.imageStyle.returnUrl;
+    await e.reply("正在生成图片，请稍等...");
+    var response = await this.fetchImageService(body, { timeout: 0 });
+    if (response.status === this.imageGenerateSuccessCode) {
+      var segments = [];
+      if (!Objects.isNull(response.data.binary_data_base64)) {
+        response.data.binary_data_base64.forEach((base64) => {
+          if (!base64.startsWith("data:image/"))
+            segments.push(
+              segment.image(Base64.getBase64ImageType(base64) + base64)
+            );
+          else segments.push(segment.image(base64));
+        });
+      }
+      if (!Objects.isNull(response.data.image_urls))
+        segments.push(response.data.image_urls.join("\n"));
+      await e.reply(segments);
+    } else {
+      await e.reply(`生成图片失败:${response.message}`);
+    }
+    return true;
+  }
 
   // ---------------------------------------------------- 图片生成 ----------------------------------------------------
 
@@ -128,19 +234,10 @@ export class douBao extends plugin {
   async imageGenerate(e) {
     if (!this.Config.useDouBao) return false;
     if (!this.Config.useImageGenerate) return true;
-    if (
-      Objects.hasNull(
-        this.Config.imageGenerate.accessKeyId,
-        this.Config.imageGenerate.secretAccessKey
-      )
-    ) {
-      await e.reply("请先设置accessKeyId和secretAccessKey");
-      return true;
-    }
-    var result = await processMessage(e.message);
+    if (!this.preCheck(e)) return true;
+    var result = processMessage(e.message);
     var body = {};
-    var width = null,
-      height = null;
+    var width = null, height = null;
     // 将指令部分去除
     result.texts = result.texts.replace(/^#图片生成豆包/, "").trim();
     if (Objects.isNull(result.images)) {
@@ -211,7 +308,7 @@ export class douBao extends plugin {
         });
       }
     }
-    var response = await this.fetchImageGenerate(body, { timeout: 0 });
+    var response = await this.fetchImageService(body, { timeout: 0 });
     if (response.status === this.imageGenerateSuccessCode) {
       await e.reply("正在生成图片，请稍等...");
       var segments = [];
@@ -411,7 +508,7 @@ export class douBao extends plugin {
  * images: 图片部分
  * content: 按顺序排列的消息体
  */
-async function processMessage(msgList) {
+function processMessage(msgList) {
   var result = {
     texts: "",
     images: [],

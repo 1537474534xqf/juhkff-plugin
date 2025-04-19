@@ -42,7 +42,7 @@ defaultReplyAtBot: true
 #       - xxxxxxxxx (群号...)
 #     chatRate: 0.2
 #     replyAtBot: true
-groupChatRate:
+groupChatRate: []
 
 # 是否使用视觉AI
 useVisual: false

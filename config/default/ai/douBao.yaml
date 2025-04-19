@@ -1,7 +1,9 @@
 # 总开关
 useDouBao: false
+
 # 视频生成开关
 useVideoGenerate: false
+
 videoGenerate:
   # 视频生成apiKey
   apiKey: ""
@@ -9,6 +11,22 @@ videoGenerate:
   url: https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks
   # 模型名称
   model: doubao-seaweed-241128
+
+imageService:
+  # 请求Host
+  host: visual.volcengineapi.com
+  # accessKeyId
+  accessKeyId: ""
+  # secretAccessKey
+  secretAccessKey: ""
+  # 服务Region
+  region: cn-north-1
+  # 服务Service
+  service: cv
+  # Query参数：接口名
+  action: CVProcess
+  # Query参数：版本号
+  version: 2022-08-31
 
 useImageGenerate: false
 imageGenerate:
@@ -37,7 +55,7 @@ imageGenerate:
   usePreLlm: true
   # 内置的超分功能，开启后可将上述宽高均乘以2返回，此参数打开后延迟会有增加。如上述宽高均为512和512，此参数关闭出图 512*512 ，此参数打开出图1024 * 1024
   useSr: true
-  # 输出是否返回图片链接 （链接有效期为24小时）
+  # 输出是否只返回图片链接 （链接有效期为24小时）
   returnUrl: false
 
   # 图生图
@@ -47,7 +65,7 @@ imageGenerate:
   withImgModelVersion: ""
   # 是否开启扩写。如果输入内容较短建议开启扩写，输入内容过长可根据情况进行关闭，否则可能会影响图文匹配程度。
   withImgUseRephraser: true
-  # 输出是否返回图片链接 （链接有效期为24小时）
+  # 输出是否只返回图片链接 （链接有效期为24小时）
   withImgReturnUrl: false
   # 类似controlnet配置
   withImgControlnetArgs:
@@ -57,3 +75,79 @@ imageGenerate:
     strength: 0.5
     # Controlnet要处理的图片，取值为binary_data图片的下标
     # binary_data_index: 0
+
+useImageStyle: false
+imageStyle:
+  # 接口入参相关，一般不用改
+  reqKeyMap:
+    - key: "网红日漫风"
+      value: "img2img_ghibli_style_usage"
+    - key: "3D风" 
+      value: "img2img_disney_3d_style_usage"
+    - key: "写实风"
+      value: "img2img_real_mix_style_usage"
+    - key: "天使风"
+      value: "img2img_pastel_boys_style_usage"
+    - key: "动漫风"
+      value: "img2img_cartoon_style_usage"
+    - key: "日漫风"
+      value: "img2img_makoto_style_usage"
+    - key: "公主风"
+      value: "img2img_rev_animated_style_usage"
+    - key: "梦幻风"
+      value: "img2img_blueline_style_usage"
+    - key: "水墨风"
+      value: "img2img_water_ink_style_usage"
+    - key: "新莫奈花园"
+      value: "i2i_ai_create_monet_usage"
+    - key: "水彩风"
+      value: "img2img_water_paint_style_usage"
+    - key: "莫奈花园"
+      value: "img2img_comic_style_usage"
+    - key: "精致美漫"
+      value: "img2img_comic_style_usage"
+    - key: "赛博机械"
+      value: "img2img_comic_style_usage"
+    - key: "精致韩漫"
+      value: "img2img_exquisite_style_usage"
+    - key: "国风-水墨"
+      value: "img2img_pretty_style_usage"
+    - key: "浪漫光影"
+      value: "img2img_pretty_style_usage"
+    - key: "陶瓷娃娃"
+      value: "img2img_ceramics_style_usage"
+    - key: "中国红"
+      value: "img2img_chinese_style_usage"
+    - key: "丑萌粘土"
+      value: "img2img_clay_style_usage"
+    - key: "可爱玩偶"
+      value: "img2img_clay_style_usage"
+    - key: "3D-游戏_Z时代"
+      value: "img2img_3d_style_usage"
+    - key: "动画电影"
+      value: "img2img_3d_style_usage"
+    - key: "玩偶"
+      value: "img2img_3d_style_usage"
+  subReqKeyMap:
+    - key: "莫奈花园"
+      value: "img2img_comic_style_monet"
+    - key: "精致美漫"
+      value: "img2img_comic_style_marvel"
+    - key: "赛博机械"
+      value: "img2img_comic_style_future"
+    - key: "国风-水墨"
+      value: "img2img_pretty_style_ink"
+    - key: "浪漫光影"
+      value: "img2img_pretty_style_light"
+    - key: "丑萌粘土"
+      value: "img2img_clay_style_3d"
+    - key: "可爱玩偶"
+      value: "img2img_clay_style_bubble"
+    - key: "3D-游戏_Z时代"
+      value: "img2img_3d_style_era"
+    - key: "动画电影"
+      value: "img2img_3d_style_movie"
+    - key: "玩偶"
+      value: "img2img_3d_style_doll"
+  # 输出是否只返回图片链接 （链接有效期为24小时）
+  returnUrl: false

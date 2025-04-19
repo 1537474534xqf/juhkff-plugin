@@ -18,4 +18,4 @@ dailyReportTime: 0 0 12 * * ?
 # - xxxxxxxxx (群号1)
 # - xxxxxxxxx (群号2)
 # - xxxxxxxxx (群号...)
-pushGroupList:
+pushGroupList: []
