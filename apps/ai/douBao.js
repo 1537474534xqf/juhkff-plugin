@@ -205,6 +205,10 @@ export class douBao extends plugin {
     body.return_url = this.Config.imageStyle.returnUrl;
     await e.reply("正在生成图片，请稍等...");
     var response = await this.fetchImageService(body, { timeout: 0 });
+    if (response?.ResponseMetadata?.Error) {
+      await e.reply(`生成图片失败: ${response?.ResponseMetadata?.Error?.Code}. ${response?.ResponseMetadata?.Error?.Message}`);
+      return true;
+    }
     if (response.status === this.imageGenerateSuccessCode) {
       var segments = [];
       if (!Objects.isNull(response.data.binary_data_base64)) {
