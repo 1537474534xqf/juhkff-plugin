@@ -76,13 +76,20 @@ imageGenerate:
     # Controlnet要处理的图片，取值为binary_data图片的下标
     # binary_data_index: 0
 
+# 图片生成-角色特征保持
+useImageImitate: false
+imageImitate:
+  reqKey: high_aes_ip_v20
+  useSr: false
+  returnUrl: false
+
 useImageStyle: false
 imageStyle:
   # 接口入参相关，一般不用改
   reqKeyMap:
     - key: "网红日漫风"
       value: "img2img_ghibli_style_usage"
-    - key: "3D风" 
+    - key: "3D风"
       value: "img2img_disney_3d_style_usage"
     - key: "写实风"
       value: "img2img_real_mix_style_usage"

@@ -731,6 +731,7 @@ export function supportGuoba() {
               title: "图片风格化配置"
             },
             style: {
+              maxWidth: '600px', // 设置最大宽度
               maxHeight: '100px', // 设置最大高度
               overflowY: 'auto',   // 添加垂直滚动条
             },
@@ -786,6 +787,62 @@ export function supportGuoba() {
                   "是否只返回图片链接 （链接有效期为24小时）",
                 component: "Switch",
               }
+            ]
+          }
+        },
+        {
+          component: "Divider",
+          label: "图片模仿",
+          componentProps: {
+            type: "horizontal",
+            style: {
+              fontWeight: "bold",
+              color: "rgb(66, 162, 125)",
+              fontSize: "16px",
+            },
+            orientation: "left",
+            plain: true,
+          },
+        },
+        {
+          field: "douBao.useImageImitate",
+          label: "开关",
+          component: "Switch",
+        },
+        {
+          field: "douBao.imageImitate",
+          label: "配置",
+          component: "GSubForm",
+          componentProps: {
+            modalProps: {
+              title: "图片模仿配置"
+            },
+            style: {
+              maxHeight: '100px', // 设置最大高度
+              overflowY: 'auto',   // 添加垂直滚动条
+            },
+            schemas: [
+              {
+                field: "reqKey",
+                label: "算法",
+                bottomHelpMessage:
+                  "官方没有变动就不需要改默认值",
+                component: "Input",
+              },
+              {
+                field: "useSr",
+                label: "超分",
+                bottomHelpMessage:
+                  "开启后可将生图宽高均乘以2，此参数打开后延迟会有增加。如上述宽高均为512和512，此参数关闭出图 512*512 ，此参数打开出图1024 * 1024",
+                component: "Switch",
+              },
+              {
+                field: "returnUrl",
+                label: "只返回链接",
+                bottomHelpMessage:
+                  "是否只返回图片链接 （链接有效期为24小时）",
+                component: "Switch",
+              },
             ]
           }
         }

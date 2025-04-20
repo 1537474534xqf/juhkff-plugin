@@ -21,20 +21,24 @@ export class douBao extends plugin {
           fnc: "help",
         },
         {
-          // 匹配以 #视频生成豆包 开头的消息
-          reg: "^#视频生成豆包.*",
+          // 匹配以 #视频生成 开头的消息
+          reg: "^#视频生成.*",
           fnc: "videoGenerate",
         },
         {
-          // 匹配以 #图片生成豆包 开头的消息
-          reg: "^#图片生成豆包.*",
+          // 匹配以 #图片生成 开头的消息
+          reg: "^#图片生成.*",
           fnc: "imageGenerate",
         },
         {
-          // 匹配以 #图片风格化豆包 开头的消息
-          reg: "^#图片风格化豆包.*",
+          // 匹配以 #图片风格化 开头的消息
+          reg: "^#图片风格化.*",
           fnc: "imageStyle",
         },
+        {
+          reg: "^#图片模仿.*",
+          fnc: "imageImitate",
+        }
       ],
     });
 
@@ -110,14 +114,16 @@ export class douBao extends plugin {
     if (!this.Config.useDouBao) return false;
     var helpMsg = `可用指令：[]中为可选项，()中为解释说明`;
     if (this.Config.useVideoGenerate)
-      helpMsg += `\n  #视频生成豆包 文本描述|图片 [宽高比] [5|10](视频秒数)`;
+      helpMsg += `\n  #视频生成 文本描述|图片 [宽高比] [5|10](视频秒数)`;
     if (this.Config.useImageGenerate) {
-      helpMsg += `\n  #图片生成豆包 文本描述 [-w 宽] [-h 高]`;
-      helpMsg += `\n  #图片生成豆包 文本描述 图片1|图片...(同宽高)`;
+      helpMsg += `\n  #图片生成 文本描述 图片1|图片...(同宽高) [-w 宽] [-h 高]`;
+    }
+    if (this.Config.useImageImitate) {
+      helpMsg += `\n  #图片模仿 文本描述 图片`;
     }
     if (this.Config.useImageStyle) {
-      helpMsg += `\n  #图片风格化豆包 类型前缀 图片`;
-      helpMsg += `\n  #图片风格化豆包 类型列表`;
+      helpMsg += `\n  #图片风格化 类型前缀 图片`;
+      helpMsg += `\n  #图片风格化 类型列表`;
     }
     await e.reply(helpMsg);
     return true;
@@ -134,6 +140,10 @@ export class douBao extends plugin {
       await e.reply("请先设置accessKeyId和secretAccessKey");
       return false;
     }
+  }
+
+  get SuccessCode() {
+    return 10000;
   }
   // --------------------------------------------------- 图片风格化 ---------------------------------------------------
 
@@ -159,10 +169,10 @@ export class douBao extends plugin {
     if (!this.Config.useDouBao) return false;
     if (!this.Config.useImageStyle) return true;
     if (!this.preCheck(e)) return true;
-    var result = processMessage(e.message);
+    var result = await processMessage(e);
     var body = {};
     // 将指令部分去除并切分
-    result.texts = result.texts.replace(/^#图片风格化豆包/, "").trim().split(" ");
+    result.texts = result.texts.replace(/^#图片风格化/, "").trim().split(" ");
     // 查询类型列表命令
     if (result.texts.length == 1 && result.texts[0] == "类型列表") {
       var typeList = Object.keys(this.imageStyleReqKeyMap);
@@ -180,7 +190,7 @@ export class douBao extends plugin {
     }
     // 官方目前仅支持一张图片
     if (Objects.isNull(result.texts) || result.texts.length != 1 || result.images.length != 1) {
-      await e.reply("请遵循格式 #图片风格化豆包 类型 图片");
+      await e.reply("请遵循格式 #图片风格化 类型 图片");
       return true;
     }
     var type = result.texts[0];
@@ -209,7 +219,7 @@ export class douBao extends plugin {
       await e.reply(`生成图片失败: ${response?.ResponseMetadata?.Error?.Code}. ${response?.ResponseMetadata?.Error?.Message}`);
       return true;
     }
-    if (response.status === this.imageGenerateSuccessCode) {
+    if (response.status === this.SuccessCode) {
       var segments = [];
       if (!Objects.isNull(response.data.binary_data_base64)) {
         response.data.binary_data_base64.forEach((base64) => {
@@ -229,39 +239,91 @@ export class douBao extends plugin {
     return true;
   }
 
-  // ---------------------------------------------------- 图片生成 ----------------------------------------------------
-
-  get imageGenerateSuccessCode() {
-    return 10000;
+  // ---------------------------------------------------- 图片模仿 ----------------------------------------------------
+  async imageImitate(e) {
+    if (!this.Config.useDouBao) return false;
+    if (!this.Config.useImageImitate) return true;
+    if (!this.preCheck(e)) return true;
+    var result = await processMessage(e);
+    var body = {};
+    // 将指令部分去除
+    result.texts = result.texts.replace(/^#图片模仿/, "").trim();
+    var strList = result.texts.split(" ");
+    var width = null, height = null;
+    for (var i = 0; i < strList.length - 1; i++) {
+      if (strList[i].startsWith("-w")) {
+        width = parseInt(strList[i + 1]);
+      } else if (strList[i].startsWith("-h")) {
+        height = parseInt(strList[i + 1]);
+      }
+    }
+    if (!Objects.isNull(width)) body.width = width;
+    if (!Objects.isNull(height)) body.height = height;
+    if (Objects.isNull(result.images)) {
+      // 纯文本
+      await e.reply("请发送图片");
+      return true;
+    }
+    body.req_key = this.Config.imageImitate.reqKey;
+    body.image_urls = result.images;
+    body.prompt = result.texts;
+    if (!Objects.isNull(this.Config.imageImitate.returnUrl))
+      body.return_url = this.Config.imageImitate.returnUrl;
+    if (!Objects.isNull(this.Config.imageImitate.useSr))
+      body.use_sr = this.Config.imageImitate.useSr;
+    await e.reply("正在生成图片，请稍等...");
+    var response = await this.fetchImageService(body, { timeout: 0 });
+    if (response?.ResponseMetadata?.Error) {
+      await e.reply(`生成图片失败: ${response?.ResponseMetadata?.Error?.Code}. ${response?.ResponseMetadata?.Error?.Message}`);
+      return true;
+    }
+    if (response.status === this.SuccessCode) {
+      var segments = [];
+      if (!Objects.isNull(response.data.binary_data_base64)) {
+        response.data.binary_data_base64.forEach((base64) => {
+          if (!base64.startsWith("data:image/"))
+            segments.push(
+              segment.image(Base64.getBase64ImageType(base64) + base64)
+            );
+          else segments.push(segment.image(base64));
+        });
+      }
+      if (!Objects.isNull(response.data.image_urls))
+        segments.push(response.data.image_urls.join("\n"));
+      await e.reply(segments);
+    } else {
+      await e.reply(`生成图片失败:${response.message}`);
+    }
   }
+  // ---------------------------------------------------- 图片生成 ----------------------------------------------------
 
   async imageGenerate(e) {
     if (!this.Config.useDouBao) return false;
     if (!this.Config.useImageGenerate) return true;
     if (!this.preCheck(e)) return true;
-    var result = processMessage(e.message);
+    var result = await processMessage(e);
     var body = {};
     var width = null, height = null;
     // 将指令部分去除
-    result.texts = result.texts.replace(/^#图片生成豆包/, "").trim();
+    result.texts = result.texts.replace(/^#图片生成/, "").trim();
+    var strList = result.texts.split(" ");
+    for (var i = 0; i < strList.length - 1; i++) {
+      if (strList[i].startsWith("-w")) {
+        width = parseInt(strList[i + 1]);
+      } else if (strList[i].startsWith("-h")) {
+        height = parseInt(strList[i + 1]);
+      }
+    }
+    if (!Objects.isNull(width)) body.width = width;
+    if (!Objects.isNull(height)) body.height = height;
     if (Objects.isNull(result.images)) {
       // 纯文本
-      var strList = result.texts.split(" ");
-      for (var i = 0; i < strList.length - 1; i++) {
-        if (strList[i].startsWith("-w")) {
-          width = parseInt(strList[i + 1]);
-        } else if (strList[i].startsWith("-h")) {
-          height = parseInt(strList[i + 1]);
-        }
-      }
       body.req_key = this.Config.imageGenerate.reqKey;
       body.prompt = result.texts;
       if (!Objects.isNull(this.Config.imageGenerate.modelVersion))
         body.model_version = this.Config.imageGenerate.modelVersion;
       if (!Objects.isNull(this.Config.imageGenerate.reqScheduleConf))
         body.req_schedule_conf = this.Config.imageGenerate.reqScheduleConf;
-      if (!Objects.isNull(width)) body.width = width;
-      if (!Objects.isNull(height)) body.height = height;
       if (!Objects.isNull(this.Config.imageGenerate.usePreLlm))
         body.use_pre_llm = this.Config.imageGenerate.usePreLlm;
       if (!Objects.isNull(this.Config.imageGenerate.useSr))
@@ -270,8 +332,7 @@ export class douBao extends plugin {
         body.return_url = this.Config.imageGenerate.returnUrl;
     } else {
       // 图生图
-      var width = undefined,
-        height = undefined;
+      width = undefined, height = undefined;
       // 判断图片尺寸是否一致，目前豆包多图生图只支持同宽高
       for (var i = 0; i < result.images.length; i++) {
         var url = result.images[i];
@@ -313,7 +374,7 @@ export class douBao extends plugin {
       }
     }
     var response = await this.fetchImageService(body, { timeout: 0 });
-    if (response.status === this.imageGenerateSuccessCode) {
+    if (response.status === this.SuccessCode) {
       await e.reply("正在生成图片，请稍等...");
       var segments = [];
       if (!Objects.isNull(response.data.binary_data_base64)) {
@@ -399,9 +460,9 @@ export class douBao extends plugin {
       await e.reply("请先设置要使用的模型");
       return true;
     }
-    var msgList = processMessage(e.message);
+    var msgList = await processMessage(e);
     var texts = msgList.texts;
-    texts = texts.replace("#视频生成豆包", "").trim();
+    texts = texts.replace("#视频生成", "").trim();
     if (Objects.isNull(texts) && Objects.isNull(msgList.images)) {
       await e.reply("请添加描述文本或图片");
       return true;
@@ -512,12 +573,13 @@ export class douBao extends plugin {
  * images: 图片部分
  * content: 按顺序排列的消息体
  */
-function processMessage(msgList) {
+async function processMessage(e) {
   var result = {
     texts: "",
     images: [],
     content: [],
   };
+  var msgList = e.message;
   var texts = [];
   for (var i = 0; i < msgList.length; i++) {
     var msg = msgList[i];
@@ -530,7 +592,16 @@ function processMessage(msgList) {
     } else if (msg.type == "image") {
       result.content.push({ type: "image", url: msg.url });
       result.images.push(msg.url);
-    } else {
+    } else if (msg.type == "reply") {
+      var sourceImages = await e.getReply(msg.id);
+      sourceImages = sourceImages?.message.filter((each) => {
+        return each.type == "image";
+      });
+      sourceImages.forEach((each) => {
+        result.content.push({ type: "image", url: each.url });
+        result.images.push(each.url);
+      });
+    } else if (msg.type != "at") {
       //其它类型，保持原样加进result，虽然不知道有什么用
       result.content.push(msg);
     }
@@ -538,6 +609,6 @@ function processMessage(msgList) {
   var textPart = texts.join(" ");
   // 将空格固定为一个
   textPart = textPart.replace(/\s+/g, " ");
-  result.texts = textPart;
+  result.texts = textPart.trim();
   return result;
 }
