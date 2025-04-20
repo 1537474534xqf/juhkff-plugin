@@ -19,6 +19,13 @@ import {
   saveContextVisual,
 } from "#juhkff.handle.visual";
 
+export const help = {
+  name: "主动群聊",
+  type: "passive",
+  dsc: "假装人类发言",
+  enable: setting.getConfig("autoReply").useAutoReply,
+}
+
 /**
  * 主动群聊插件
  * @author Bilibili - 扎克芙芙
@@ -54,6 +61,16 @@ export class autoReply extends plugin {
 
   get Config() {
     return setting.getConfig("autoReply");
+  }
+
+  get Help() {
+    var help = {
+      name: "主动群聊",
+      type: "passive",
+      dsc: "假装人类发言",
+    }
+    help["disable"] = this.Config.useAutoReply;
+    return help;
   }
 
   async autoReply(e) {

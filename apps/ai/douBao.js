@@ -116,12 +116,12 @@ export class douBao extends plugin {
     if (!this.Config.useDouBao) return false;
     var helpMsg = `可用指令：[]中为可选项，()中为解释说明`;
     if (this.Config.useVideoGenerate)
-      helpMsg += `\n  #视频生成 文本描述|图片 [宽高比] [5|10](视频秒数)`;
+      helpMsg += `\n  #视频生成 文本|图片 [宽高比] [5|10](视频秒数)`;
     if (this.Config.useImageGenerate) {
-      helpMsg += `\n  #图片生成 文本描述 图片1|图片...(同宽高) [-w 宽] [-h 高]`;
+      helpMsg += `\n  #图片生成 文本 图片1|图片...(同宽高) [-w 宽] [-h 高]`;
     }
     if (this.Config.useImageImitate) {
-      helpMsg += `\n  #图片模仿 文本描述 图片`;
+      helpMsg += `\n  #图片模仿 文本 图片`;
     }
     if (this.Config.useImageStyle) {
       helpMsg += `\n  #图片风格化 类型前缀 图片`;

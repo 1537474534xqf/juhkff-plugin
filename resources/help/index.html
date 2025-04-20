@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>help-page</title>
+    <link rel="stylesheet" type="text/css" href="{{cssFile}}" />
+  </head>
+  <body>
+    <div class="container">
+      <div>
+        <div class="head-box">
+          <div class="title">{{titleZh}}</div>
+          <div class="label">{{titleEn}} &#38; Miao-Plugin</div>
+        </div>
+      </div>
+      
+      {{if helpGroup.length>0}}
+      {{each helpGroup group id}}
+      <div class="cont-box">
+        <div class="help-group">
+          {{group.name}} 
+          {{if group?.dsc}}
+          <span class="group-desc">{{group.dsc}}</span>
+          {{/if}}
+        </div>
+
+        <div class="help-table">
+          {{set cur = 0 }} 
+          {{each group.subMenu help idx}}
+          {{if help.enable}}
+          {{if cur===0}}
+          <div class="tr">
+            <div class="td">
+              <span class="help-name">【{{help.name}}】</span>
+              {{if help?.command}}
+              <strong class="help-title">{{help.command}}</strong>
+              {{/if}}
+              <span class="help-desc">{{help.dsc}}</span>
+            </div>
+          {{else}}
+            <div class="td">
+              <span class="help-name">【{{help.name}}】</span>
+              {{if help?.command}}
+              <strong class="help-title">{{help.command}}</strong>
+              {{/if}}
+              <span class="help-desc">{{help.dsc}}</span>
+            </div>
+          {{/if}}
+          <%cur++;%>
+          {{if cur===3}}
+          </div>
+          <%cur=0;%>
+          {{/if}}
+          {{/if}}
+          {{/each}}
+          {{if cur!==0}}
+          <% for(let i=cur; i<3; i++){ %>
+          <div class="td"></div>
+          <% } %>
+          </div>
+          {{/if}}
+        </div>
+        
+      </div>
+      {{/each}}
+      {{/if}}
+
+      {{if helpActive.length>0}}
+        <div class="cont-box">
+            <div class="help-group">
+              主动功能
+              <span class="group-desc">需发起明确指令调用的功能</span>
+            </div>
+            <div class="help-table">
+              {{set cur = 0 }} 
+              {{each helpActive help idx}}
+
+              {{if help.enable}}
+
+              {{if cur===0}}
+              <div class="tr">
+                <div class="td">
+                  <span class="help-name">【{{help.name}}】</span>
+                  {{if help?.command}}
+                  <strong class="help-title">{{help.command}}</strong>
+                  {{/if}}
+                  <span class="help-desc">{{help.dsc}}</span>
+                </div>
+              {{elif}}
+                <div class="td">
+                  <span class="help-name">【{{help.name}}】</span>
+                  {{if help?.command}}
+                  <strong class="help-title">{{help.command}}</strong>
+                  {{/if}}
+                  <span class="help-desc">{{help.dsc}}</span>
+                </div>
+              {{/if}}
+
+              <%cur++;%>
+              {{if cur===3}}
+              </div>
+              <%cur=0;%>
+              {{/if}}
+              {{/if}}
+
+              {{/each}}
+              {{if cur!==0}}
+              <% for(let i=cur; i<3; i++){ %>
+              <div class="td"></div>
+              <% } %>
+              </div>
+              {{/if}}
+            </div>
+        </div>
+      {{/if}}
+
+      {{if helpPassive.length>0}}
+        <div class="cont-box">
+            <div class="help-group">
+              被动功能
+              <span class="group-desc">非必须调用指令的功能</span>
+            </div>
+            <div class="help-table">
+              {{set cur = 0 }} 
+              {{each helpPassive help idx}}
+
+              {{if help.enable}}
+
+              {{if cur===0}}
+              <div class="tr">
+                <div class="td">
+                  <span class="help-name">【{{help.name}}】</span>
+                  {{if help?.command}}
+                  <strong class="help-title">{{help.command}}</strong>
+                  {{/if}}
+                  <span class="help-desc">{{help.dsc}}</span>
+                </div>
+              {{else}}
+                <div class="td">
+                  <span class="help-name">【{{help.name}}】</span>
+                  {{if help?.command}}
+                  <strong class="help-title">{{help.command}}</strong>
+                  {{/if}}
+                  <span class="help-desc">{{help.dsc}}</span>
+                </div>
+              {{/if}}
+
+              <%cur++;%>
+              {{if cur===3}}
+              </div>
+              <%cur=0;%>
+              {{/if}}
+              {{/if}}
+
+              {{/each}}
+              {{if cur!==0}}
+              <% for(let i=cur; i<3; i++){ %>
+              <div class="td"></div>
+              <% } %>
+              </div>
+              {{/if}}
+            </div>
+        </div>
+      {{/if}}
+    </div>
+  </body>
+</html>

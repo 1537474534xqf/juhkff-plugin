@@ -5,6 +5,14 @@ import { templateToPic } from "#juhkff.page";
 import { getFestivalsDates, formatDate } from "#juhkff.date";
 import { pluginResources } from "#juhkff.path";
 
+export const help = {
+  name: "日报",
+  type: "passive",
+  command: "#日报",
+  dsc: "主动或定时推送日报",
+  enable: setting.getConfig("dailyReport").useDailyReport,
+}
+
 export class dailyReport extends plugin {
   constructor() {
     super({
@@ -54,7 +62,7 @@ export class dailyReport extends plugin {
   }
 
   async dailyReport(e) {
-    if(!this.Config.useDailyReport) return false;
+    if (!this.Config.useDailyReport) return false;
     if (e && e.message_type != "group") {
       await e.reply("功能只对群聊开放");
       return true;

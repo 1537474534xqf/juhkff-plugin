@@ -4,6 +4,13 @@ import { downloadFile } from "#juhkff.net";
 import { _path, pluginResources, pluginData } from "#juhkff.path";
 import path from "path";
 
+export const help = {
+  name: "偷图",
+  type: "passive",
+  dsc: "表情偷取和发送",
+  enable: setting.getConfig("emojiSave").useEmojiSave,
+}
+
 /**
  * 表情保存插件
  * @author Bilibili - 扎克芙芙
