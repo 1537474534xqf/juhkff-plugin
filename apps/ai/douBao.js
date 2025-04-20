@@ -64,27 +64,29 @@ export class douBao extends plugin {
         try {
           const now = Date.now();
           const thirtyMinutesAgo = now - 30 * 60 * 1000;
-          fs.readdirSync(pluginData).forEach((dir) => {
-            const dirPath = path.join(pluginData, dir);
-            if (fs.statSync(dirPath).isDirectory()) {
-              fs.readdirSync(dirPath).forEach((dir2) => {
-                const dirPath2 = path.join(dirPath, dir2);
-                if (fs.statSync(dirPath2).isDirectory() && dir2 === "video") {
-                  fs.readdirSync(dirPath2).forEach((file) => {
-                    const filePath = path.join(dirPath2, file);
-                    const fileStat = fs.statSync(filePath);
-                    if (
-                      fileStat.isFile() &&
-                      fileStat.birthtimeMs < thirtyMinutesAgo
-                    ) {
-                      fs.unlinkSync(filePath);
-                      console.log(`[douBao]已删除旧文件: ${filePath}`);
-                    }
-                  });
-                }
-              });
-            }
-          });
+          if (fs.existsSync(pluginData)) {
+            fs.readdirSync(pluginData).forEach((dir) => {
+              const dirPath = path.join(pluginData, dir);
+              if (fs.statSync(dirPath).isDirectory()) {
+                fs.readdirSync(dirPath).forEach((dir2) => {
+                  const dirPath2 = path.join(dirPath, dir2);
+                  if (fs.statSync(dirPath2).isDirectory() && dir2 === "video") {
+                    fs.readdirSync(dirPath2).forEach((file) => {
+                      const filePath = path.join(dirPath2, file);
+                      const fileStat = fs.statSync(filePath);
+                      if (
+                        fileStat.isFile() &&
+                        fileStat.birthtimeMs < thirtyMinutesAgo
+                      ) {
+                        fs.unlinkSync(filePath);
+                        console.log(`[douBao]已删除旧文件: ${filePath}`);
+                      }
+                    });
+                  }
+                });
+              }
+            });
+          }
         } catch (err) {
           console.error("清理任务执行出错:", err);
         }
