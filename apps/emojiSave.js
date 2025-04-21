@@ -1,7 +1,7 @@
 import fs from "fs";
 import setting from "#juhkff.setting";
 import { downloadFile } from "#juhkff.net";
-import { _path, pluginResources, pluginData } from "#juhkff.path";
+import { _path, pluginData } from "#juhkff.path";
 import path from "path";
 
 export const help = {

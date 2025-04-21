@@ -1,9 +1,7 @@
-import path from "path";
 import setting from "#juhkff.setting";
 import { get, getXML } from "#juhkff.net";
-import { templateToPic } from "#juhkff.page";
+import { generateDailyReport } from "#juhkff.page";
 import { getFestivalsDates, formatDate } from "#juhkff.date";
-import { pluginResources } from "#juhkff.path";
 
 export const help = {
   name: "日报",
@@ -143,38 +141,11 @@ export class dailyReport extends plugin {
       full_show: this.Config.dailyReportFullShow,
       data_festival: await getFestivalsDates(),
     };
-    // 定义模板路径和名称
-    const templatePath = path.join(
-      pluginResources,
-      "daily_report",
-      "main.html"
-    );
-    // 定义页面设置
-    const viewport = {
-      width: 578,
-      height: 1885,
-      deviceScaleFactor: 5,
-    };
 
     // 生成图片
-    var image = await templateToPic(templatePath, data, viewport);
+    var image = await generateDailyReport(data);
     var imageBuffer = Buffer.from(image);
-    /*
-    // 确保保存路径的目录存在
-    const savePath = path.join(
-      pluginResources,
-      "daily_report",
-      "dailyReport.png"
-    );
-    const dirPath = path.dirname(savePath);
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-    }
 
-    // 将 Buffer 写入文件
-    await fs.promises.writeFile(savePath, imageBuffer);
-    e.reply([segment.image(savePath)]);
-    */
     if (e) {
       e.reply([segment.image(imageBuffer)]);
       return true;

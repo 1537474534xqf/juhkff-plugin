@@ -24,26 +24,24 @@ export async function downloadFile(url, dest) {
   }
   return new Promise((resolve, reject) => {
     const file = fs.createWriteStream(dest);
-    https
-      .get(url, (response) => {
-        if (response.statusCode !== 200) {
-          reject(new Error(`Failed to get '${url}' (${response.statusCode})`));
-          return;
-        }
+    https.get(url, (response) => {
+      if (response.statusCode !== 200) {
+        reject(new Error(`Failed to get '${url}' (${response.statusCode})`));
+        return;
+      }
 
-        response.pipe(file);
+      response.pipe(file);
 
-        file.on("finish", () => {
-          file.close(resolve);
-        });
+      file.on("finish", () => {
+        file.close(resolve);
+      });
 
-        file.on("error", (err) => {
-          fs.unlink(dest, () => reject(err));
-        });
-      })
-      .on("error", (err) => {
+      file.on("error", (err) => {
         fs.unlink(dest, () => reject(err));
       });
+    }).on("error", (err) => {
+      fs.unlink(dest, () => reject(err));
+    });
   });
 }
 

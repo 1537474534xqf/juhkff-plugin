@@ -4,14 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>help-page</title>
-    <link rel="stylesheet" type="text/css" href="{{cssFile}}" />
+    <link rel="stylesheet" type="text/css" href="index.css" />
   </head>
   <body>
     <div class="container">
       <div>
         <div class="head-box">
           <div class="title">{{titleZh}}</div>
-          <div class="label">{{titleEn}} &#38; Miao-Plugin</div>
+          <div class="label">{{titleEn}}</div>
+          <div class="copyright"> @ Miao-Plugin</div>
         </div>
       </div>
       
@@ -87,7 +88,7 @@
                   {{/if}}
                   <span class="help-desc">{{help.dsc}}</span>
                 </div>
-              {{elif}}
+              {{else}}
                 <div class="td">
                   <span class="help-name">【{{help.name}}】</span>
                   {{if help?.command}}

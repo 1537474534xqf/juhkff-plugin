@@ -1,2 +1,6 @@
+# 开启帮助
+useHelpGen: true
 # 当用户输入`#{command}`时，调用help命令，避免和其它插件指令冲突
 command: 帮助
+# 高清模式，出图会慢，占用资源可能更多
+hd: false

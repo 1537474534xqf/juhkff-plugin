@@ -845,6 +845,32 @@ export function supportGuoba() {
               },
             ]
           }
+        },
+        {
+          label: "帮助图片",
+          // 第一个分组标记开始，无需标记结束
+          component: "SOFT_GROUP_BEGIN",
+        },
+        {
+          field: "helpGen.useHelpGen",
+          label: "开启帮助",
+          bottomHelpMessage:
+            "开启后，可生成帮助图片",
+          component: "Switch",
+        },
+        {
+          field: "helpGen.command",
+          label: "命令",
+          bottomHelpMessage:
+            "机器人收到`#命令`会回复帮助图片，修改此项后需重启机器人",
+          component: "Input",
+        },
+        {
+          field: "helpGen.hd",
+          label: "高清模式",
+          bottomHelpMessage:
+            "图片质量更好，生成速度更慢，可能占用更多机器资源",
+          component: "Switch",
         }
       ],
       // 获取配置数据方法（用于前端填充显示数据）
