@@ -27,6 +27,20 @@ export default class Objects {
   }
 }
 
+/**
+ * @description: 字符串工具类
+ */
+export class StringUtils {
+  /**
+   * 首字母大写 
+   * @param {*} str 
+   * @returns string
+   */
+  static toUpperFirst(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+}
+
 export class Base64 {
   static getBase64ImageType(base64) {
     // 将Base64数据解码为二进制数据

@@ -4,11 +4,13 @@ import { downloadFile } from "#juhkff.net";
 import { _path, pluginData } from "#juhkff.path";
 import path from "path";
 
-export const help = {
-  name: "偷图",
-  type: "passive",
-  dsc: "表情偷取和发送",
-  enable: setting.getConfig("emojiSave").useEmojiSave,
+export const help = () => {
+  return {
+    name: "偷图",
+    type: "passive",
+    dsc: "表情偷取和发送",
+    enable: setting.getConfig("emojiSave").useEmojiSave,
+  }
 }
 
 /**

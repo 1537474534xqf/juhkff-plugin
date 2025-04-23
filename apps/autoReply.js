@@ -19,11 +19,13 @@ import {
   saveContextVisual,
 } from "#juhkff.handle.visual";
 
-export const help = {
-  name: "主动群聊",
-  type: "passive",
-  dsc: "假装人类发言",
-  enable: setting.getConfig("autoReply").useAutoReply,
+export const help = () => {
+  return {
+    name: "主动群聊",
+    type: "passive",
+    dsc: "假装人类发言",
+    enable: setting.getConfig("autoReply").useAutoReply,
+  }
 }
 
 /**

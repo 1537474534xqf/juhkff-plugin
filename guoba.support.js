@@ -866,11 +866,199 @@ export function supportGuoba() {
           component: "Input",
         },
         {
+          "field": "helpGen.titleZh",
+          "label": "标题",
+          "bottomHelpMessage":
+            "一般写图片的中文标题，为空则取命令为标题",
+          "component": "Input",
+        },
+        {
+          field: "helpGen.titleEn",
+          label: "小标题",
+          bottomHelpMessage:
+            "一般写图片的英文标题，为空则取内置默认值",
+          component: "Input",
+        },
+        {
           field: "helpGen.hd",
           label: "高清模式",
           bottomHelpMessage:
             "图片质量更好，生成速度更慢，可能占用更多机器资源",
           component: "Switch",
+        },
+        {
+          field: "helpGen.colorOptions",
+          label: "字体颜色",
+          bottomHelpMessage:
+            "自定义字体颜色",
+          component: "GSubForm",
+          componentProps: {
+            modalProps: {
+              title: "自定义各区域字体颜色"
+            },
+            style: {
+              maxHeight: '100px', // 设置最大高度
+              overflowY: 'auto',   // 添加垂直滚动条
+            },
+            schemas: [
+              {
+                field: "titleColor",
+                label: "标题颜色",
+                component: "GColorPicker",
+                bottomHelpMessage:
+                  "默认值 rgba(255, 255, 255, 1)，无法隐藏",
+                componentProps: {
+                  defaultValue: "rgba(255, 255, 255, 1)",
+                },
+              },
+              {
+                field: "labelColor",
+                label: "小标题颜色",
+                component: "GColorPicker",
+                bottomHelpMessage:
+                  "默认值 rgba(255, 255, 255, 1)，无法隐藏",
+                componentProps: {
+                  defaultValue: "rgba(255, 255, 255, 1)",
+                },
+              },
+              {
+                field: "copyrightColor",
+                label: "copyRight颜色",
+                component: "GColorPicker",
+                bottomHelpMessage:
+                  "默认值 rgba(255, 255, 255, 1)，无法隐藏",
+                componentProps: {
+                  defaultValue: "rgba(255, 255, 255, 1)",
+                },
+              },
+              {
+                field: "groupColor",
+                label: "功能组颜色",
+                component: "GColorPicker",
+                bottomHelpMessage:
+                  "默认值 rgba(206, 183, 139, 1)",
+                componentProps: {
+                  defaultValue: "rgba(206, 183, 139, 1)",
+                },
+              },
+              {
+                field: "groupTitleColor",
+                label: "功能组命令颜色",
+                component: "GColorPicker",
+                bottomHelpMessage:
+                  "默认值 rgba(240, 197, 43, 1)",
+                componentProps: {
+                  defaultValue: "rgba(240, 197, 43, 1)",
+                },
+              },
+              {
+                field: "groupDescColor",
+                label: "功能组描述颜色",
+                component: "GColorPicker",
+                bottomHelpMessage:
+                  "默认值 rgba(243, 182, 109, 1)",
+                componentProps: {
+                  defaultValue: "rgba(243, 182, 109, 1)",
+                },
+              },
+              {
+                field: "helpNameColor",
+                label: "帮助名称颜色",
+                component: "GColorPicker",
+                bottomHelpMessage:
+                  "默认值 rgba(111, 186, 243, 0.946)",
+                componentProps: {
+                  defaultValue: "rgba(111, 186, 243, 0.946)",
+                },
+              },
+              {
+                field: "helpTitleColor",
+                label: "帮助命令颜色",
+                component: "GColorPicker",
+                bottomHelpMessage:
+                  "默认值 rgba(240, 197, 43, 1)",
+                componentProps: {
+                  defaultValue: "rgba(240, 197, 43, 1)",
+                },
+              },
+              {
+                field: "helpDescColor",
+                label: "帮助描述颜色",
+                component: "GColorPicker",
+                bottomHelpMessage:
+                  "默认值 rgba(255, 255, 255, 1)",
+                componentProps: {
+                  defaultValue: "rgba(255, 255, 255, 1)",
+                },
+              },
+            ],
+          }
+        },
+        {
+          field: "helpGen.manualList",
+          label: "其它命令",
+          bottomHelpMessage:
+            "你可以在这添加其它插件的功能，帮助图片也会生成相应内容",
+          component: "GSubForm",
+          componentProps: {
+            multiple: true,
+            schemas: [
+              {
+                field: "name",
+                label: "命令/功能名称",
+                bottomHelpMessage:
+                  "给你的功能起个名。为功能组时必填",
+                component: "Input",
+              },
+              {
+                field: "type",
+                label: "功能类型",
+                bottomHelpMessage:
+                  "主动式：指令主动触发；被动式：满足条件时自动触发；功能组：内含多个功能，例如`豆包AI`包含`图片生成`、`视频生成`多个子功能；子功能：属于某个功能组",
+                component: "Select",
+                required: true,
+                componentProps: {
+                  options: [
+                    {
+                      label: "主动式",
+                      value: "active",
+                    },
+                    {
+                      label: "被动式",
+                      value: "passive",
+                    },
+                    {
+                      label: "功能组",
+                      value: "group",
+                    },
+                    {
+                      label: "子功能",
+                      value: "sub",
+                    }
+                  ],
+                },
+              },
+              {
+                field: "command",
+                label: "调用格式",
+                bottomHelpMessage:
+                  "需包含#等前缀。一般来说被动式命令不需要填这项，但也可以填",
+                component: "Input",
+              },
+              {
+                field: "dsc",
+                label: "功能描述",
+                component: "Input",
+              },
+              {
+                field: "belongTo",
+                label: "所属功能组",
+                bottomHelpMessage:
+                  "类型为子功能时必填，并确保和已有的功能组名一致。其它类型时忽略此项",
+                component: "Input",
+              }
+            ],
+          },
         }
       ],
       // 获取配置数据方法（用于前端填充显示数据）
@@ -882,7 +1070,7 @@ export function supportGuoba() {
       setConfigData(data, { Result }) {
         var config = setting.getAllConfig();
         // 更新前校验和处理
-        var beforeResult = beforeUpdate(config);
+        var beforeResult = beforeUpdate(data, config);
         if (beforeResult.code != 0) {
           return Result.error(beforeResult.code, null, beforeResult.message);
         }
@@ -918,12 +1106,49 @@ export function supportGuoba() {
 /********************************** Config 更新生命周期 **********************************/
 /**
  * 更新前校验和处理
+ * @param {*} data 传入数据
  * @param {*} config 更新前配置
  * @returns code, message, data
  */
-function beforeUpdate(config) {
+function beforeUpdate(data, config) {
   var preChatApi = config.autoReply.chatApi;
   var preVisualReplaceChat = config.autoReply.visualReplaceChat;
+  if (data["helpGen.manualList"]
+    .some((item) => Objects.isNull(item?.name?.trim())
+      && Objects.isNull(item?.command?.trim())
+      && Objects.isNull(item?.dsc?.trim())
+    )) {
+    return {
+      code: -1,
+      message: "功能名称、调用格式和功能描述至少填写一项！",
+    };
+  }
+  var helpGroupList = data["helpGen.manualList"]
+    .filter((item) => item.type == "group")
+    .map((item) => item?.name.trim());
+  if (helpGroupList.length > 0 && helpGroupList.some(name => Objects.isNull(name))) {
+    return {
+      code: -1,
+      message: "功能组名称不能为空，请检查",
+    };
+  }
+  var helpSubList = data["helpGen.manualList"]
+    .filter((item) => item.type == "sub")
+    .map((item) => item?.belongTo?.trim());
+  if (helpSubList.length > 0) {
+    if (helpSubList.some(sub => Objects.isNull(sub))) {
+      return {
+        code: -1,
+        message: "子功能所属功能组名称不能为空，请检查",
+      };
+    }
+    if (helpSubList.some(sub => !helpGroupList.includes(sub))) {
+      return {
+        code: -1,
+        message: "子功能所属功能组不存在，请检查",
+      };
+    }
+  }
   return {
     code: 0,
     message: "校验成功",

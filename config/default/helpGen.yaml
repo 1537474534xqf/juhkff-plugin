@@ -2,5 +2,39 @@
 useHelpGen: true
 # 当用户输入`#{command}`时，调用help命令，避免和其它插件指令冲突
 command: 帮助
+# 图片中文标题，为空则等于command值
+titleZh: ""
+# 图片英文标题，为空则等于内置默认值
+titleEn: ""
 # 高清模式，出图会慢，占用资源可能更多
 hd: false
+# 颜色配置
+colorOptions:
+  # 标题颜色
+  titleColor: rgba(255, 255, 255, 1)
+  # 小标题颜色
+  labelColor: rgba(255, 255, 255, 1)
+  # copyRight颜色
+  copyrightColor: rgba(255, 255, 255, 1)
+  # 功能组颜色
+  groupColor: rgba(206, 183, 139, 1)
+  # 功能组命令颜色
+  groupTitleColor: rgba(240, 197, 43, 1)
+  # 功能组描述颜色
+  groupDescColor: rgba(243, 182, 109, 1)
+  # 帮助名称颜色
+  helpNameColor: rgba(111, 186, 243, 0.946)
+  # 帮助命令颜色
+  helpTitleColor: rgba(240, 197, 43, 1)
+  # 帮助描述颜色
+  helpDescColor: rgba(255, 255, 255, 1)
+# 其它命令
+manualList: [
+  # 你可以在这里添加其它命令
+  # 例如：
+  # - title:
+  #   type:
+  #   command:
+  #   description:
+  #   belongTo:
+]

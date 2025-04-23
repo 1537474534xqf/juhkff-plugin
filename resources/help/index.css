@@ -68,14 +68,6 @@ body {
   position: relative;
 }
 
-.help-group {
-  background: rgba(6, 21, 31, 0.4);
-  font-size: 18px;
-  font-weight: bold;
-  padding: 15px 15px 10px 20px;
-  color: #ceb78b;
-}
-
 .help-table {
   text-align: center;
   border-collapse: collapse;
@@ -115,12 +107,28 @@ body {
   padding-bottom: 12px;
 }
 
+.help-group {
+  background: rgba(6, 21, 31, 0.4);
+  font-size: 18px;
+  font-weight: bold;
+  padding: 15px 15px 10px 20px;
+  color: #ceb78b;
+}
+
+.group-title{
+  display: inline-block;
+  padding-left: 5px;
+  font-size: 13px;
+  color: rgb(240, 197, 43);
+  font-weight: normal;
+}
+
 .group-desc {
   display: inline-block;
   padding-left: 10px;
   color: rgb(243, 182, 109);
   font-size: 13px;
-  font-weight: normal;
+  font-weight: lighter;
 }
 
 .help-name {
@@ -130,14 +138,19 @@ body {
   text-align: center;
 }
 
+.help-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
 .help-title {
   display: block;
-  color: #d3bc8e;
+  color: rgb(240, 197, 43);
   font-size: 14px;
   line-height: 18px;
   font-weight: normal;
-  padding-top: 5px;
-  padding-bottom: 5px;
+  margin-top: 5px;
   font-family: Ys, "汉仪文黑-65W", PingFangSC-Medium, "PingFang SC", sans-serif;
 }
 
@@ -146,6 +159,7 @@ body {
   font-size: 14px;
   line-height: 18px;
   font-weight: normal;
+  margin-top: 5px;
 }
 
 .copyright{

@@ -4,6 +4,7 @@ import path from "path";
 import fs from "fs";
 import { pathToFileURL } from "url";
 import { renderPage } from "../utils/page.js"
+import Objects, { StringUtils } from "#juhkff.kits";
 
 export class helpGen extends plugin {
     constructor() {
@@ -32,6 +33,7 @@ export class helpGen extends plugin {
         const pluginDir = path.join(pluginRoot, "apps");
         var helpList = []
         await this.loadPluginHelp(pluginDir, helpList, /*[`${path.join(pluginDir, "helpGen.js")}`]*/);
+        this.addManualHelp(helpList);
         if (!this.Config.hd) {
             // 使用内置的渲染器，此时会自行回复，不需要e.reply
             if (!e.runtime) {
@@ -42,11 +44,12 @@ export class helpGen extends plugin {
                 // 用绝对路径似乎也没问题，调试时将Yunzai/temp/html/juhkff-plugin/help/index/index.html中的css导入路径改为相对路径
                 cssFile: path.join(pluginResources, "help", "index.css"),
                 quality: 100,   // 还是好糊啊啊啊
-                titleZh: this.Config.command,
-                titleEn: "JUHKFF-PLUGIN",
+                titleZh: Objects.isNull(this.Config?.titleZh) ? this.Config.command : this.Config?.titleZh,
+                titleEn: Objects.isNull(this.Config?.titleEn) ? "JUHKFF-PLUGIN" : this.Config?.titleEn,
                 helpGroup: helpList.filter((item) => item?.type === "group" && item?.enable),
                 helpActive: helpList.filter((item) => item?.type === "active" && item?.enable),
                 helpPassive: helpList.filter((item) => item?.type === "passive" && item?.enable),
+                colorOptions: this.Config.colorOptions,
             })
         } else {
             // 自行实现的渲染器，分辨率较高，出图慢
@@ -54,17 +57,24 @@ export class helpGen extends plugin {
             var buffer = await renderPage(path.join(pluginResources, "help", "index.html"),
                 {
                     cssFile: "index.css",
-                    titleZh: this.Config.command,
-                    titleEn: "JUHKFF-PLUGIN",
+                    titleZh: Objects.isNull(this.Config?.titleZh) ? this.Config.command : this.Config?.titleZh,
+                    titleEn: Objects.isNull(this.Config?.titleEn) ? "JUHKFF-PLUGIN" : this.Config?.titleEn,
                     helpGroup: helpList.filter((item) => item?.type === "group" && item?.enable),
                     helpActive: helpList.filter((item) => item?.type === "active" && item?.enable),
                     helpPassive: helpList.filter((item) => item?.type === "passive" && item?.enable),
+                    colorOptions: this.Config.colorOptions,
                 }
             )
             await e.reply(segment.image(buffer));
         }
     }
 
+    /**
+     * 扫描dir目录下的所有export help的插件，获取help内容，并加入helpList，extract为排除列表
+     * @param {*} dir 扫描的根目录
+     * @param {*} helpList 最终的帮助列表，一般入口处传入空数组对象即可
+     * @param {*} extract 排除列表，每一项为绝对路径
+     */
     async loadPluginHelp(dir, helpList, extract = []) {
         var files = fs.readdirSync(dir);
         for (var file of files) {
@@ -85,13 +95,54 @@ export class helpGen extends plugin {
                     } else {
                         logger.warn(`[JUHKFF-PLUGIN] 插件 ${fileName} 未获取到帮助提示项`);
                     }
-                } else {
+                } else if (plugin.help instanceof Function) {
+                    helpList.push(plugin.help());
+                } else if (plugin.help instanceof Object) {
+                    // 如果不使用方法，插件开关应统一格式为use+插件文件名
+                    plugin.help.enable = setting.getConfig(fileName)[`use${StringUtils.toUpperFirst(fileName)}`];
                     helpList.push(plugin.help);
                 }
             }
         }
     }
+
+    addManualHelp(helpList) {
+        var manualHelpList = this.Config.manualList;
+        if (Objects.isNull(manualHelpList)) return;
+        var groupHelpList = manualHelpList.filter((item) => item?.type === "group");
+        var subHelpList = manualHelpList.filter((item) => item?.type === "sub");
+        var otherHelpList = manualHelpList.filter((item) => item?.type !== "group" && item?.type !== "sub");
+        groupHelpList.forEach((group) => {
+            helpList.push({
+                name: group?.name,
+                type: "group",
+                command: group?.command,
+                dsc: group?.dsc,
+                enable: true,
+                subMenu: subHelpList.filter((item) => item?.belongTo === group.name).map((item) => {
+                    return {
+                        name: item?.name,
+                        type: "sub",
+                        command: item?.command,
+                        dsc: item?.dsc,
+                        enable: true,
+                    }
+                })
+            });
+        });
+        otherHelpList.forEach((help) => {
+            helpList.push({
+                name: help?.name,
+                type: help?.type,
+                command: help?.command,
+                dsc: help?.dsc,
+                enable: true,
+            });
+        });
+    }
 }
+
+
 
 function initExtraHelp() {
     let extraHelp = {};
@@ -108,12 +159,14 @@ function isAppFile(filePath) {
 /* --------------------------------------------------------单独导入-------------------------------------------------------- */
 
 // 自己不能生成自己，要写在这里
-var helpDesc = {
-    name: "帮助",
-    type: "active",
-    command: `#${setting.getConfig("helpGen").command}`,
-    dsc: "生成帮助图片",
-    enable: setting.getConfig("helpGen").useHelpGen,
+var helpDesc = () => {
+    return {
+        name: "帮助",
+        type: "active",
+        command: `#${setting.getConfig("helpGen").command}`,
+        dsc: "生成帮助图片",
+        enable: setting.getConfig("helpGen").useHelpGen,
+    }
 }
 
 // 配置过长的插件单独导入插件帮助

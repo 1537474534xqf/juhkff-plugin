@@ -3,12 +3,14 @@ import { get, getXML } from "#juhkff.net";
 import { generateDailyReport } from "#juhkff.page";
 import { getFestivalsDates, formatDate } from "#juhkff.date";
 
-export const help = {
-  name: "日报",
-  type: "passive",
-  command: "#日报",
-  dsc: "主动或定时推送日报",
-  enable: setting.getConfig("dailyReport").useDailyReport,
+export const help = () => {
+  return {
+    name: "日报",
+    type: "passive",
+    command: "#日报",
+    dsc: "主动或定时推送日报",
+    enable: setting.getConfig("dailyReport").useDailyReport,
+  }
 }
 
 export class dailyReport extends plugin {

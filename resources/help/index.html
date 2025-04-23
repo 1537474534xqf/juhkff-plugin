@@ -5,6 +5,35 @@
     <meta name="viewport" content="width=device-width" />
     <title>help-page</title>
     <link rel="stylesheet" type="text/css" href="{{cssFile}}" />
+    <style>
+      .title{
+        color: {{colorOptions.titleColor}};
+      }
+      .label{
+        color: {{colorOptions.labelColor}};        
+      }
+      .copyright{
+        color: {{colorOptions.copyrightColor}};
+      }
+      .help-group{
+        color: {{colorOptions.groupColor}};
+      }
+      .group-title{
+        color: {{colorOptions.groupTitleColor}};
+      }
+      .group-desc{
+        color: {{colorOptions.groupDescColor}};
+      }
+      .help-name{
+        color: {{colorOptions.helpNameColor}};
+      }
+      .help-title{
+        color: {{colorOptions.helpTitleColor}};
+      }
+      .help-desc{
+        color: {{colorOptions.helpDescColor}};
+      }
+    </style>
   </head>
   <body>
     <div class="container">
@@ -21,6 +50,9 @@
       <div class="cont-box">
         <div class="help-group">
           {{group.name}} 
+          {{if group?.command}}
+          <span class="group-title">{{group.command}}</span>
+          {{/if}}
           {{if group?.dsc}}
           <span class="group-desc">{{group.dsc}}</span>
           {{/if}}
@@ -33,7 +65,11 @@
           {{if cur===0}}
           <div class="tr">
             <div class="td">
+              {{if help?.name}}
               <span class="help-name">【{{help.name}}】</span>
+              {{else}}
+              <span class="help-name">&nbsp;</span>
+              {{/if}}
               {{if help?.command}}
               <strong class="help-title">{{help.command}}</strong>
               {{/if}}
@@ -41,7 +77,11 @@
             </div>
           {{else}}
             <div class="td">
+              {{if help?.name}}
               <span class="help-name">【{{help.name}}】</span>
+              {{else}}
+              <span class="help-name">&nbsp;</span>
+              {{/if}}
               {{if help?.command}}
               <strong class="help-title">{{help.command}}</strong>
               {{/if}}
