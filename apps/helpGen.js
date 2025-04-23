@@ -12,7 +12,7 @@ export class helpGen extends plugin {
             name: "帮助",
             dsc: "帮助",
             event: "message",
-            priority: 1000,
+            priority: 1,
             rule: [
                 {
                     reg: `^#${setting.getConfig("helpGen").command}$`,
@@ -38,8 +38,9 @@ export class helpGen extends plugin {
             // 使用内置的渲染器，此时会自行回复，不需要e.reply
             if (!e.runtime) {
                 await e.reply('目前版本不支持，请升级至最新版Yunzai，或尝试切换hd模式')
+                return true;
             }
-            return e.runtime.render("juhkff-plugin", "help/index", {
+            e.runtime.render("juhkff-plugin", "help/index", {
                 // cssFile: "../../../../../plugins/juhkff-plugin/resources/help/index.css",
                 // 用绝对路径似乎也没问题，调试时将Yunzai/temp/html/juhkff-plugin/help/index/index.html中的css导入路径改为相对路径
                 cssFile: path.join(pluginResources, "help", "index.css"),
@@ -67,6 +68,7 @@ export class helpGen extends plugin {
             )
             await e.reply(segment.image(buffer));
         }
+        return true;
     }
 
     /**
