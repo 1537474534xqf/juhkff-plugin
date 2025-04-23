@@ -53,6 +53,7 @@ export class helpGen extends plugin {
             // TODO 考虑像内置的渲染器一样实现下生命周期
             var buffer = await renderPage(path.join(pluginResources, "help", "index.html"),
                 {
+                    cssFile: "index.css",
                     titleZh: this.Config.command,
                     titleEn: "JUHKFF-PLUGIN",
                     helpGroup: helpList.filter((item) => item?.type === "group" && item?.enable),
