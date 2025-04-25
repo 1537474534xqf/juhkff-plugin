@@ -1,4 +1,4 @@
-import Objects, { Base64 } from "#juhkff.kits";
+import { Objects, Base64 } from "#juhkff.kits";
 import { downloadFile, url2Base64 } from "#juhkff.net";
 import { pluginData } from "#juhkff.path";
 import path from "path";
@@ -9,562 +9,562 @@ import { segment } from "oicq";
 import fastImageSize from "fast-image-size";
 
 export class douBao extends plugin {
-  constructor() {
-    super({
-      name: "豆包",
-      dsc: "豆包",
-      event: "message",
-      priority: 1,
-      rule: [
-        {
-          reg: "^#豆包$",
-          fnc: "help",
-        },
-        {
-          // 匹配以 #视频生成 开头的消息
-          reg: "^#视频生成.*",
-          fnc: "videoGenerate",
-        },
-        {
-          // 匹配以 #图片生成 开头的消息
-          reg: "^#图片生成.*",
-          fnc: "imageGenerate",
-        },
-        {
-          // 匹配以 #图片风格化 开头的消息
-          reg: "^#图片风格化.*",
-          fnc: "imageStyle",
-        },
-        {
-          reg: "^#图片模仿.*",
-          fnc: "imageImitate",
-        }
-      ],
-    });
+    constructor() {
+        super({
+            name: "豆包",
+            dsc: "豆包",
+            event: "message",
+            priority: 1,
+            rule: [
+                {
+                    reg: "^#豆包$",
+                    fnc: "help",
+                },
+                {
+                    // 匹配以 #视频生成 开头的消息
+                    reg: "^#视频生成.*",
+                    fnc: "videoGenerate",
+                },
+                {
+                    // 匹配以 #图片生成 开头的消息
+                    reg: "^#图片生成.*",
+                    fnc: "imageGenerate",
+                },
+                {
+                    // 匹配以 #图片风格化 开头的消息
+                    reg: "^#图片风格化.*",
+                    fnc: "imageStyle",
+                },
+                {
+                    reg: "^#图片模仿.*",
+                    fnc: "imageImitate",
+                }
+            ],
+        });
 
-    // 删除残留的视频文件
-    if (fs.existsSync(pluginData)) {
-      fs.readdirSync(pluginData).forEach((dir) => {
-        const dirPath = path.join(pluginData, dir);
-        if (fs.statSync(dirPath).isDirectory()) {
-          fs.readdirSync(dirPath).forEach((dir2) => {
-            const dirPath2 = path.join(dirPath, dir2);
-            if (fs.statSync(dirPath2).isDirectory() && dir2 === "video") {
-              fs.readdirSync(dirPath2).forEach((file) => {
-                fs.unlinkSync(path.join(dirPath2, file));
-              });
-            }
-          });
-        }
-      });
-    }
-    // TODO 其实开关关了的话没必要启定时任务，暂时先这么写了
-    if (this.Config.useDouBao) {
-      this.cleanupInterval = setInterval(async () => {
-        try {
-          const now = Date.now();
-          const thirtyMinutesAgo = now - 30 * 60 * 1000;
-          if (fs.existsSync(pluginData)) {
+        // 删除残留的视频文件
+        if (fs.existsSync(pluginData)) {
             fs.readdirSync(pluginData).forEach((dir) => {
-              const dirPath = path.join(pluginData, dir);
-              if (fs.statSync(dirPath).isDirectory()) {
-                fs.readdirSync(dirPath).forEach((dir2) => {
-                  const dirPath2 = path.join(dirPath, dir2);
-                  if (fs.statSync(dirPath2).isDirectory() && dir2 === "video") {
-                    fs.readdirSync(dirPath2).forEach((file) => {
-                      const filePath = path.join(dirPath2, file);
-                      const fileStat = fs.statSync(filePath);
-                      if (
-                        fileStat.isFile() &&
-                        fileStat.birthtimeMs < thirtyMinutesAgo
-                      ) {
-                        fs.unlinkSync(filePath);
-                        console.log(`[douBao]已删除旧文件: ${filePath}`);
-                      }
+                const dirPath = path.join(pluginData, dir);
+                if (fs.statSync(dirPath).isDirectory()) {
+                    fs.readdirSync(dirPath).forEach((dir2) => {
+                        const dirPath2 = path.join(dirPath, dir2);
+                        if (fs.statSync(dirPath2).isDirectory() && dir2 === "video") {
+                            fs.readdirSync(dirPath2).forEach((file) => {
+                                fs.unlinkSync(path.join(dirPath2, file));
+                            });
+                        }
                     });
-                  }
-                });
-              }
+                }
             });
-          }
-        } catch (err) {
-          console.error("清理任务执行出错:", err);
         }
-      }, 30 * 60 * 1000); // 每30分钟执行一次
-    }
-    // ---------------------------------------------------- ServiceApi ----------------------------------------------------
-    if (this.Config.useDouBao) {
-      this.fetchImageService = getServiceApi(
-        this.Config.imageService.host,
-        this.Config.imageService.accessKeyId,
-        this.Config.imageService.secretAccessKey,
-        "POST",
-        this.Config.imageService.action,
-        this.Config.imageService.version,
-        this.Config.imageService.region,
-        this.Config.imageService.service
-      );
-    }
-    // --------------------------------------------------------------------------------------------------------------------
-  }
-
-  get Config() {
-    return setting.getConfig("douBao");
-  }
-
-  async help(e) {
-    if (!this.Config.useDouBao) return false;
-    var helpMsg = `可用指令：[]中为可选项，()中为解释说明`;
-    if (this.Config.useVideoGenerate)
-      helpMsg += `\n  #视频生成 文本|图片 [宽高比] [5|10](视频秒数)`;
-    if (this.Config.useImageGenerate) {
-      helpMsg += `\n  #图片生成 文本 图片1|图片...(同宽高) [-w 宽] [-h 高]`;
-    }
-    if (this.Config.useImageImitate) {
-      helpMsg += `\n  #图片模仿 文本 图片`;
-    }
-    if (this.Config.useImageStyle) {
-      helpMsg += `\n  #图片风格化 类型前缀 图片`;
-      helpMsg += `\n  #图片风格化 类型列表`;
-    }
-    await e.reply(helpMsg);
-    return true;
-  }
-
-  // ------------------------------------------------ 图片服务通用检查 -------------------------------------------------
-  async preCheck(e) {
-    if (
-      Objects.hasNull(
-        this.Config.imageService.accessKeyId,
-        this.Config.imageService.secretAccessKey
-      )
-    ) {
-      await e.reply("请先设置accessKeyId和secretAccessKey");
-      return false;
-    }
-  }
-
-  get SuccessCode() {
-    return 10000;
-  }
-  // --------------------------------------------------- 图片风格化 ---------------------------------------------------
-
-  get imageStyleReqKeyMap() {
-    var reqKeyList = this.Config.imageStyle.reqKeyMap;
-    var reqKeyMap = {};
-    reqKeyList.forEach((item) => {
-      reqKeyMap[item.key] = item.value;
-    });
-    return reqKeyMap;
-  }
-
-  get iamgeStyleSubReqKeyMap() {
-    var subReqKeyList = this.Config.imageStyle.subReqKeyMap;
-    var subReqKeyMap = {};
-    subReqKeyList.forEach((item) => {
-      subReqKeyMap[item.key] = item.value;
-    });
-    return subReqKeyMap;
-  }
-
-  async imageStyle(e) {
-    if (!this.Config.useDouBao) return false;
-    if (!this.Config.useImageStyle) return true;
-    if (!this.preCheck(e)) return true;
-    var result = await processMessage(e);
-    var body = {};
-    // 将指令部分去除并切分
-    result.texts = result.texts.replace(/^#图片风格化/, "").trim().split(" ");
-    // 查询类型列表命令
-    if (result.texts.length == 1 && result.texts[0] == "类型列表") {
-      var typeList = Object.keys(this.imageStyleReqKeyMap);
-      var typeMsg = "可用类型列表：";
-      typeList.forEach((item) => {
-        typeMsg += `    ${item}`;
-      });
-      await e.reply(typeMsg);
-      return true;
-    }
-    if (Objects.isNull(result.images)) {
-      // 纯文本
-      await e.reply("请发送图片");
-      return true;
-    }
-    // 官方目前仅支持一张图片
-    if (Objects.isNull(result.texts) || result.texts.length != 1 || result.images.length != 1) {
-      await e.reply("请遵循格式 #图片风格化 类型 图片");
-      return true;
-    }
-    var type = result.texts[0];
-    // 寻找匹配类型前缀
-    var typeList = Object.keys(this.imageStyleReqKeyMap);
-    typeList = typeList.filter((item) => {
-      return item.startsWith(type);
-    });
-    if (Objects.isNull(typeList)) {
-      await e.reply("请输入有效类型前缀");
-      return true;
-    }
-    if (typeList.length > 1) {
-      await e.reply("匹配到多个类型，请输入更精确的前缀");
-      return true;
-    }
-    type = typeList[0];
-    body.req_key = this.imageStyleReqKeyMap[type];
-    if (!Objects.isNull(this.iamgeStyleSubReqKeyMap[type]))
-      body.sub_req_key = this.iamgeStyleSubReqKeyMap[type];
-    body.image_urls = result.images;
-    body.return_url = this.Config.imageStyle.returnUrl;
-    await e.reply("正在生成图片，请稍等...");
-    var response = await this.fetchImageService(body, { timeout: 0 });
-    if (response?.ResponseMetadata?.Error) {
-      await e.reply(`生成图片失败: ${response?.ResponseMetadata?.Error?.Code}. ${response?.ResponseMetadata?.Error?.Message}`);
-      return true;
-    }
-    if (response.status === this.SuccessCode) {
-      var segments = [];
-      if (!Objects.isNull(response.data.binary_data_base64)) {
-        response.data.binary_data_base64.forEach((base64) => {
-          if (!base64.startsWith("data:image/"))
-            segments.push(
-              segment.image(Base64.getBase64ImageType(base64) + base64)
-            );
-          else segments.push(segment.image(base64));
-        });
-      }
-      if (!Objects.isNull(response.data.image_urls))
-        segments.push(response.data.image_urls.join("\n"));
-      await e.reply(segments);
-    } else {
-      await e.reply(`生成图片失败:${response.message}`);
-    }
-    return true;
-  }
-
-  // ---------------------------------------------------- 图片模仿 ----------------------------------------------------
-  async imageImitate(e) {
-    if (!this.Config.useDouBao) return false;
-    if (!this.Config.useImageImitate) return true;
-    if (!this.preCheck(e)) return true;
-    var result = await processMessage(e);
-    var body = {};
-    // 将指令部分去除
-    result.texts = result.texts.replace(/^#图片模仿/, "").trim();
-    var strList = result.texts.split(" ");
-    var width = null, height = null;
-    for (var i = 0; i < strList.length - 1; i++) {
-      if (strList[i].startsWith("-w")) {
-        width = parseInt(strList[i + 1]);
-      } else if (strList[i].startsWith("-h")) {
-        height = parseInt(strList[i + 1]);
-      }
-    }
-    if (!Objects.isNull(width)) body.width = width;
-    if (!Objects.isNull(height)) body.height = height;
-    if (Objects.isNull(result.images)) {
-      // 纯文本
-      await e.reply("请发送图片");
-      return true;
-    }
-    body.req_key = this.Config.imageImitate.reqKey;
-    body.image_urls = result.images;
-    body.prompt = result.texts;
-    if (!Objects.isNull(this.Config.imageImitate.returnUrl))
-      body.return_url = this.Config.imageImitate.returnUrl;
-    if (!Objects.isNull(this.Config.imageImitate.useSr))
-      body.use_sr = this.Config.imageImitate.useSr;
-    await e.reply("正在生成图片，请稍等...");
-    var response = await this.fetchImageService(body, { timeout: 0 });
-    if (response?.ResponseMetadata?.Error) {
-      await e.reply(`生成图片失败: ${response?.ResponseMetadata?.Error?.Code}. ${response?.ResponseMetadata?.Error?.Message}`);
-      return true;
-    }
-    if (response.status === this.SuccessCode) {
-      var segments = [];
-      if (!Objects.isNull(response.data.binary_data_base64)) {
-        response.data.binary_data_base64.forEach((base64) => {
-          if (!base64.startsWith("data:image/"))
-            segments.push(
-              segment.image(Base64.getBase64ImageType(base64) + base64)
-            );
-          else segments.push(segment.image(base64));
-        });
-      }
-      if (!Objects.isNull(response.data.image_urls))
-        segments.push(response.data.image_urls.join("\n"));
-      await e.reply(segments);
-    } else {
-      await e.reply(`生成图片失败:${response.message}`);
-    }
-  }
-  // ---------------------------------------------------- 图片生成 ----------------------------------------------------
-
-  async imageGenerate(e) {
-    if (!this.Config.useDouBao) return false;
-    if (!this.Config.useImageGenerate) return true;
-    if (!this.preCheck(e)) return true;
-    var result = await processMessage(e);
-    var body = {};
-    var width = null, height = null;
-    // 将指令部分去除
-    result.texts = result.texts.replace(/^#图片生成/, "").trim();
-    var strList = result.texts.split(" ");
-    for (var i = 0; i < strList.length - 1; i++) {
-      if (strList[i].startsWith("-w")) {
-        width = parseInt(strList[i + 1]);
-      } else if (strList[i].startsWith("-h")) {
-        height = parseInt(strList[i + 1]);
-      }
-    }
-    if (!Objects.isNull(width)) body.width = width;
-    if (!Objects.isNull(height)) body.height = height;
-    if (Objects.isNull(result.images)) {
-      // 纯文本
-      body.req_key = this.Config.imageGenerate.reqKey;
-      body.prompt = result.texts;
-      if (!Objects.isNull(this.Config.imageGenerate.modelVersion))
-        body.model_version = this.Config.imageGenerate.modelVersion;
-      if (!Objects.isNull(this.Config.imageGenerate.reqScheduleConf))
-        body.req_schedule_conf = this.Config.imageGenerate.reqScheduleConf;
-      if (!Objects.isNull(this.Config.imageGenerate.usePreLlm))
-        body.use_pre_llm = this.Config.imageGenerate.usePreLlm;
-      if (!Objects.isNull(this.Config.imageGenerate.useSr))
-        body.use_sr = this.Config.imageGenerate.useSr;
-      if (!Objects.isNull(this.Config.imageGenerate.returnUrl))
-        body.return_url = this.Config.imageGenerate.returnUrl;
-    } else {
-      // 图生图
-      width = undefined, height = undefined;
-      // 判断图片尺寸是否一致，目前豆包多图生图只支持同宽高
-      for (var i = 0; i < result.images.length; i++) {
-        var url = result.images[i];
-        // TODO 最好能不下载到本地
-        var timestamp = new Date().getTime();
-        var filePath = path.join(
-          pluginData,
-          `${e.group_id}`,
-          "video",
-          `${timestamp}_${url.replace(/[^a-zA-Z0-9]/g, "_")}`
-        );
-        await downloadFile(url, filePath);
-        var dimensions = fastImageSize(filePath);
-        // 删除文件
-        fs.unlinkSync(filePath);
-        if (width == undefined) width = dimensions.width;
-        if (height == undefined) height = dimensions.height;
-        if (width != dimensions.width || height != dimensions.height) {
-          e.reply("图片尺寸不一致，请重新发送");
-          return true;
+        // TODO 其实开关关了的话没必要启定时任务，暂时先这么写了
+        if (this.Config.useDouBao) {
+            this.cleanupInterval = setInterval(async () => {
+                try {
+                    const now = Date.now();
+                    const thirtyMinutesAgo = now - 30 * 60 * 1000;
+                    if (fs.existsSync(pluginData)) {
+                        fs.readdirSync(pluginData).forEach((dir) => {
+                            const dirPath = path.join(pluginData, dir);
+                            if (fs.statSync(dirPath).isDirectory()) {
+                                fs.readdirSync(dirPath).forEach((dir2) => {
+                                    const dirPath2 = path.join(dirPath, dir2);
+                                    if (fs.statSync(dirPath2).isDirectory() && dir2 === "video") {
+                                        fs.readdirSync(dirPath2).forEach((file) => {
+                                            const filePath = path.join(dirPath2, file);
+                                            const fileStat = fs.statSync(filePath);
+                                            if (
+                                                fileStat.isFile() &&
+                                                fileStat.birthtimeMs < thirtyMinutesAgo
+                                            ) {
+                                                fs.unlinkSync(filePath);
+                                                console.log(`[douBao]已删除旧文件: ${filePath}`);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                } catch (err) {
+                    console.error("清理任务执行出错:", err);
+                }
+            }, 30 * 60 * 1000); // 每30分钟执行一次
         }
-      }
-      body.req_key = this.Config.imageGenerate.withImgReqKey;
-      if (!Objects.isNull(this.Config.imageGenerate.withImgModelVersion))
-        body.model_version = this.Config.imageGenerate.withImgModelVersion;
-      body.image_urls = result.images;
-      body.prompt = result.texts;
-      if (!Objects.isNull(this.Config.imageGenerate.withImgUseRephraser))
-        body.use_rephraser = this.Config.imageGenerate.withImgUseRephraser;
-      if (!Objects.isNull(this.Config.imageGenerate.withImgReturnUrl))
-        body.return_url = this.Config.imageGenerate.withImgReturnUrl;
-      body.controlnet_args = [];
-      for (var i = 0; i < result.images.length; i++) {
-        body.controlnet_args.push({
-          type: this.Config.imageGenerate.withImgControlnetArgs.type,
-          strength: this.Config.imageGenerate.withImgControlnetArgs.strength,
-          binary_data_index: i,
-        });
-      }
-    }
-    var response = await this.fetchImageService(body, { timeout: 0 });
-    if (response.status === this.SuccessCode) {
-      await e.reply("正在生成图片，请稍等...");
-      var segments = [];
-      if (!Objects.isNull(response.data.binary_data_base64)) {
-        // 其实只会返回一张图，但就这样吧，挺好的
-        response.data.binary_data_base64.forEach((base64) => {
-          if (!base64.startsWith("data:image/"))
-            segments.push(
-              segment.image(Base64.getBase64ImageType(base64) + base64)
+        // ---------------------------------------------------- ServiceApi ----------------------------------------------------
+        if (this.Config.useDouBao) {
+            this.fetchImageService = getServiceApi(
+                this.Config.imageService.host,
+                this.Config.imageService.accessKeyId,
+                this.Config.imageService.secretAccessKey,
+                "POST",
+                this.Config.imageService.action,
+                this.Config.imageService.version,
+                this.Config.imageService.region,
+                this.Config.imageService.service
             );
-          else segments.push(segment.image(base64));
+        }
+        // --------------------------------------------------------------------------------------------------------------------
+    }
+
+    get Config() {
+        return setting.getConfig("douBao");
+    }
+
+    async help(e) {
+        if (!this.Config.useDouBao) return false;
+        var helpMsg = `可用指令：[]中为可选项，()中为解释说明`;
+        if (this.Config.useVideoGenerate)
+            helpMsg += `\n  #视频生成 文本|图片 [宽高比] [5|10](视频秒数)`;
+        if (this.Config.useImageGenerate) {
+            helpMsg += `\n  #图片生成 文本 图片1|图片...(同宽高) [-w 宽] [-h 高]`;
+        }
+        if (this.Config.useImageImitate) {
+            helpMsg += `\n  #图片模仿 文本 图片`;
+        }
+        if (this.Config.useImageStyle) {
+            helpMsg += `\n  #图片风格化 类型前缀 图片`;
+            helpMsg += `\n  #图片风格化 类型列表`;
+        }
+        await e.reply(helpMsg);
+        return true;
+    }
+
+    // ------------------------------------------------ 图片服务通用检查 -------------------------------------------------
+    async preCheck(e) {
+        if (
+            Objects.hasNull(
+                this.Config.imageService.accessKeyId,
+                this.Config.imageService.secretAccessKey
+            )
+        ) {
+            await e.reply("请先设置accessKeyId和secretAccessKey");
+            return false;
+        }
+    }
+
+    get SuccessCode() {
+        return 10000;
+    }
+    // --------------------------------------------------- 图片风格化 ---------------------------------------------------
+
+    get imageStyleReqKeyMap() {
+        var reqKeyList = this.Config.imageStyle.reqKeyMap;
+        var reqKeyMap = {};
+        reqKeyList.forEach((item) => {
+            reqKeyMap[item.key] = item.value;
         });
-      }
-      if (!Objects.isNull(response.data.image_urls))
-        segments.push(response.data.image_urls.join("\n"));
-      await e.reply(segments);
-    } else {
-      await e.reply(`生成图片失败:${response.message}`);
+        return reqKeyMap;
     }
-  }
 
-  // ---------------------------------------------------- 视频生成 ----------------------------------------------------
-
-  get VideoGenerateApiKey() {
-    return Objects.isNull(this.Config.videoGenerate.apiKey)
-      ? ""
-      : this.Config.videoGenerate.apiKey;
-  }
-
-  get VideoGenerateRequestPost() {
-    return {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.ApiKey}`,
-      },
-      body: {},
-    };
-  }
-
-  get VideoGenerateRequestGet() {
-    return {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.ApiKey}`,
-      },
-    };
-  }
-
-  get VideoGenerateUrl() {
-    return Objects.isNull(this.Config.videoGenerate.url)
-      ? ""
-      : this.Config.videoGenerate.url;
-  }
-
-  get VideoGenerateModel() {
-    return Objects.isNull(this.Config.videoGenerate.model)
-      ? ""
-      : this.Config.videoGenerate.model;
-  }
-
-  get VideoGenerateBody() {
-    return {
-      model: Objects.isNull(this.VideoGenerateModel)
-        ? ""
-        : this.VideoGenerateModel,
-      content: [],
-    };
-  }
-
-  async videoGenerate(e) {
-    if (!this.Config.useDouBao) return false;
-    if (!this.Config.useVideoGenerate) return true;
-    if (Objects.isNull(this.VideoGenerateApiKey)) {
-      await e.reply("请先设置apiKey");
-      return true;
-    }
-    if (Objects.isNull(this.VideoGenerateUrl)) {
-      await e.reply("请先设置请求地址");
-      return true;
-    }
-    if (Objects.isNull(this.VideoGenerateModel)) {
-      await e.reply("请先设置要使用的模型");
-      return true;
-    }
-    var msgList = await processMessage(e);
-    var texts = msgList.texts;
-    texts = texts.replace("#视频生成", "").trim();
-    if (Objects.isNull(texts) && Objects.isNull(msgList.images)) {
-      await e.reply("请添加描述文本或图片");
-      return true;
-    }
-    var request = JSON.parse(JSON.stringify(this.VideoGenerateRequestPost));
-    var body = JSON.parse(JSON.stringify(this.VideoGenerateBody));
-    for (var i = 0; i < msgList.content.length; i++) {
-      var content = msgList.content[i];
-      if (content.type == "text") {
-        body.content.push({
-          type: "text",
-          text: content.text,
+    get iamgeStyleSubReqKeyMap() {
+        var subReqKeyList = this.Config.imageStyle.subReqKeyMap;
+        var subReqKeyMap = {};
+        subReqKeyList.forEach((item) => {
+            subReqKeyMap[item.key] = item.value;
         });
-      } else if (content.type == "image") {
-        body.content.push({
-          type: "image_url",
-          image_url: {
-            url: await url2Base64(content.url),
-          },
+        return subReqKeyMap;
+    }
+
+    async imageStyle(e) {
+        if (!this.Config.useDouBao) return false;
+        if (!this.Config.useImageStyle) return true;
+        if (!this.preCheck(e)) return true;
+        var result = await processMessage(e);
+        var body = {};
+        // 将指令部分去除并切分
+        result.texts = result.texts.replace(/^#图片风格化/, "").trim().split(" ");
+        // 查询类型列表命令
+        if (result.texts.length == 1 && result.texts[0] == "类型列表") {
+            var typeList = Object.keys(this.imageStyleReqKeyMap);
+            var typeMsg = "可用类型列表：";
+            typeList.forEach((item) => {
+                typeMsg += `    ${item}`;
+            });
+            await e.reply(typeMsg);
+            return true;
+        }
+        if (Objects.isNull(result.images)) {
+            // 纯文本
+            await e.reply("请发送图片");
+            return true;
+        }
+        // 官方目前仅支持一张图片
+        if (Objects.isNull(result.texts) || result.texts.length != 1 || result.images.length != 1) {
+            await e.reply("请遵循格式 #图片风格化 类型 图片");
+            return true;
+        }
+        var type = result.texts[0];
+        // 寻找匹配类型前缀
+        var typeList = Object.keys(this.imageStyleReqKeyMap);
+        typeList = typeList.filter((item) => {
+            return item.startsWith(type);
         });
-      } else {
-        // 其它类型，保持原样加进body，虽然不知道有什么用，反正应该走不到这
-        body.content.push(content);
-      }
-    }
-    request.body = body;
-    request.body = JSON.stringify(request.body);
-    var response = await fetch(this.VideoGenerateUrl, request);
-    response = await response.json();
-    var id = response.id;
-    if (Objects.isNull(id)) {
-      await e.reply("视频生成失败，请稍后再试");
-      return true;
-    }
-    logger.mark(`[douBao]视频生成任务创建成功，id：${id}`);
-    // 创建线程
-    this.createTaskThread(e, id);
-    await e.reply("视频生成中，请稍等...");
-    return true;
-  }
-
-  createTaskThread(e, id) {
-    var getUrl = this.VideoGenerateUrl + "/" + id;
-    var request = JSON.parse(JSON.stringify(this.VideoGenerateRequestGet));
-    var taskThread = setInterval(async () => {
-      var response = await fetch(getUrl, request);
-      response = await response.json();
-      if (response.status == "succeeded") {
-        clearInterval(taskThread);
-        // 处理完成
-        this.handleCompleted(e, response);
-      } else if (response.status == "failed") {
-        clearInterval(taskThread);
-        // 处理失败
-        this.handleFailed(e, response);
-      } else if (response.status == "cancelled") {
-        // 处理取消
-        clearInterval(taskThread);
-      }
-    }, 5000);
-  }
-
-  handleFailed(e, response) {
-    // 处理失败
-    var error = response.error;
-    var message = error.message;
-    var code = error.code;
-    var errorMsg = `[douBao]视频生成失败，错误码：${code}，错误信息：${message}`;
-    e.reply(errorMsg);
-  }
-
-  handleCompleted(e, response) {
-    if (response.model == this.VideoGenerateModel) {
-      // 视频生成
-      var videoUrl = response.content.video_url;
-      var timestamp = new Date().getTime();
-      var filePath = path.join(
-        pluginData,
-        `${e.group_id}`,
-        "video",
-        `${timestamp}-${response.id}.mp4`
-      );
-      downloadFile(videoUrl, filePath)
-        .then(() => {
-          return e.reply([segment.video(filePath)]);
-        })
-        .then(() => {
-          // 删除文件
-          fs.unlink(filePath, (err) => {
-            if (err) {
-              console.error(`[douBao]删除视频失败: ${err}`);
+        if (Objects.isNull(typeList)) {
+            await e.reply("请输入有效类型前缀");
+            return true;
+        }
+        if (typeList.length > 1) {
+            await e.reply("匹配到多个类型，请输入更精确的前缀");
+            return true;
+        }
+        type = typeList[0];
+        body.req_key = this.imageStyleReqKeyMap[type];
+        if (!Objects.isNull(this.iamgeStyleSubReqKeyMap[type]))
+            body.sub_req_key = this.iamgeStyleSubReqKeyMap[type];
+        body.image_urls = result.images;
+        body.return_url = this.Config.imageStyle.returnUrl;
+        await e.reply("正在生成图片，请稍等...");
+        var response = await this.fetchImageService(body, { timeout: 0 });
+        if (response?.ResponseMetadata?.Error) {
+            await e.reply(`生成图片失败: ${response?.ResponseMetadata?.Error?.Code}. ${response?.ResponseMetadata?.Error?.Message}`);
+            return true;
+        }
+        if (response.status === this.SuccessCode) {
+            var segments = [];
+            if (!Objects.isNull(response.data.binary_data_base64)) {
+                response.data.binary_data_base64.forEach((base64) => {
+                    if (!base64.startsWith("data:image/"))
+                        segments.push(
+                            segment.image(Base64.getBase64ImageType(base64) + base64)
+                        );
+                    else segments.push(segment.image(base64));
+                });
             }
-            return;
-          });
-        })
-        .catch((err) => {
-          console.error(`[douBao]${err}`);
-        });
+            if (!Objects.isNull(response.data.image_urls))
+                segments.push(response.data.image_urls.join("\n"));
+            await e.reply(segments);
+        } else {
+            await e.reply(`生成图片失败:${response.message}`);
+        }
+        return true;
     }
-  }
+
+    // ---------------------------------------------------- 图片模仿 ----------------------------------------------------
+    async imageImitate(e) {
+        if (!this.Config.useDouBao) return false;
+        if (!this.Config.useImageImitate) return true;
+        if (!this.preCheck(e)) return true;
+        var result = await processMessage(e);
+        var body = {};
+        // 将指令部分去除
+        result.texts = result.texts.replace(/^#图片模仿/, "").trim();
+        var strList = result.texts.split(" ");
+        var width = null, height = null;
+        for (var i = 0; i < strList.length - 1; i++) {
+            if (strList[i].startsWith("-w")) {
+                width = parseInt(strList[i + 1]);
+            } else if (strList[i].startsWith("-h")) {
+                height = parseInt(strList[i + 1]);
+            }
+        }
+        if (!Objects.isNull(width)) body.width = width;
+        if (!Objects.isNull(height)) body.height = height;
+        if (Objects.isNull(result.images)) {
+            // 纯文本
+            await e.reply("请发送图片");
+            return true;
+        }
+        body.req_key = this.Config.imageImitate.reqKey;
+        body.image_urls = result.images;
+        body.prompt = result.texts;
+        if (!Objects.isNull(this.Config.imageImitate.returnUrl))
+            body.return_url = this.Config.imageImitate.returnUrl;
+        if (!Objects.isNull(this.Config.imageImitate.useSr))
+            body.use_sr = this.Config.imageImitate.useSr;
+        await e.reply("正在生成图片，请稍等...");
+        var response = await this.fetchImageService(body, { timeout: 0 });
+        if (response?.ResponseMetadata?.Error) {
+            await e.reply(`生成图片失败: ${response?.ResponseMetadata?.Error?.Code}. ${response?.ResponseMetadata?.Error?.Message}`);
+            return true;
+        }
+        if (response.status === this.SuccessCode) {
+            var segments = [];
+            if (!Objects.isNull(response.data.binary_data_base64)) {
+                response.data.binary_data_base64.forEach((base64) => {
+                    if (!base64.startsWith("data:image/"))
+                        segments.push(
+                            segment.image(Base64.getBase64ImageType(base64) + base64)
+                        );
+                    else segments.push(segment.image(base64));
+                });
+            }
+            if (!Objects.isNull(response.data.image_urls))
+                segments.push(response.data.image_urls.join("\n"));
+            await e.reply(segments);
+        } else {
+            await e.reply(`生成图片失败:${response.message}`);
+        }
+    }
+    // ---------------------------------------------------- 图片生成 ----------------------------------------------------
+
+    async imageGenerate(e) {
+        if (!this.Config.useDouBao) return false;
+        if (!this.Config.useImageGenerate) return true;
+        if (!this.preCheck(e)) return true;
+        var result = await processMessage(e);
+        var body = {};
+        var width = null, height = null;
+        // 将指令部分去除
+        result.texts = result.texts.replace(/^#图片生成/, "").trim();
+        var strList = result.texts.split(" ");
+        for (var i = 0; i < strList.length - 1; i++) {
+            if (strList[i].startsWith("-w")) {
+                width = parseInt(strList[i + 1]);
+            } else if (strList[i].startsWith("-h")) {
+                height = parseInt(strList[i + 1]);
+            }
+        }
+        if (!Objects.isNull(width)) body.width = width;
+        if (!Objects.isNull(height)) body.height = height;
+        if (Objects.isNull(result.images)) {
+            // 纯文本
+            body.req_key = this.Config.imageGenerate.reqKey;
+            body.prompt = result.texts;
+            if (!Objects.isNull(this.Config.imageGenerate.modelVersion))
+                body.model_version = this.Config.imageGenerate.modelVersion;
+            if (!Objects.isNull(this.Config.imageGenerate.reqScheduleConf))
+                body.req_schedule_conf = this.Config.imageGenerate.reqScheduleConf;
+            if (!Objects.isNull(this.Config.imageGenerate.usePreLlm))
+                body.use_pre_llm = this.Config.imageGenerate.usePreLlm;
+            if (!Objects.isNull(this.Config.imageGenerate.useSr))
+                body.use_sr = this.Config.imageGenerate.useSr;
+            if (!Objects.isNull(this.Config.imageGenerate.returnUrl))
+                body.return_url = this.Config.imageGenerate.returnUrl;
+        } else {
+            // 图生图
+            width = undefined, height = undefined;
+            // 判断图片尺寸是否一致，目前豆包多图生图只支持同宽高
+            for (var i = 0; i < result.images.length; i++) {
+                var url = result.images[i];
+                // TODO 最好能不下载到本地
+                var timestamp = new Date().getTime();
+                var filePath = path.join(
+                    pluginData,
+                    `${e.group_id}`,
+                    "video",
+                    `${timestamp}_${url.replace(/[^a-zA-Z0-9]/g, "_")}`
+                );
+                await downloadFile(url, filePath);
+                var dimensions = fastImageSize(filePath);
+                // 删除文件
+                fs.unlinkSync(filePath);
+                if (width == undefined) width = dimensions.width;
+                if (height == undefined) height = dimensions.height;
+                if (width != dimensions.width || height != dimensions.height) {
+                    e.reply("图片尺寸不一致，请重新发送");
+                    return true;
+                }
+            }
+            body.req_key = this.Config.imageGenerate.withImgReqKey;
+            if (!Objects.isNull(this.Config.imageGenerate.withImgModelVersion))
+                body.model_version = this.Config.imageGenerate.withImgModelVersion;
+            body.image_urls = result.images;
+            body.prompt = result.texts;
+            if (!Objects.isNull(this.Config.imageGenerate.withImgUseRephraser))
+                body.use_rephraser = this.Config.imageGenerate.withImgUseRephraser;
+            if (!Objects.isNull(this.Config.imageGenerate.withImgReturnUrl))
+                body.return_url = this.Config.imageGenerate.withImgReturnUrl;
+            body.controlnet_args = [];
+            for (var i = 0; i < result.images.length; i++) {
+                body.controlnet_args.push({
+                    type: this.Config.imageGenerate.withImgControlnetArgs.type,
+                    strength: this.Config.imageGenerate.withImgControlnetArgs.strength,
+                    binary_data_index: i,
+                });
+            }
+        }
+        var response = await this.fetchImageService(body, { timeout: 0 });
+        if (response.status === this.SuccessCode) {
+            await e.reply("正在生成图片，请稍等...");
+            var segments = [];
+            if (!Objects.isNull(response.data.binary_data_base64)) {
+                // 其实只会返回一张图，但就这样吧，挺好的
+                response.data.binary_data_base64.forEach((base64) => {
+                    if (!base64.startsWith("data:image/"))
+                        segments.push(
+                            segment.image(Base64.getBase64ImageType(base64) + base64)
+                        );
+                    else segments.push(segment.image(base64));
+                });
+            }
+            if (!Objects.isNull(response.data.image_urls))
+                segments.push(response.data.image_urls.join("\n"));
+            await e.reply(segments);
+        } else {
+            await e.reply(`生成图片失败:${response.message}`);
+        }
+    }
+
+    // ---------------------------------------------------- 视频生成 ----------------------------------------------------
+
+    get VideoGenerateApiKey() {
+        return Objects.isNull(this.Config.videoGenerate.apiKey)
+            ? ""
+            : this.Config.videoGenerate.apiKey;
+    }
+
+    get VideoGenerateRequestPost() {
+        return {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${this.ApiKey}`,
+            },
+            body: {},
+        };
+    }
+
+    get VideoGenerateRequestGet() {
+        return {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${this.ApiKey}`,
+            },
+        };
+    }
+
+    get VideoGenerateUrl() {
+        return Objects.isNull(this.Config.videoGenerate.url)
+            ? ""
+            : this.Config.videoGenerate.url;
+    }
+
+    get VideoGenerateModel() {
+        return Objects.isNull(this.Config.videoGenerate.model)
+            ? ""
+            : this.Config.videoGenerate.model;
+    }
+
+    get VideoGenerateBody() {
+        return {
+            model: Objects.isNull(this.VideoGenerateModel)
+                ? ""
+                : this.VideoGenerateModel,
+            content: [],
+        };
+    }
+
+    async videoGenerate(e) {
+        if (!this.Config.useDouBao) return false;
+        if (!this.Config.useVideoGenerate) return true;
+        if (Objects.isNull(this.VideoGenerateApiKey)) {
+            await e.reply("请先设置apiKey");
+            return true;
+        }
+        if (Objects.isNull(this.VideoGenerateUrl)) {
+            await e.reply("请先设置请求地址");
+            return true;
+        }
+        if (Objects.isNull(this.VideoGenerateModel)) {
+            await e.reply("请先设置要使用的模型");
+            return true;
+        }
+        var msgList = await processMessage(e);
+        var texts = msgList.texts;
+        texts = texts.replace("#视频生成", "").trim();
+        if (Objects.isNull(texts) && Objects.isNull(msgList.images)) {
+            await e.reply("请添加描述文本或图片");
+            return true;
+        }
+        var request = JSON.parse(JSON.stringify(this.VideoGenerateRequestPost));
+        var body = JSON.parse(JSON.stringify(this.VideoGenerateBody));
+        for (var i = 0; i < msgList.content.length; i++) {
+            var content = msgList.content[i];
+            if (content.type == "text") {
+                body.content.push({
+                    type: "text",
+                    text: content.text,
+                });
+            } else if (content.type == "image") {
+                body.content.push({
+                    type: "image_url",
+                    image_url: {
+                        url: await url2Base64(content.url),
+                    },
+                });
+            } else {
+                // 其它类型，保持原样加进body，虽然不知道有什么用，反正应该走不到这
+                body.content.push(content);
+            }
+        }
+        request.body = body;
+        request.body = JSON.stringify(request.body);
+        var response = await fetch(this.VideoGenerateUrl, request);
+        response = await response.json();
+        var id = response.id;
+        if (Objects.isNull(id)) {
+            await e.reply("视频生成失败，请稍后再试");
+            return true;
+        }
+        logger.mark(`[douBao]视频生成任务创建成功，id：${id}`);
+        // 创建线程
+        this.createTaskThread(e, id);
+        await e.reply("视频生成中，请稍等...");
+        return true;
+    }
+
+    createTaskThread(e, id) {
+        var getUrl = this.VideoGenerateUrl + "/" + id;
+        var request = JSON.parse(JSON.stringify(this.VideoGenerateRequestGet));
+        var taskThread = setInterval(async () => {
+            var response = await fetch(getUrl, request);
+            response = await response.json();
+            if (response.status == "succeeded") {
+                clearInterval(taskThread);
+                // 处理完成
+                this.handleCompleted(e, response);
+            } else if (response.status == "failed") {
+                clearInterval(taskThread);
+                // 处理失败
+                this.handleFailed(e, response);
+            } else if (response.status == "cancelled") {
+                // 处理取消
+                clearInterval(taskThread);
+            }
+        }, 5000);
+    }
+
+    handleFailed(e, response) {
+        // 处理失败
+        var error = response.error;
+        var message = error.message;
+        var code = error.code;
+        var errorMsg = `[douBao]视频生成失败，错误码：${code}，错误信息：${message}`;
+        e.reply(errorMsg);
+    }
+
+    handleCompleted(e, response) {
+        if (response.model == this.VideoGenerateModel) {
+            // 视频生成
+            var videoUrl = response.content.video_url;
+            var timestamp = new Date().getTime();
+            var filePath = path.join(
+                pluginData,
+                `${e.group_id}`,
+                "video",
+                `${timestamp}-${response.id}.mp4`
+            );
+            downloadFile(videoUrl, filePath)
+                .then(() => {
+                    return e.reply([segment.video(filePath)]);
+                })
+                .then(() => {
+                    // 删除文件
+                    fs.unlink(filePath, (err) => {
+                        if (err) {
+                            console.error(`[douBao]删除视频失败: ${err}`);
+                        }
+                        return;
+                    });
+                })
+                .catch((err) => {
+                    console.error(`[douBao]${err}`);
+                });
+        }
+    }
 }
 
 /**
@@ -576,41 +576,41 @@ export class douBao extends plugin {
  * content: 按顺序排列的消息体
  */
 async function processMessage(e) {
-  var result = {
-    texts: "",
-    images: [],
-    content: [],
-  };
-  var msgList = e.message;
-  var texts = [];
-  for (var i = 0; i < msgList.length; i++) {
-    var msg = msgList[i];
-    if (msg.type == "text") {
-      result.content.push({
-        type: "text",
-        text: msg.text.replace(/\s+/g, " ").trim(),
-      });
-      texts.push(msg.text);
-    } else if (msg.type == "image") {
-      result.content.push({ type: "image", url: msg.url });
-      result.images.push(msg.url);
-    } else if (msg.type == "reply") {
-      var sourceImages = await e.getReply(msg.id);
-      sourceImages = sourceImages?.message.filter((each) => {
-        return each.type == "image";
-      });
-      sourceImages.forEach((each) => {
-        result.content.push({ type: "image", url: each.url });
-        result.images.push(each.url);
-      });
-    } else if (msg.type != "at") {
-      //其它类型，保持原样加进result，虽然不知道有什么用
-      result.content.push(msg);
+    var result = {
+        texts: "",
+        images: [],
+        content: [],
+    };
+    var msgList = e.message;
+    var texts = [];
+    for (var i = 0; i < msgList.length; i++) {
+        var msg = msgList[i];
+        if (msg.type == "text") {
+            result.content.push({
+                type: "text",
+                text: msg.text.replace(/\s+/g, " ").trim(),
+            });
+            texts.push(msg.text);
+        } else if (msg.type == "image") {
+            result.content.push({ type: "image", url: msg.url });
+            result.images.push(msg.url);
+        } else if (msg.type == "reply") {
+            var sourceImages = await e.getReply(msg.id);
+            sourceImages = sourceImages?.message.filter((each) => {
+                return each.type == "image";
+            });
+            sourceImages.forEach((each) => {
+                result.content.push({ type: "image", url: each.url });
+                result.images.push(each.url);
+            });
+        } else if (msg.type != "at") {
+            //其它类型，保持原样加进result，虽然不知道有什么用
+            result.content.push(msg);
+        }
     }
-  }
-  var textPart = texts.join(" ");
-  // 将空格固定为一个
-  textPart = textPart.replace(/\s+/g, " ");
-  result.texts = textPart.trim();
-  return result;
+    var textPart = texts.join(" ");
+    // 将空格固定为一个
+    textPart = textPart.replace(/\s+/g, " ");
+    result.texts = textPart.trim();
+    return result;
 }

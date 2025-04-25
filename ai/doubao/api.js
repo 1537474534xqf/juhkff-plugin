@@ -15,30 +15,30 @@ import { Service } from "@volcengine/openapi";
  * @returns 
  */
 export function getServiceApi(
-  host,
-  accessKeyId,
-  secretAccessKey,
-  method,
-  action,
-  version,
-  region,
-  service
+    host,
+    accessKeyId,
+    secretAccessKey,
+    method,
+    action,
+    version,
+    region,
+    service
 ) {
-  const serviceApi = new Service({
-    host: host,
-    serviceName: service,
-    region: region,
-    accessKeyId: accessKeyId,
-    secretKey: secretAccessKey,
-  });
+    const serviceApi = new Service({
+        host: host,
+        serviceName: service,
+        region: region,
+        accessKeyId: accessKeyId,
+        secretKey: secretAccessKey,
+    });
 
-  const fetchApi = serviceApi.createAPI(action, {
-    Version: version,
-    method: method,
-    contentType: "json",
-  });
+    const fetchApi = serviceApi.createAPI(action, {
+        Version: version,
+        method: method,
+        contentType: "json",
+    });
 
-  return fetchApi;
+    return fetchApi;
 }
 
 /**
@@ -54,31 +54,31 @@ export function getServiceApi(
  * @param {*} service
  */
 export async function fetchDouBao(
-  host,
-  accessKeyId,
-  secretAccessKey,
-  method,
-  body,
-  action,
-  version,
-  region,
-  service
+    host,
+    accessKeyId,
+    secretAccessKey,
+    method,
+    body,
+    action,
+    version,
+    region,
+    service
 ) {
-  const serviceApi = new Service({
-    host: host,
-    serviceName: service,
-    region: region,
-    accessKeyId: accessKeyId,
-    secretKey: secretAccessKey,
-  });
+    const serviceApi = new Service({
+        host: host,
+        serviceName: service,
+        region: region,
+        accessKeyId: accessKeyId,
+        secretKey: secretAccessKey,
+    });
 
-  const fetchApi = serviceApi.createAPI(action, {
-    Version: version,
-    method: method,
-    contentType: "json",
-  });
+    const fetchApi = serviceApi.createAPI(action, {
+        Version: version,
+        method: method,
+        contentType: "json",
+    });
 
-  const rr = await fetchApi(body, { timeout: 0 });
+    const rr = await fetchApi(body, { timeout: 0 });
 
-  return rr;
+    return rr;
 }

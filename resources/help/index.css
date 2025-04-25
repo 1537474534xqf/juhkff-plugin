@@ -1,168 +1,168 @@
 @font-face {
-  font-family: 'Number';
-  src: url("./font/tttgbnumber.woff") format('woff'), url("./font/tttgbnumber.ttf") format('truetype');
+    font-family: 'Number';
+    src: url("./font/tttgbnumber.woff") format('woff'), url("./font/tttgbnumber.ttf") format('truetype');
 }
 
 @font-face {
-  font-family: 'NZBZ';
-  src: url("./font/NZBZ.woff") format('woff'), url("./font/NZBZ.ttf") format('truetype');
+    font-family: 'NZBZ';
+    src: url("./font/NZBZ.woff") format('woff'), url("./font/NZBZ.ttf") format('truetype');
 }
 
 @font-face {
-  font-family: 'YS';
-  src: url("./font/HYWH-65W.woff") format('woff'), url("./font/HYWH-65W.ttf") format('truetype');
+    font-family: 'YS';
+    src: url("./font/HYWH-65W.woff") format('woff'), url("./font/HYWH-65W.ttf") format('truetype');
 }
 
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  -webkit-user-select: none;
-  user-select: none;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 body {
-  font-size: 18px;
-  color: #1e1f20;
-  font-family: Number, "汉仪文黑-65W", YS, PingFangSC-Medium, "PingFang SC", sans-serif;
-  transform: scale(1);
-  transform-origin: 0 0;
-  width: 600px;
-  background-image: url(./images/bg.jpg);
+    font-size: 18px;
+    color: #1e1f20;
+    font-family: Number, "汉仪文黑-65W", YS, PingFangSC-Medium, "PingFang SC", sans-serif;
+    transform: scale(1);
+    transform-origin: 0 0;
+    width: 600px;
+    background-image: url(./images/bg.jpg);
 
 }
 
 .head-box {
-  border-radius: 15px;
-  padding: 10px 20px;
-  position: relative;
-  color: #fff;
-  margin-top: 30px;
-  font-family: Number, "印品南征北战NZBZ体", NZBZ, "汉仪文黑-65W", YS, PingFangSC-Medium, "PingFang SC", sans-serif;
-  font-size: 50px;
-  text-shadow: 0 0 1px #000, 1px 1px 3px rgba(0, 0, 0, 0.9);
+    border-radius: 15px;
+    padding: 10px 20px;
+    position: relative;
+    color: #fff;
+    margin-top: 30px;
+    font-family: Number, "印品南征北战NZBZ体", NZBZ, "汉仪文黑-65W", YS, PingFangSC-Medium, "PingFang SC", sans-serif;
+    font-size: 50px;
+    text-shadow: 0 0 1px #000, 1px 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 .label {
-  font-size: 16px;
-  text-shadow: 0 0 1px #000, 1px 1px 3px rgba(0, 0, 0, 0.9);
+    font-size: 16px;
+    text-shadow: 0 0 1px #000, 1px 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 .container {
-  background: top left no-repeat;
-  background-size: 100% auto;
-  padding: 20px 15px 10px 15px;
-  background-size: contain;
-  background-image: url(./images/main.png);
-  width: 600px;
+    background: top left no-repeat;
+    background-size: 100% auto;
+    padding: 20px 15px 10px 15px;
+    background-size: contain;
+    background-image: url(./images/main.png);
+    width: 600px;
 }
 
 .cont-box {
-  background: rgba(6, 21, 31, 0.5);
-  backdrop-filter: blur(2px);
-  border-radius: 15px;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  overflow: hidden;
-  box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.15);
-  position: relative;
+    background: rgba(6, 21, 31, 0.5);
+    backdrop-filter: blur(2px);
+    border-radius: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.15);
+    position: relative;
 }
 
 .help-table {
-  text-align: center;
-  border-collapse: collapse;
-  margin: 0;
-  border-radius: 0 0 10px 10px;
-  display: table;
-  overflow: hidden;
-  width: 100%;
-  color: #fff;
+    text-align: center;
+    border-collapse: collapse;
+    margin: 0;
+    border-radius: 0 0 10px 10px;
+    display: table;
+    overflow: hidden;
+    width: 100%;
+    color: #fff;
 }
 
 .help-table .tr {
-  display: table-row;
+    display: table-row;
 }
 
 .help-table .td,
 .help-table .th {
-  font-size: 14px;
-  display: table-cell;
-  box-shadow: 0 0 1px 0 #888 inset;
-  padding: 5px 0 8px 12px;
-  line-height: 24px;
-  position: relative;
-  text-align: left;
-  width: 33.333333333333336%;
+    font-size: 14px;
+    display: table-cell;
+    box-shadow: 0 0 1px 0 #888 inset;
+    padding: 5px 0 8px 12px;
+    line-height: 24px;
+    position: relative;
+    text-align: left;
+    width: 33.333333333333336%;
 }
 
 .help-table .tr:nth-child(odd) {
-  background: rgba(6, 21, 31, 0.2);
+    background: rgba(6, 21, 31, 0.2);
 }
 
 .help-table .tr:nth-child(even) {
-  background: rgba(6, 21, 31, 0.35);
+    background: rgba(6, 21, 31, 0.35);
 }
 
 .help-table .tr:last-child .td {
-  padding-bottom: 12px;
+    padding-bottom: 12px;
 }
 
 .help-group {
-  background: rgba(6, 21, 31, 0.4);
-  font-size: 18px;
-  font-weight: bold;
-  padding: 15px 15px 10px 20px;
-  color: #ceb78b;
+    background: rgba(6, 21, 31, 0.4);
+    font-size: 18px;
+    font-weight: bold;
+    padding: 15px 15px 10px 20px;
+    color: #ceb78b;
 }
 
-.group-title{
-  display: inline-block;
-  padding-left: 5px;
-  font-size: 13px;
-  color: rgb(240, 197, 43);
-  font-weight: normal;
+.group-title {
+    display: inline-block;
+    padding-left: 5px;
+    font-size: 13px;
+    color: rgb(240, 197, 43);
+    font-weight: normal;
 }
 
 .group-desc {
-  display: inline-block;
-  padding-left: 10px;
-  color: rgb(243, 182, 109);
-  font-size: 13px;
-  font-weight: lighter;
+    display: inline-block;
+    padding-left: 10px;
+    color: rgb(243, 182, 109);
+    font-size: 13px;
+    font-weight: lighter;
 }
 
 .help-name {
-  display: block;
-  color: rgba(111, 186, 243, 0.946);
-  font-size: 16px;
-  text-align: center;
+    display: block;
+    color: rgba(111, 186, 243, 0.946);
+    font-size: 16px;
+    text-align: center;
 }
 
 .help-content {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 .help-title {
-  display: block;
-  color: rgb(240, 197, 43);
-  font-size: 14px;
-  line-height: 18px;
-  font-weight: normal;
-  margin-top: 5px;
-  font-family: Ys, "汉仪文黑-65W", PingFangSC-Medium, "PingFang SC", sans-serif;
+    display: block;
+    color: rgb(240, 197, 43);
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: normal;
+    margin-top: 5px;
+    font-family: Ys, "汉仪文黑-65W", PingFangSC-Medium, "PingFang SC", sans-serif;
 }
 
 .help-desc {
-  display: block;
-  font-size: 14px;
-  line-height: 18px;
-  font-weight: normal;
-  margin-top: 5px;
+    display: block;
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: normal;
+    margin-top: 5px;
 }
 
-.copyright{
-  margin-top: 2px;
-  font-size: 9px;
+.copyright {
+    margin-top: 2px;
+    font-size: 9px;
 }

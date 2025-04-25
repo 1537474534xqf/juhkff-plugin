@@ -4,7 +4,7 @@ import path from "path";
 import fs from "fs";
 import { pathToFileURL } from "url";
 import { renderPage } from "../utils/page.js"
-import Objects, { StringUtils } from "#juhkff.kits";
+import { Objects, StringUtils } from "#juhkff.kits";
 
 export class helpGen extends plugin {
     constructor() {
