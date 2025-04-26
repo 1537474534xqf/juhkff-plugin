@@ -7,7 +7,7 @@ export class Objects {
      * @param {*} obj
      * @returns boolean
      */
-    static isNull(obj) {
+    static isNull(obj: any): boolean {
         if (!obj || obj === null || obj === undefined) return true;
         if (Array.isArray(obj)) {
             return obj.length === 0;
@@ -15,14 +15,15 @@ export class Objects {
         if (typeof obj === "string" || obj instanceof String) {
             return obj.trim() === "";
         }
+        return false;
     }
 
     /**
      * 判断多个对象中是否有空对象
-     * @param  {...any} objs
-     * @returns boolean
+     * @param objs 
+     * @returns 
      */
-    static hasNull(...objs) {
+    static hasNull(...objs: any[]): boolean {
         return objs.some((obj) => Objects.isNull(obj));
     }
 }
@@ -36,13 +37,13 @@ export class StringUtils {
      * @param {*} str 
      * @returns string
      */
-    static toUpperFirst(str) {
+    static toUpperFirst(str: string): string {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
 }
 
 export class Base64 {
-    static getBase64ImageType(base64) {
+    static getBase64ImageType(base64: string): "data:image/png;base64," | "data:image/jpeg;base64," | "data:image/gif;base64," | "data:image/bmp;base64," | "data:image/webp;base64," | "data:image/tiff;base64," | null {
         // 将Base64数据解码为二进制数据
         const binaryData = Buffer.from(base64, "base64");
 

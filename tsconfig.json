@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ESNext", // 现代 ES 特性
+    "module": "CommonJS", // 输出 CommonJS 格式（Node.js 默认）
+    "moduleResolution": "node", // Node.js 模块解析策略
+    "outDir": "./dist", // 输出目录
+    "rootDir": "./src", // 源码目录
+    "sourceMap": true, // 关键：生成 .js.map 文件
+    "allowJs": true, // 允许混合 JS/TS
+    "strict": true, // 启用严格类型检查
+    "esModuleInterop": true, // 允许 ESM 和 CJS 互操作
+    "skipLibCheck": true, // 跳过库文件检查
+    "forceConsistentCasingInFileNames": true, // 强制文件名大小写一致
+    "resolveJsonModule": true // 允许导入 JSON
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

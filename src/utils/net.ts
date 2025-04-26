@@ -5,23 +5,24 @@
 
 import fs from "fs";
 import https from "https";
-import fetch from "node-fetch";
 import path from "path";
 import axios from "axios";
 import { DOMParser } from "xmldom";
 import fastImageSize from "fast-image-size";
+import { URL } from "url";
 
 /**
  * 下载文件
- * @param {string} url 文件下载链接
- * @param {string} 目标文件路径（带后缀）
- * @returns {Promise<void>}
+ * @param url 文件下载链接
+ * @param dest 目标文件路径（带后缀）
+ * @returns 
  */
-export async function downloadFile(url, dest) {
+export async function downloadFile(url: string | URL | https.RequestOptions, dest: string): Promise<unknown> {
     //自动创建子文件夹
     if (!fs.existsSync(path.dirname(dest))) {
         fs.mkdirSync(path.dirname(dest), { recursive: true });
     }
+
     return new Promise((resolve, reject) => {
         const file = fs.createWriteStream(dest);
         https.get(url, (response) => {
@@ -29,7 +30,6 @@ export async function downloadFile(url, dest) {
                 reject(new Error(`Failed to get '${url}' (${response.statusCode})`));
                 return;
             }
-
             response.pipe(file);
 
             file.on("finish", () => {
@@ -51,7 +51,7 @@ export async function downloadFile(url, dest) {
  * @param {boolean} isReturnBuffer 是否返回 Buffer，默认为 false
  * @returns {string | Buffer | null} 图片的 Base64 编码或 Buffer
  */
-export async function url2Base64(url, isReturnBuffer = false) {
+export async function url2Base64(url: string, isReturnBuffer: boolean = false): Promise<string | Buffer<ArrayBuffer>> {
     try {
         const response = await axios.get(url, {
             responseType: "arraybuffer",
@@ -79,10 +79,7 @@ export async function url2Base64(url, isReturnBuffer = false) {
             "binary"
         ).toString("base64")}`;
     } catch (error) {
-        logger.error(
-            `[tools]下载引用图片错误，可能是图片链接已失效，使用的图片链接：\n` + url
-        );
-        return null;
+        throw new Error(`[net]下载图片${url}失败: ${error}`);
     }
 }
 
@@ -91,23 +88,18 @@ export async function url2Base64(url, isReturnBuffer = false) {
  * @param {string} url 请求链接
  * @returns {json} 请求结果
  */
-export async function get(url) {
-    var response;
-    for (var i = 0; i < 3; i++) {
-        try {
-            var response = await fetch(url, {
-                method: "GET",
-            });
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            break;
-        } catch (e) {
-            logger.error(e);
-            continue;
+export async function get(url: string | globalThis.URL | Request): Promise<any> {
+    try {
+        let response = await fetch(url, {
+            method: "GET",
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
+        return response.json();
+    } catch (error) {
+        throw new Error(`[net]Error request get: ${error}`);
     }
-    return response.json();
 }
 
 /**
@@ -115,7 +107,7 @@ export async function get(url) {
  * @param {*} url 请求链接
  * @returns {Document} 解析后的 XML DOM 对象
  */
-export async function getXML(url) {
+export async function getXML(url: string | globalThis.URL | Request): Promise<Document> {
     try {
         var response = await fetch(url, {
             method: "GET",
@@ -124,21 +116,18 @@ export async function getXML(url) {
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
         // 获取响应的 XML 字符串
         var xmlText = await response.text();
-
         // 使用 DOMParser 解析 XML 字符串
         var parser = new DOMParser();
         var xmlDoc = parser.parseFromString(xmlText, "text/xml");
         return xmlDoc; // 返回解析后的 XML DOM 对象
     } catch (error) {
-        console.error("Error fetching XML:", error);
-        return null;
+        throw new Error(`[net]Error fetching XML: ${error}`);
     }
 }
 
-export async function getImageDimensions(url) {
+export async function getImageDimensions(url: string): Promise<{ width: number; height: number; }> {
     try {
         // 使用 axios 下载图片数据
         const response = await axios.get(url, {

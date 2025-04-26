@@ -6,20 +6,20 @@
 import { Lunar } from "lunar-javascript";
 
 // 定义2025年农历节日的农历日期
-const lunarFestivals = {
+const lunarFestivals: Record<string, [number, number]> = {
     春节: [1, 1], // 春节 (农历正月初一)
     端午节: [5, 5], // 端午节 (农历五月初五)
     中秋节: [8, 15], // 中秋节 (农历八月十五)
 };
 
 // 固定日期的节日
-const fixedFestivalsDates = {
+const fixedFestivalsDates: Record<string, Date> = {
     劳动节: new Date(2025, 4, 1), // 劳动节 (注意：月份从0开始)
     国庆节: new Date(2025, 9, 1), // 国庆节
     元旦: new Date(2025, 0, 1), // 元旦
 };
 
-function getNextYearFestivalDate(festivalName, currentFestivalDate) {
+function getNextYearFestivalDate(festivalName: string, currentFestivalDate: Date) {
     let nextFestivalDate;
     if (lunarFestivals[festivalName]) {
         const nextYear = currentFestivalDate.getFullYear() + 1;
@@ -37,7 +37,7 @@ function getNextYearFestivalDate(festivalName, currentFestivalDate) {
     return nextFestivalDate;
 }
 
-function findTombSweepingDay(year) {
+function findTombSweepingDay(year: number) {
     let startDate = new Date(year, 2, 20); // 3月20日
     let springEquinox = startDate;
     for (let i = 0; i < 3; i++) {
@@ -52,19 +52,19 @@ function findTombSweepingDay(year) {
     return springEquinox;
 }
 
-function daysUntilFestival(festivalName, today, festivalDate) {
+function daysUntilFestival(festivalName: string, today: Date, festivalDate: Date) {
     if (festivalDate < today) {
         const nextFestivalDate = getNextYearFestivalDate(
             festivalName,
             festivalDate
         );
-        return Math.ceil((nextFestivalDate - today) / (1000 * 60 * 60 * 24));
+        return Math.ceil((nextFestivalDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     } else {
-        return Math.ceil((festivalDate - today) / (1000 * 60 * 60 * 24));
+        return Math.ceil((festivalDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     }
 }
 
-function getLunarFestivalsDates(today) {
+function getLunarFestivalsDates(today: Date): Record<string, Date> {
     const year = today.getFullYear();
     return Object.fromEntries(
         Object.entries(lunarFestivals).map(([name, [month, day]]) => {
@@ -94,7 +94,7 @@ export async function getFestivalsDates() {
     }
     const festivalsDates = { ...lunarFestivalsDates, ...fixedFestivalsDates };
 
-    const sortName = [
+    const sortName: string[] = [
         "春节",
         "端午节",
         "中秋节",
@@ -104,7 +104,7 @@ export async function getFestivalsDates() {
         "元旦",
     ];
 
-    const dataList = [];
+    const dataList: [number, string][] = [];
     for (const name of sortName) {
         if (festivalsDates[name]) {
             const daysLeft = daysUntilFestival(name, today, festivalsDates[name]);
@@ -119,11 +119,11 @@ export async function getFestivalsDates() {
 
 /**
  * 格式化日期，精确到天，可选农历公历
- * @param {number} timestamp 时间戳
- * @param {en | zh} format 格式，默认为公历
- * @returns {string} 格式化后的日期
+ * @param timestamp 时间戳
+ * @param format 格式，默认为公历
+ * @returns 格式化后的日期
  */
-export async function formatDate(timestamp, format = "en") {
+export async function formatDate(timestamp: number | string, format: "en" | "zh" = "en"): Promise<string> {
     if (format === "en") {
         const date = new Date(timestamp);
         const year = date.getFullYear();
@@ -138,15 +138,17 @@ export async function formatDate(timestamp, format = "en") {
         const lunarDay = lunar.getDayInChinese();
         //   return `${lunarYear}年${lunarMonth}${lunarDay}`;
         return `${lunarMonth}${lunarDay}`;
+    } else {
+        throw new Error("Invalid format. Use 'en' or 'zh'.");
     }
 }
 
 /**
  * 格式化日期，精确到秒
- * @param {number} timestamp 
+ * @param {number|string} timestamp 
  * @returns {string} 格式化后的日期
  */
-export function formatDateDetail(timestamp) {
+export function formatDateDetail(timestamp: number | string): string {
     const date = new Date(timestamp);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0"); // 月份从0开始，需要加1

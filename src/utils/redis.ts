@@ -1,12 +1,12 @@
 export async function get_source_message(
-    groupId,
-    message_id,
+    groupId: number | string,
+    message_id: number | string,
     returnFullMessage = false
-) {
+): Promise<string | null> {
     try {
         // 获取该群的所有消息
         const keys = await redis.keys(`juhkff:auto_reply:${groupId}:*`);
-        keys.sort((a, b) => {
+        keys.sort((a: string, b: string) => {
             const timeA = parseInt(a.split(":")[3]);
             const timeB = parseInt(b.split(":")[3]);
             return timeA - timeB; // 按时间戳升序排序
@@ -20,27 +20,24 @@ export async function get_source_message(
                 else return msg.content;
             }
         }
-        return undefined;
+        return null;
     } catch (error) {
-        logger.error("[redis.js]加载redis失败:", error);
-        return undefined;
+        throw new Error(`[redis]获取消息失败: ${error}`);
     }
 }
 
-export async function removeSubKeys(parentKey, excludeKeys = []) {
+export async function removeSubKeys(parentKey: string, excludeKeys: string[] = []) {
     try {
         // 获取该群的所有消息 key
         const keys = await redis.keys(`${parentKey}:*`);
-
         // 排除指定key
-        const keysToRemove = keys.filter((key) => !excludeKeys.includes(key));
-
+        const keysToRemove = keys.filter((key: string) => !excludeKeys.includes(key));
         // 删除剩余的 key
         for (const key of keysToRemove) {
             await redis.del(key);
         }
     } catch (error) {
-        logger.error("[redis.js]删除redis key:" + key + "失败: ", error);
+        throw new Error(`[redis]删除redis key失败: ${error}`);
     }
 }
 

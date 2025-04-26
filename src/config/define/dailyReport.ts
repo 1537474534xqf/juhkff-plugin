@@ -1,0 +1,19 @@
+import { CronExpression } from "../../type";
+
+export type DailyReport = {
+    useDailyReport: boolean;
+    alapiToken: string;
+    dailyReportFullShow: boolean;
+    push: boolean;
+    dailyReportTime: CronExpression;
+}
+
+const dailyReport: DailyReport = {
+    useDailyReport: true,
+    alapiToken: "",
+    dailyReportFullShow: true,
+    push: true,
+    dailyReportTime: "0 0 12 * * ?"
+}
+
+export default dailyReport;

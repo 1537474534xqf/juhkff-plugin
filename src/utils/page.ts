@@ -8,7 +8,7 @@ import path from "path";
 import fs from "fs";
 import template from "art-template";
 import { pathToFileURL } from "url";
-import { pluginResources } from "#juhkff.path";
+import { PLUGIN_RESOURCES_DIR } from "../model/path";
 
 /**
  * @description Yunzai内置puppeteer实现太模糊 重新实现
@@ -20,7 +20,7 @@ import { pluginResources } from "#juhkff.path";
  * @param {*} data 模板需要注入的变量
  * @returns imageBuffer
  */
-export async function renderPage(templatePath, data) {
+export async function renderPage(templatePath: string, data: Record<string, any>) {
     // 启动浏览器
     const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
     const page = await browser.newPage();
@@ -81,10 +81,10 @@ export async function renderPage(templatePath, data) {
 }
 
 
-export async function generateDailyReport(data) {
+export async function generateDailyReport(data: Record<string, any>) {
     // 定义模板路径和名称
     const templatePath = path.join(
-        pluginResources,
+        PLUGIN_RESOURCES_DIR,
         "daily_report",
         "main.html"
     );
@@ -107,25 +107,26 @@ export async function generateDailyReport(data) {
     // 将数据注入到页面中
     await page.evaluate((data) => {
         // 使用 JavaScript 将数据插入到 HTML 中
-        document.querySelector(".top-date-week").textContent = data.week;
-        document.querySelector(".top-date-date").textContent = data.date;
-        document.querySelector(".top-date-cn").textContent = data.zh_date;
+
+        document.querySelector(".top-date-week")!.textContent = data.week;
+        document.querySelector(".top-date-date")!.textContent = data.date;
+        document.querySelector(".top-date-cn")!.textContent = data.zh_date;
 
         // 渲染节日信息
         const festivalContainer = document.querySelector(".moyu-border");
-        festivalContainer.innerHTML = `      <div class="moyu-title"><img src="./res/icon/fish.png" class="title-img">摸鱼日历</div>
+        festivalContainer!.innerHTML = `      <div class="moyu-title"><img src="./res/icon/fish.png" class="title-img">摸鱼日历</div>
         ${data.data_festival
                 .map(
-                    (fes) =>
+                    (fes: Record<number, string>) =>
                         `<p class="moyu-inner">距离<span class="moyu-day-name">${fes[1]}</span>还剩<span class="moyu-day">${fes[0]}</span>天</p>`
                 )
                 .join("")}    `;
 
         // 渲染 B站热点
         const biliContainer = document.querySelector(".bili-border");
-        biliContainer.innerHTML = `      <div class="moyu-title" style="left: 128px;"><img src="./res/icon/bilibili.png" class="title-img">B站热点</div>
+        biliContainer!.innerHTML = `      <div class="moyu-title" style="left: 128px;"><img src="./res/icon/bilibili.png" class="title-img">B站热点</div>
         ${data.data_bili
-                .map((s) =>
+                .map((s: { icon: string; keyword: string; }) =>
                     s.icon
                         ? `<p class="bili-text"><img class="hot-img" src="${s.icon}" />${s.keyword}</p>`
                         : `<p class="bili-text"><img class="hot-img" style="margin-right: 0;" />${s.keyword}</p>`
@@ -134,18 +135,18 @@ export async function generateDailyReport(data) {
 
         // 渲染今日新番
         const animeContainer = document.querySelector(".two-border-border");
-        animeContainer.innerHTML = `      ${data.data_anime
+        animeContainer!.innerHTML = `      ${data.data_anime
             .map(
-                (s) =>
+                (s: { image: string; name: string; }) =>
                     `<div class="anime-border"><img src="${s.image}" class="anime-img"><p class="anime-text">${s.name}</p></div>`
             )
             .join("")}    `;
 
         // 渲染60S读世界
         const sixContainer = document.querySelector(".three-border ul");
-        sixContainer.innerHTML = `      ${data.data_six
+        sixContainer!.innerHTML = `      ${data.data_six
             .map(
-                (s) =>
+                (s: string) =>
                     `<li class="${data.full_show ? "full-show-text" : "normal-text"
                     }">${s}</li>`
             )
@@ -153,9 +154,9 @@ export async function generateDailyReport(data) {
 
         // 渲染IT资讯
         const itContainer = document.querySelector(".four-border ul");
-        itContainer.innerHTML = `      ${data.data_it
+        itContainer!.innerHTML = `      ${data.data_it
             .map(
-                (s) =>
+                (s: string) =>
                     `<li class="${data.full_show ? "full-show-text" : "normal-text"
                     }">${s}</li>`
             )
@@ -164,7 +165,7 @@ export async function generateDailyReport(data) {
         // 渲染今日一言
         document.querySelector(
             ".five-border p"
-        ).textContent = `“${data.data_hitokoto}”`;
+        )!.textContent = `“${data.data_hitokoto}”`;
     }, data);
     // 等待图片加载完成
     await page.waitForSelector(".anime-img", { timeout: 50000 });
