@@ -3,16 +3,15 @@
     "target": "ESNext", // 现代 ES 特性
     "module": "ESNext", // 使用 ECMAScript 模块
     "moduleResolution": "node", // Node.js 模块解析策略
-    "outDir": "./js", // 输出目录
+    "outDir": "./javascript", // 输出目录
     "rootDir": "./src", // 源码目录
     "sourceMap": true, // 关键：生成 .js.map 文件
     "allowJs": true, // 允许混合 JS/TS
-    "strict": true, // 启用严格类型检查
+    "checkJs": true, // 启用 JS 类型检查
     "esModuleInterop": true, // 允许 ESM 和 CJS 互操作
     "skipLibCheck": true, // 跳过库文件检查
     "forceConsistentCasingInFileNames": true, // 强制文件名大小写一致
-    "resolveJsonModule": true, // 允许导入 JSON
+    "noUnusedLocals": true // 禁止未使用的局部变量
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*.ts"]
 }

@@ -1,4 +1,3 @@
-
 import path from "path";
 import fs from "fs";
 import setting from "../../model/setting.js";
@@ -8,10 +7,7 @@ import { segment } from "oicq";
 import fastImageSize from "fast-image-size";
 import { PLUGIN_DATA_DIR } from "../../model/path.js";
 import { Base64, Objects } from "../../utils/kits.js";
-import { DouBao } from "../../config/define/ai/douBao.js";
-import { RequestBody, RequestMsg } from "../../type.js";
 import { downloadFile, url2Base64 } from "../../utils/net.js";
-
 export class douBao extends plugin {
     constructor() {
         super({
@@ -45,29 +41,18 @@ export class douBao extends plugin {
                 }
             ],
         });
-
         // ---------------------------------------------------- ServiceApi ----------------------------------------------------
         if (this.Config.useDouBao) {
-            this.fetchImageService = getServiceApi(
-                this.Config.imageService.host,
-                this.Config.imageService.accessKeyId,
-                this.Config.imageService.secretAccessKey,
-                "POST",
-                this.Config.imageService.action,
-                this.Config.imageService.version,
-                this.Config.imageService.region,
-                this.Config.imageService.service
-            );
+            this.fetchImageService = getServiceApi(this.Config.imageService.host, this.Config.imageService.accessKeyId, this.Config.imageService.secretAccessKey, "POST", this.Config.imageService.action, this.Config.imageService.version, this.Config.imageService.region, this.Config.imageService.service);
         }
         // --------------------------------------------------------------------------------------------------------------------
     }
-
     get Config() {
-        return setting.getConfig("douBao") as DouBao;
+        return setting.getConfig("douBao");
     }
-
-    async help(e: { reply: (arg0: string) => any; }) {
-        if (!this.Config.useDouBao) return false;
+    async help(e) {
+        if (!this.Config.useDouBao)
+            return false;
         var helpMsg = `可用指令：[]中为可选项，()中为解释说明`;
         if (this.Config.useVideoGenerate)
             helpMsg += `\n  #视频生成 文本|图片 [宽高比] [5|10](视频秒数)`;
@@ -84,49 +69,42 @@ export class douBao extends plugin {
         await e.reply(helpMsg);
         return true;
     }
-
     // ------------------------------------------------ 图片服务通用检查 -------------------------------------------------
-    async preCheck(e: { reply: (arg0: string) => any; }) {
-        if (
-            Objects.hasNull(
-                this.Config.imageService.accessKeyId,
-                this.Config.imageService.secretAccessKey
-            )
-        ) {
+    async preCheck(e) {
+        if (Objects.hasNull(this.Config.imageService.accessKeyId, this.Config.imageService.secretAccessKey)) {
             await e.reply("请先设置accessKeyId和secretAccessKey");
             return false;
         }
     }
-
     get SuccessCode() {
         return 10000;
     }
     // --------------------------------------------------- 图片风格化 ---------------------------------------------------
-
-    get imageStyleReqKeyMap(): Record<string, string> {
+    get imageStyleReqKeyMap() {
         var reqKeyList = this.Config.imageStyle.reqKeyMap;
-        var reqKeyMap: Record<string, string> = {};
+        var reqKeyMap = {};
         reqKeyList.forEach((item) => {
             reqKeyMap[item.key] = item.value;
         });
         return reqKeyMap;
     }
-
-    get iamgeStyleSubReqKeyMap(): Record<string, string> {
+    get iamgeStyleSubReqKeyMap() {
         var subReqKeyList = this.Config.imageStyle.subReqKeyMap;
-        var subReqKeyMap: Record<string, string> = {};
+        var subReqKeyMap = {};
         subReqKeyList.forEach((item) => {
             subReqKeyMap[item.key] = item.value;
         });
         return subReqKeyMap;
     }
-
-    async imageStyle(e: any) {
-        if (!this.Config.useDouBao) return false;
-        if (!this.Config.useImageStyle) return true;
-        if (!this.preCheck(e)) return true;
+    async imageStyle(e) {
+        if (!this.Config.useDouBao)
+            return false;
+        if (!this.Config.useImageStyle)
+            return true;
+        if (!this.preCheck(e))
+            return true;
         let result = await processMessage(e);
-        var body: RequestBody = {};
+        var body = {};
         // 将指令部分去除并切分
         let strList = result.texts.replace(/^#图片风格化/, "").trim().split(" ");
         // 查询类型列表命令
@@ -178,28 +156,32 @@ export class douBao extends plugin {
         if (response.status === this.SuccessCode) {
             var segments = [];
             if (!Objects.isNull(response.data.binary_data_base64)) {
-                response.data.binary_data_base64.forEach((base64: string) => {
+                response.data.binary_data_base64.forEach((base64) => {
                     if (!base64.startsWith("data:image/"))
                         segments.push(segment.image(Base64.getBase64ImageType(base64) + base64));
-                    else segments.push(segment.image(base64));
+                    else
+                        segments.push(segment.image(base64));
                 });
             }
             if (!Objects.isNull(response.data.image_urls))
                 segments.push(response.data.image_urls.join("\n"));
             await e.reply(segments);
-        } else {
+        }
+        else {
             await e.reply(`生成图片失败:${response.message}`);
         }
         return true;
     }
-
     // ---------------------------------------------------- 图片模仿 ----------------------------------------------------
-    async imageImitate(e: any) {
-        if (!this.Config.useDouBao) return false;
-        if (!this.Config.useImageImitate) return true;
-        if (!this.preCheck(e)) return true;
+    async imageImitate(e) {
+        if (!this.Config.useDouBao)
+            return false;
+        if (!this.Config.useImageImitate)
+            return true;
+        if (!this.preCheck(e))
+            return true;
         var result = await processMessage(e);
-        var body: RequestBody = {};
+        var body = {};
         // 将指令部分去除
         result.texts = result.texts.replace(/^#图片模仿/, "").trim();
         var strList = result.texts.split(" ");
@@ -207,12 +189,15 @@ export class douBao extends plugin {
         for (var i = 0; i < strList.length - 1; i++) {
             if (strList[i].startsWith("-w")) {
                 width = parseInt(strList[i + 1]);
-            } else if (strList[i].startsWith("-h")) {
+            }
+            else if (strList[i].startsWith("-h")) {
                 height = parseInt(strList[i + 1]);
             }
         }
-        if (!Objects.isNull(width)) body.width = width;
-        if (!Objects.isNull(height)) body.height = height;
+        if (!Objects.isNull(width))
+            body.width = width;
+        if (!Objects.isNull(height))
+            body.height = height;
         if (Objects.isNull(result.images)) {
             // 纯文本
             await e.reply("请发送图片");
@@ -234,27 +219,31 @@ export class douBao extends plugin {
         if (response.status === this.SuccessCode) {
             var segments = [];
             if (!Objects.isNull(response.data.binary_data_base64)) {
-                response.data.binary_data_base64.forEach((base64: string) => {
+                response.data.binary_data_base64.forEach((base64) => {
                     if (!base64.startsWith("data:image/"))
                         segments.push(segment.image(Base64.getBase64ImageType(base64) + base64));
-                    else segments.push(segment.image(base64));
+                    else
+                        segments.push(segment.image(base64));
                 });
             }
             if (!Objects.isNull(response.data.image_urls))
                 segments.push(response.data.image_urls.join("\n"));
             await e.reply(segments);
-        } else {
+        }
+        else {
             await e.reply(`生成图片失败:${response.message}`);
         }
     }
     // ---------------------------------------------------- 图片生成 ----------------------------------------------------
-
-    async imageGenerate(e: any) {
-        if (!this.Config.useDouBao) return false;
-        if (!this.Config.useImageGenerate) return true;
-        if (!this.preCheck(e)) return true;
+    async imageGenerate(e) {
+        if (!this.Config.useDouBao)
+            return false;
+        if (!this.Config.useImageGenerate)
+            return true;
+        if (!this.preCheck(e))
+            return true;
         var result = await processMessage(e);
-        var body: RequestBody = {};
+        var body = {};
         var width = null, height = null;
         // 将指令部分去除
         result.texts = result.texts.replace(/^#图片生成/, "").trim();
@@ -262,12 +251,15 @@ export class douBao extends plugin {
         for (var i = 0; i < strList.length - 1; i++) {
             if (strList[i].startsWith("-w")) {
                 width = parseInt(strList[i + 1]);
-            } else if (strList[i].startsWith("-h")) {
+            }
+            else if (strList[i].startsWith("-h")) {
                 height = parseInt(strList[i + 1]);
             }
         }
-        if (!Objects.isNull(width)) body.width = width;
-        if (!Objects.isNull(height)) body.height = height;
+        if (!Objects.isNull(width))
+            body.width = width;
+        if (!Objects.isNull(height))
+            body.height = height;
         if (Objects.isNull(result.images)) {
             // 纯文本
             body.req_key = this.Config.imageGenerate.reqKey;
@@ -282,7 +274,8 @@ export class douBao extends plugin {
                 body.use_sr = this.Config.imageGenerate.useSr;
             if (!Objects.isNull(this.Config.imageGenerate.returnUrl))
                 body.return_url = this.Config.imageGenerate.returnUrl;
-        } else {
+        }
+        else {
             // 图生图
             width = undefined, height = undefined;
             // 判断图片尺寸是否一致，目前豆包多图生图只支持同宽高
@@ -290,18 +283,15 @@ export class douBao extends plugin {
                 var url = result.images[i];
                 // TODO 最好能不下载到本地
                 var timestamp = new Date().getTime();
-                var filePath = path.join(
-                    PLUGIN_DATA_DIR,
-                    `${e.group_id}`,
-                    "video",
-                    `${timestamp}_${url.replace(/[^a-zA-Z0-9]/g, "_")}`
-                );
+                var filePath = path.join(PLUGIN_DATA_DIR, `${e.group_id}`, "video", `${timestamp}_${url.replace(/[^a-zA-Z0-9]/g, "_")}`);
                 await downloadFile(url, filePath);
                 var dimensions = fastImageSize(filePath);
                 // 删除文件
                 fs.unlinkSync(filePath);
-                if (width == undefined) width = dimensions.width;
-                if (height == undefined) height = dimensions.height;
+                if (width == undefined)
+                    width = dimensions.width;
+                if (height == undefined)
+                    height = dimensions.height;
                 if (width != dimensions.width || height != dimensions.height) {
                     e.reply("图片尺寸不一致，请重新发送");
                     return true;
@@ -331,28 +321,27 @@ export class douBao extends plugin {
             var segments = [];
             if (!Objects.isNull(response.data.binary_data_base64)) {
                 // 其实只会返回一张图，但就这样吧，挺好的
-                response.data.binary_data_base64.forEach((base64: string) => {
+                response.data.binary_data_base64.forEach((base64) => {
                     if (!base64.startsWith("data:image/"))
                         segments.push(segment.image(Base64.getBase64ImageType(base64) + base64));
-                    else segments.push(segment.image(base64));
+                    else
+                        segments.push(segment.image(base64));
                 });
             }
             if (!Objects.isNull(response.data.image_urls))
                 segments.push(response.data.image_urls.join("\n"));
             await e.reply(segments);
-        } else {
+        }
+        else {
             await e.reply(`生成图片失败:${response.message}`);
         }
     }
-
     // ---------------------------------------------------- 视频生成 ----------------------------------------------------
-
     get VideoGenerateApiKey() {
         return Objects.isNull(this.Config.videoGenerate.apiKey)
             ? ""
             : this.Config.videoGenerate.apiKey;
     }
-
     get VideoGenerateRequestPost() {
         return {
             method: "POST",
@@ -363,7 +352,6 @@ export class douBao extends plugin {
             body: {},
         };
     }
-
     get VideoGenerateRequestGet() {
         return {
             method: "GET",
@@ -373,19 +361,16 @@ export class douBao extends plugin {
             },
         };
     }
-
     get VideoGenerateUrl() {
         return Objects.isNull(this.Config.videoGenerate.url)
             ? ""
             : this.Config.videoGenerate.url;
     }
-
     get VideoGenerateModel() {
         return Objects.isNull(this.Config.videoGenerate.model)
             ? ""
             : this.Config.videoGenerate.model;
     }
-
     get VideoGenerateBody() {
         return {
             model: Objects.isNull(this.VideoGenerateModel)
@@ -394,10 +379,11 @@ export class douBao extends plugin {
             content: [],
         };
     }
-
-    async videoGenerate(e: any) {
-        if (!this.Config.useDouBao) return false;
-        if (!this.Config.useVideoGenerate) return true;
+    async videoGenerate(e) {
+        if (!this.Config.useDouBao)
+            return false;
+        if (!this.Config.useVideoGenerate)
+            return true;
         if (Objects.isNull(this.VideoGenerateApiKey)) {
             await e.reply("请先设置apiKey");
             return true;
@@ -426,14 +412,16 @@ export class douBao extends plugin {
                     type: "text",
                     text: content.text,
                 });
-            } else if (content.type == "image") {
+            }
+            else if (content.type == "image") {
                 body.content.push({
                     type: "image_url",
                     image_url: {
-                        url: await url2Base64(content.url as string),
+                        url: await url2Base64(content.url),
                     },
                 });
-            } else {
+            }
+            else {
                 // 其它类型，保持原样加进body，虽然不知道有什么用，反正应该走不到这
                 body.content.push(content);
             }
@@ -453,8 +441,7 @@ export class douBao extends plugin {
         await e.reply("视频生成中，请稍等...");
         return true;
     }
-
-    createTaskThread(e: any, id: string, successHandler?: (e: any, responseJson: any) => void, failHandler?: (e: any, responseJson: any) => void) {
+    createTaskThread(e, id, successHandler, failHandler) {
         var getUrl = this.VideoGenerateUrl + "/" + id;
         var request = JSON.parse(JSON.stringify(this.VideoGenerateRequestGet));
         var taskThread = setInterval(async () => {
@@ -463,19 +450,22 @@ export class douBao extends plugin {
             if (responseJson.status == "succeeded") {
                 clearInterval(taskThread);
                 // 处理完成
-                if (successHandler) successHandler(e, responseJson);
-            } else if (responseJson.status == "failed") {
+                if (successHandler)
+                    successHandler(e, responseJson);
+            }
+            else if (responseJson.status == "failed") {
                 clearInterval(taskThread);
                 // 处理失败
-                if (failHandler) failHandler(e, responseJson);
-            } else if (responseJson.status == "cancelled") {
+                if (failHandler)
+                    failHandler(e, responseJson);
+            }
+            else if (responseJson.status == "cancelled") {
                 // 处理取消
                 clearInterval(taskThread);
             }
         }, 5000);
     }
-
-    handleFailed(e: any, responseJson: { error: any; }) {
+    handleFailed(e, responseJson) {
         // 处理失败
         var error = responseJson.error;
         var message = error.message;
@@ -483,38 +473,31 @@ export class douBao extends plugin {
         var errorMsg = `[douBao]视频生成失败，错误码：${code}，错误信息：${message}`;
         e.reply(errorMsg);
     }
-
-    handleCompleted(e: any, responseJson: { model: string; content: { video_url: any; }; id: any; }) {
+    handleCompleted(e, responseJson) {
         if (responseJson.model == this.VideoGenerateModel) {
             // 视频生成
             var videoUrl = responseJson.content.video_url;
             var timestamp = new Date().getTime();
-            var filePath = path.join(
-                PLUGIN_DATA_DIR,
-                `${e.group_id}`,
-                "video",
-                `${timestamp}-${responseJson.id}.mp4`
-            );
+            var filePath = path.join(PLUGIN_DATA_DIR, `${e.group_id}`, "video", `${timestamp}-${responseJson.id}.mp4`);
             downloadFile(videoUrl, filePath)
                 .then(() => {
-                    return e.reply([segment.video(filePath)]);
-                })
+                return e.reply([segment.video(filePath)]);
+            })
                 .then(() => {
-                    // 删除文件
-                    fs.unlink(filePath, (err) => {
-                        if (err) {
-                            logger.error("[douBao]删除文件出错", err);
-                        }
-                        return;
-                    });
-                })
-                .catch((err) => {
-                    logger.error("[douBao]下载文件出错", err);
+                // 删除文件
+                fs.unlink(filePath, (err) => {
+                    if (err) {
+                        logger.error("[douBao]删除文件出错", err);
+                    }
+                    return;
                 });
+            })
+                .catch((err) => {
+                logger.error("[douBao]下载文件出错", err);
+            });
         }
     }
 }
-
 /**
  * 处理消息
  * @param {*} msgList
@@ -523,8 +506,8 @@ export class douBao extends plugin {
  * images: 图片部分
  * content: 按顺序排列的消息体
  */
-async function processMessage(e: any) {
-    var result: RequestMsg = { texts: "", images: [], content: [] };
+async function processMessage(e) {
+    var result = { texts: "", images: [], content: [] };
     var msgList = e.message;
     var texts = [];
     for (var i = 0; i < msgList.length; i++) {
@@ -535,19 +518,22 @@ async function processMessage(e: any) {
                 text: msg.text.replace(/\s+/g, " ").trim(),
             });
             texts.push(msg.text);
-        } else if (msg.type == "image") {
+        }
+        else if (msg.type == "image") {
             result.content.push({ type: "image", url: msg.url });
             result.images.push(msg.url);
-        } else if (msg.type == "reply") {
+        }
+        else if (msg.type == "reply") {
             var sourceImages = await e.getReply(msg.id);
-            sourceImages = sourceImages?.message.filter((each: any) => {
+            sourceImages = sourceImages?.message.filter((each) => {
                 return each.type == "image";
             });
-            sourceImages.forEach((each: any) => {
+            sourceImages.forEach((each) => {
                 result.content.push({ type: "image", url: each.url });
                 result.images.push(each.url);
             });
-        } else if (msg.type != "at") {
+        }
+        else if (msg.type != "at") {
             //其它类型，保持原样加进result，虽然不知道有什么用
             result.content.push(msg);
         }
@@ -558,3 +544,4 @@ async function processMessage(e: any) {
     result.texts = textPart.trim();
     return result;
 }
+//# sourceMappingURL=douBao.js.map

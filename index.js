@@ -1,5 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
+import fs from "fs";
+import path from "path";
 import { fileURLToPath, pathToFileURL } from 'url';
 
 const _filename = fileURLToPath(import.meta.url);
@@ -26,7 +26,7 @@ async function getFiles(dir) {
     return Array.prototype.concat(...files);
 }
 
-const files = await getFiles(path.join(pluginRoot, "js", "apps")).then((files) =>
+const files = await getFiles(path.join(pluginRoot, "javascript", "apps")).then((files) =>
     files.filter((file) => file.endsWith(".js"))
 );
 
