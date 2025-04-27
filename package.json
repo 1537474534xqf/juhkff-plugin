@@ -9,7 +9,7 @@
   "main": "index.js",
   "scripts": {
     "tsc": "tsc",
-    "clean": "tsc --clean"
+    "clean": "tsc --build --clean"
   },
   "imports": {
     "#juhkff.path": "./model/path.js",

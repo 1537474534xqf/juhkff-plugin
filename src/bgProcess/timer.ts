@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { PLUGIN_DATA_DIR } from "../model/path";
+import { PLUGIN_DATA_DIR } from "../model/path.js";
 
 
 // 定义 sleep 函数，用于异步延迟

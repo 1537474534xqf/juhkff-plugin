@@ -3,10 +3,10 @@
  * @description: 原始数据调用第三方处理相关
  */
 
-import { AutoReply } from "../config/define/autoReply";
-import { VisualAgentInstance } from "../model/map";
-import setting from "../model/setting";
-import { url2Base64 } from "./net";
+import { AutoReply } from "../config/define/autoReply.js";
+import { VisualAgentInstance } from "../model/map.js";
+import setting from "../model/setting.js";
+import { url2Base64 } from "./net.js";
 
 function getConfig(): AutoReply {
     return setting.getConfig("autoReply");

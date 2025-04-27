@@ -4,12 +4,11 @@
  * @author: juhkff
  */
 
-import ArkEngine from "./agent/instance/arkvolc";
-import DeepSeek from "./agent/instance/deepseek";
-import Siliconflow from "./agent/instance/siliconflow";
-import setting from "../model/setting"
-import { AutoReply } from "../config/define/autoReply";
-import ChatAgent from "./agent/chatAgent";
+import ArkEngine from "./agent/instance/arkvolc.js";
+import DeepSeek from "./agent/instance/deepseek.js";
+import Siliconflow from "./agent/instance/siliconflow.js";
+import setting from "../model/setting.js"
+import { AutoReply } from "../config/define/autoReply.js";
 /**
  * 模型列表，新增的都加里面
  */

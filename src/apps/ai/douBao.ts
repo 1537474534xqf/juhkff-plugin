@@ -1,15 +1,15 @@
 
 import path from "path";
 import fs from "fs";
-import setting from "../../model/setting";
+import setting from "../../model/setting.js";
 import { getServiceApi } from "../../ai/doubao/api.js";
 import { segment } from "oicq";
 import fastImageSize from "fast-image-size";
-import { PLUGIN_DATA_DIR } from "../../model/path";
-import { Base64, Objects } from "../../utils/kits";
-import { DouBao } from "../../config/define/ai/douBao";
-import { RequestBody, RequestMsg } from "../../type";
-import { downloadFile, url2Base64 } from "../../utils/net";
+import { PLUGIN_DATA_DIR } from "../../model/path.js";
+import { Base64, Objects } from "../../utils/kits.js";
+import { DouBao } from "../../config/define/ai/douBao.js";
+import { RequestBody, RequestMsg } from "../../type.js";
+import { downloadFile, url2Base64 } from "../../utils/net.js";
 
 export class douBao extends plugin {
     constructor() {

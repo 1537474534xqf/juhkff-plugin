@@ -1,8 +1,8 @@
 import YAML from "yaml";
-import fs from "node:fs";
+import fs from "fs";
 import path from "path";
-import { PLUGIN_ROOT_DIR } from "./path";
-import { Objects } from "../utils/kits";
+import { PLUGIN_ROOT_DIR } from "./path.js";
+import { Objects } from "../utils/kits.js";
 
 class Setting {
     static Instance: Setting = new Setting();

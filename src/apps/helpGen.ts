@@ -1,11 +1,11 @@
-import setting from "../model/setting";
+import setting from "../model/setting.js";
 import path from "path";
 import fs from "fs";
 import { pathToFileURL } from "url";
 import { renderPage } from "../utils/page.js"
-import { HelpGen } from "../config/define/helpGen";
-import { PLUGIN_RESOURCES_DIR, PLUGIN_ROOT_DIR } from "../model/path";
-import { Objects, StringUtils } from "../utils/kits";
+import { HelpGen } from "../config/define/helpGen.js";
+import { PLUGIN_RESOURCES_DIR, PLUGIN_ROOT_DIR } from "../model/path.js";
+import { Objects, StringUtils } from "../utils/kits.js";
 
 export class helpGen extends plugin {
     constructor() {

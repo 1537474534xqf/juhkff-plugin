@@ -1,4 +1,4 @@
-import { CronExpression } from "../../type";
+import { CronExpression } from "../../type.js";
 
 export type DailyReport = {
     useDailyReport: boolean;

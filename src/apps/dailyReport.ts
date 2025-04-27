@@ -1,8 +1,8 @@
-import setting from "../model/setting";
-import { DailyReport } from "../config/define/dailyReport";
-import { get, getXML } from "../utils/net";
-import { formatDate, getFestivalsDates } from "../utils/date";
-import { generateDailyReport } from "../utils/page";
+import setting from "../model/setting.js";
+import { DailyReport } from "../config/define/dailyReport.js";
+import { get, getXML } from "../utils/net.js";
+import { formatDate, getFestivalsDates } from "../utils/date.js";
+import { generateDailyReport } from "../utils/page.js";
 
 export const help = () => {
     return {

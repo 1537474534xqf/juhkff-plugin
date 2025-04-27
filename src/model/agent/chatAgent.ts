@@ -3,10 +3,10 @@
  * @fileoverview 聊天接口定义和公用函数
  * @author juhkff
  */
-import setting from "../setting";
-import { Objects } from "../../utils/kits";
-import { EMOTION_KEY } from "../../utils/redis";
-import { AutoReply } from "../../config/define/autoReply";
+import setting from "../setting.js";
+import { Objects } from "../../utils/kits.js";
+import { EMOTION_KEY } from "../../utils/redis.js";
+import { AutoReply } from "../../config/define/autoReply.js";
 
 export default abstract class ChatAgent {
     protected config: AutoReply;

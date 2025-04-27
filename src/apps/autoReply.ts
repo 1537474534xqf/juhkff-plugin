@@ -1,10 +1,10 @@
-import { sleep } from "../bgProcess/timer";
-import { AutoReply } from "../config/define/autoReply";
-import setting from "../model/setting";
-import { formatDateDetail } from "../utils/date";
-import { generateAnswer, parseImage, parseJson, parseSourceMessage, parseUrl, saveContext } from "../utils/handle";
-import { generateAnswerVisual, parseImageVisual, parseJsonVisual, parseSourceMessageVisual, parseTextVisual, parseUrlVisual, saveContextVisual } from "../utils/handleVisual";
-import { Objects } from "../utils/kits";
+import { sleep } from "../bgProcess/timer.js";
+import { AutoReply } from "../config/define/autoReply.js";
+import setting from "../model/setting.js";
+import { formatDateDetail } from "../utils/date.js";
+import { generateAnswer, parseImage, parseJson, parseSourceMessage, parseUrl, saveContext } from "../utils/handle.js";
+import { generateAnswerVisual, parseImageVisual, parseJsonVisual, parseSourceMessageVisual, parseTextVisual, parseUrlVisual, saveContextVisual } from "../utils/handleVisual.js";
+import { Objects } from "../utils/kits.js";
 
 export const help = () => {
     return {

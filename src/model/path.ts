@@ -1,4 +1,9 @@
 import path from "path";
+import { fileURLToPath } from "url";
+
+// const _path = process.cwd().replace(/\\/g, "/");
+const _filename = fileURLToPath(import.meta.url);
+const _dirname = path.dirname(_filename);
 
 /**
  * 当前工作目录（标准化为 Unix 风格路径）
@@ -8,7 +13,7 @@ const WORKING_DIR: string = process.cwd().replace(/\\/g, '/');
 /**
  * 插件根目录（如 /project/plugins/juhkff-plugin）
  */
-const PLUGIN_ROOT_DIR: string = path.dirname(__dirname);
+const PLUGIN_ROOT_DIR: string = path.dirname(_dirname);
 
 /**
  * 插件名称（从路径中提取）

@@ -1,8 +1,8 @@
 import fs from "fs";
-import setting from "../model/setting";
+import setting from "../model/setting.js";
 import path from "path";
-import { PLUGIN_DATA_DIR } from "../model/path";
-import { downloadFile } from "../utils/net";
+import { PLUGIN_DATA_DIR } from "../model/path.js";
+import { downloadFile } from "../utils/net.js";
 
 export const help = () => {
     return {

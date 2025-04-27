@@ -3,15 +3,15 @@
  * @description: 原始消息处理相关
  */
 
-import { AutoReply } from "../config/define/autoReply";
-import { VisualAgentInstance } from "../model/map";
-import setting from "../model/setting";
-import { ComplexJMsg } from "../type";
-import { formatDateDetail } from "./date";
-import { extractUrlContent } from "./helper";
-import { Objects } from "./kits";
-import { url2Base64 } from "./net";
-import { EMOTION_KEY, getSourceMessage } from "./redis";
+import { AutoReply } from "../config/define/autoReply.js";
+import { VisualAgentInstance } from "../model/map.js";
+import setting from "../model/setting.js";
+import { ComplexJMsg } from "../type.js";
+import { formatDateDetail } from "./date.js";
+import { extractUrlContent } from "./helper.js";
+import { Objects } from "./kits.js";
+import { url2Base64 } from "./net.js";
+import { EMOTION_KEY, getSourceMessage } from "./redis.js";
 
 function getConfig(): AutoReply {
     return setting.getConfig("autoReply") as AutoReply;

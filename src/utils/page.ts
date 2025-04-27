@@ -8,7 +8,7 @@ import path from "path";
 import fs from "fs";
 import template from "art-template";
 import { pathToFileURL } from "url";
-import { PLUGIN_RESOURCES_DIR } from "../model/path";
+import { PLUGIN_RESOURCES_DIR } from "../model/path.js";
 
 /**
  * @description Yunzai内置puppeteer实现太模糊 重新实现

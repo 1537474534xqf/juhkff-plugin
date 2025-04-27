@@ -1,4 +1,4 @@
-import { CronExpression } from "../../type";
+import { CronExpression } from "../../type.js";
 
 type GroupChatRate = {
     groupList: number[];
