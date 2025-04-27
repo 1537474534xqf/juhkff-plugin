@@ -15,14 +15,14 @@ import { Service } from "@volcengine/openapi";
  * @returns 
  */
 export function getServiceApi(
-    host,
-    accessKeyId,
-    secretAccessKey,
-    method,
-    action,
-    version,
-    region,
-    service
+    host: string,
+    accessKeyId: string,
+    secretAccessKey: string,
+    method: "POST" | "GET" | "PUT" | "DELETE",
+    action: string,
+    version: string,
+    region: string,
+    service: string
 ) {
     const serviceApi = new Service({
         host: host,
@@ -54,15 +54,15 @@ export function getServiceApi(
  * @param {*} service
  */
 export async function fetchDouBao(
-    host,
-    accessKeyId,
-    secretAccessKey,
-    method,
-    body,
-    action,
-    version,
-    region,
-    service
+    host: string,
+    accessKeyId: string,
+    secretAccessKey: string,
+    method: "POST" | "GET" | "PUT" | "DELETE",
+    body: Record<string, any>,
+    action: string,
+    version: string,
+    region: string,
+    service: string
 ) {
     const serviceApi = new Service({
         host: host,
@@ -78,7 +78,7 @@ export async function fetchDouBao(
         contentType: "json",
     });
 
-    const rr = await fetchApi(body, { timeout: 0 });
+    const rr = await fetchApi(body, { Action: action, timeout: 10000 });
 
     return rr;
 }

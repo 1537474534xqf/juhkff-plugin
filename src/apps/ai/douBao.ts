@@ -1,12 +1,15 @@
-import { Objects, Base64 } from "#juhkff.kits";
-import { downloadFile, url2Base64 } from "#juhkff.net";
-import { pluginData } from "#juhkff.path";
+
 import path from "path";
 import fs from "fs";
-import setting from "#juhkff.setting";
+import setting from "../../model/setting";
 import { getServiceApi } from "../../ai/doubao/api.js";
 import { segment } from "oicq";
 import fastImageSize from "fast-image-size";
+import { PLUGIN_DATA_DIR } from "../../model/path";
+import { Base64, Objects } from "../../utils/kits";
+import { DouBao } from "../../config/define/ai/douBao";
+import { RequestBody, RequestMsg } from "../../type";
+import { downloadFile, url2Base64 } from "../../utils/net";
 
 export class douBao extends plugin {
     constructor() {
@@ -42,56 +45,6 @@ export class douBao extends plugin {
             ],
         });
 
-        // 删除残留的视频文件
-        if (fs.existsSync(pluginData)) {
-            fs.readdirSync(pluginData).forEach((dir) => {
-                const dirPath = path.join(pluginData, dir);
-                if (fs.statSync(dirPath).isDirectory()) {
-                    fs.readdirSync(dirPath).forEach((dir2) => {
-                        const dirPath2 = path.join(dirPath, dir2);
-                        if (fs.statSync(dirPath2).isDirectory() && dir2 === "video") {
-                            fs.readdirSync(dirPath2).forEach((file) => {
-                                fs.unlinkSync(path.join(dirPath2, file));
-                            });
-                        }
-                    });
-                }
-            });
-        }
-        // TODO 其实开关关了的话没必要启定时任务，暂时先这么写了
-        if (this.Config.useDouBao) {
-            this.cleanupInterval = setInterval(async () => {
-                try {
-                    const now = Date.now();
-                    const thirtyMinutesAgo = now - 30 * 60 * 1000;
-                    if (fs.existsSync(pluginData)) {
-                        fs.readdirSync(pluginData).forEach((dir) => {
-                            const dirPath = path.join(pluginData, dir);
-                            if (fs.statSync(dirPath).isDirectory()) {
-                                fs.readdirSync(dirPath).forEach((dir2) => {
-                                    const dirPath2 = path.join(dirPath, dir2);
-                                    if (fs.statSync(dirPath2).isDirectory() && dir2 === "video") {
-                                        fs.readdirSync(dirPath2).forEach((file) => {
-                                            const filePath = path.join(dirPath2, file);
-                                            const fileStat = fs.statSync(filePath);
-                                            if (
-                                                fileStat.isFile() &&
-                                                fileStat.birthtimeMs < thirtyMinutesAgo
-                                            ) {
-                                                fs.unlinkSync(filePath);
-                                                console.log(`[douBao]已删除旧文件: ${filePath}`);
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        });
-                    }
-                } catch (err) {
-                    console.error("清理任务执行出错:", err);
-                }
-            }, 30 * 60 * 1000); // 每30分钟执行一次
-        }
         // ---------------------------------------------------- ServiceApi ----------------------------------------------------
         if (this.Config.useDouBao) {
             this.fetchImageService = getServiceApi(
@@ -109,10 +62,10 @@ export class douBao extends plugin {
     }
 
     get Config() {
-        return setting.getConfig("douBao");
+        return setting.getConfig("douBao") as DouBao;
     }
 
-    async help(e) {
+    async help(e: { reply: (arg0: string) => any; }) {
         if (!this.Config.useDouBao) return false;
         var helpMsg = `可用指令：[]中为可选项，()中为解释说明`;
         if (this.Config.useVideoGenerate)
@@ -132,7 +85,7 @@ export class douBao extends plugin {
     }
 
     // ------------------------------------------------ 图片服务通用检查 -------------------------------------------------
-    async preCheck(e) {
+    async preCheck(e: { reply: (arg0: string) => any; }) {
         if (
             Objects.hasNull(
                 this.Config.imageService.accessKeyId,
@@ -149,34 +102,34 @@ export class douBao extends plugin {
     }
     // --------------------------------------------------- 图片风格化 ---------------------------------------------------
 
-    get imageStyleReqKeyMap() {
+    get imageStyleReqKeyMap(): Record<string, string> {
         var reqKeyList = this.Config.imageStyle.reqKeyMap;
-        var reqKeyMap = {};
+        var reqKeyMap: Record<string, string> = {};
         reqKeyList.forEach((item) => {
             reqKeyMap[item.key] = item.value;
         });
         return reqKeyMap;
     }
 
-    get iamgeStyleSubReqKeyMap() {
+    get iamgeStyleSubReqKeyMap(): Record<string, string> {
         var subReqKeyList = this.Config.imageStyle.subReqKeyMap;
-        var subReqKeyMap = {};
+        var subReqKeyMap: Record<string, string> = {};
         subReqKeyList.forEach((item) => {
             subReqKeyMap[item.key] = item.value;
         });
         return subReqKeyMap;
     }
 
-    async imageStyle(e) {
+    async imageStyle(e: any) {
         if (!this.Config.useDouBao) return false;
         if (!this.Config.useImageStyle) return true;
         if (!this.preCheck(e)) return true;
-        var result = await processMessage(e);
-        var body = {};
+        let result = await processMessage(e);
+        var body: RequestBody = {};
         // 将指令部分去除并切分
-        result.texts = result.texts.replace(/^#图片风格化/, "").trim().split(" ");
+        let strList = result.texts.replace(/^#图片风格化/, "").trim().split(" ");
         // 查询类型列表命令
-        if (result.texts.length == 1 && result.texts[0] == "类型列表") {
+        if (strList.length == 1 && strList[0] == "类型列表") {
             var typeList = Object.keys(this.imageStyleReqKeyMap);
             var typeMsg = "可用类型列表：";
             typeList.forEach((item) => {
@@ -191,11 +144,11 @@ export class douBao extends plugin {
             return true;
         }
         // 官方目前仅支持一张图片
-        if (Objects.isNull(result.texts) || result.texts.length != 1 || result.images.length != 1) {
+        if (Objects.isNull(strList) || strList.length != 1 || result.images.length != 1) {
             await e.reply("请遵循格式 #图片风格化 类型 图片");
             return true;
         }
-        var type = result.texts[0];
+        var type = strList[0];
         // 寻找匹配类型前缀
         var typeList = Object.keys(this.imageStyleReqKeyMap);
         typeList = typeList.filter((item) => {
@@ -224,11 +177,9 @@ export class douBao extends plugin {
         if (response.status === this.SuccessCode) {
             var segments = [];
             if (!Objects.isNull(response.data.binary_data_base64)) {
-                response.data.binary_data_base64.forEach((base64) => {
+                response.data.binary_data_base64.forEach((base64: string) => {
                     if (!base64.startsWith("data:image/"))
-                        segments.push(
-                            segment.image(Base64.getBase64ImageType(base64) + base64)
-                        );
+                        segments.push(segment.image(Base64.getBase64ImageType(base64) + base64));
                     else segments.push(segment.image(base64));
                 });
             }
@@ -242,12 +193,12 @@ export class douBao extends plugin {
     }
 
     // ---------------------------------------------------- 图片模仿 ----------------------------------------------------
-    async imageImitate(e) {
+    async imageImitate(e: any) {
         if (!this.Config.useDouBao) return false;
         if (!this.Config.useImageImitate) return true;
         if (!this.preCheck(e)) return true;
         var result = await processMessage(e);
-        var body = {};
+        var body: RequestBody = {};
         // 将指令部分去除
         result.texts = result.texts.replace(/^#图片模仿/, "").trim();
         var strList = result.texts.split(" ");
@@ -282,11 +233,9 @@ export class douBao extends plugin {
         if (response.status === this.SuccessCode) {
             var segments = [];
             if (!Objects.isNull(response.data.binary_data_base64)) {
-                response.data.binary_data_base64.forEach((base64) => {
+                response.data.binary_data_base64.forEach((base64: string) => {
                     if (!base64.startsWith("data:image/"))
-                        segments.push(
-                            segment.image(Base64.getBase64ImageType(base64) + base64)
-                        );
+                        segments.push(segment.image(Base64.getBase64ImageType(base64) + base64));
                     else segments.push(segment.image(base64));
                 });
             }
@@ -299,12 +248,12 @@ export class douBao extends plugin {
     }
     // ---------------------------------------------------- 图片生成 ----------------------------------------------------
 
-    async imageGenerate(e) {
+    async imageGenerate(e: any) {
         if (!this.Config.useDouBao) return false;
         if (!this.Config.useImageGenerate) return true;
         if (!this.preCheck(e)) return true;
         var result = await processMessage(e);
-        var body = {};
+        var body: RequestBody = {};
         var width = null, height = null;
         // 将指令部分去除
         result.texts = result.texts.replace(/^#图片生成/, "").trim();
@@ -341,7 +290,7 @@ export class douBao extends plugin {
                 // TODO 最好能不下载到本地
                 var timestamp = new Date().getTime();
                 var filePath = path.join(
-                    pluginData,
+                    PLUGIN_DATA_DIR,
                     `${e.group_id}`,
                     "video",
                     `${timestamp}_${url.replace(/[^a-zA-Z0-9]/g, "_")}`
@@ -381,11 +330,9 @@ export class douBao extends plugin {
             var segments = [];
             if (!Objects.isNull(response.data.binary_data_base64)) {
                 // 其实只会返回一张图，但就这样吧，挺好的
-                response.data.binary_data_base64.forEach((base64) => {
+                response.data.binary_data_base64.forEach((base64: string) => {
                     if (!base64.startsWith("data:image/"))
-                        segments.push(
-                            segment.image(Base64.getBase64ImageType(base64) + base64)
-                        );
+                        segments.push(segment.image(Base64.getBase64ImageType(base64) + base64));
                     else segments.push(segment.image(base64));
                 });
             }
@@ -447,7 +394,7 @@ export class douBao extends plugin {
         };
     }
 
-    async videoGenerate(e) {
+    async videoGenerate(e: any) {
         if (!this.Config.useDouBao) return false;
         if (!this.Config.useVideoGenerate) return true;
         if (Objects.isNull(this.VideoGenerateApiKey)) {
@@ -482,7 +429,7 @@ export class douBao extends plugin {
                 body.content.push({
                     type: "image_url",
                     image_url: {
-                        url: await url2Base64(content.url),
+                        url: await url2Base64(content.url as string),
                     },
                 });
             } else {
@@ -492,60 +439,60 @@ export class douBao extends plugin {
         }
         request.body = body;
         request.body = JSON.stringify(request.body);
-        var response = await fetch(this.VideoGenerateUrl, request);
-        response = await response.json();
-        var id = response.id;
+        let response = await fetch(this.VideoGenerateUrl, request);
+        let responseJson = await response.json();
+        var id = responseJson.id;
         if (Objects.isNull(id)) {
             await e.reply("视频生成失败，请稍后再试");
             return true;
         }
         logger.mark(`[douBao]视频生成任务创建成功，id：${id}`);
         // 创建线程
-        this.createTaskThread(e, id);
+        this.createTaskThread(e, id, this.handleCompleted, this.handleFailed);
         await e.reply("视频生成中，请稍等...");
         return true;
     }
 
-    createTaskThread(e, id) {
+    createTaskThread(e: any, id: string, successHandler?: (e: any, responseJson: any) => void, failHandler?: (e: any, responseJson: any) => void) {
         var getUrl = this.VideoGenerateUrl + "/" + id;
         var request = JSON.parse(JSON.stringify(this.VideoGenerateRequestGet));
         var taskThread = setInterval(async () => {
-            var response = await fetch(getUrl, request);
-            response = await response.json();
-            if (response.status == "succeeded") {
+            let response = await fetch(getUrl, request);
+            let responseJson = await response.json();
+            if (responseJson.status == "succeeded") {
                 clearInterval(taskThread);
                 // 处理完成
-                this.handleCompleted(e, response);
-            } else if (response.status == "failed") {
+                if (successHandler) successHandler(e, responseJson);
+            } else if (responseJson.status == "failed") {
                 clearInterval(taskThread);
                 // 处理失败
-                this.handleFailed(e, response);
-            } else if (response.status == "cancelled") {
+                if (failHandler) failHandler(e, responseJson);
+            } else if (responseJson.status == "cancelled") {
                 // 处理取消
                 clearInterval(taskThread);
             }
         }, 5000);
     }
 
-    handleFailed(e, response) {
+    handleFailed(e: any, responseJson: { error: any; }) {
         // 处理失败
-        var error = response.error;
+        var error = responseJson.error;
         var message = error.message;
         var code = error.code;
         var errorMsg = `[douBao]视频生成失败，错误码：${code}，错误信息：${message}`;
         e.reply(errorMsg);
     }
 
-    handleCompleted(e, response) {
-        if (response.model == this.VideoGenerateModel) {
+    handleCompleted(e: any, responseJson: { model: string; content: { video_url: any; }; id: any; }) {
+        if (responseJson.model == this.VideoGenerateModel) {
             // 视频生成
-            var videoUrl = response.content.video_url;
+            var videoUrl = responseJson.content.video_url;
             var timestamp = new Date().getTime();
             var filePath = path.join(
-                pluginData,
+                PLUGIN_DATA_DIR,
                 `${e.group_id}`,
                 "video",
-                `${timestamp}-${response.id}.mp4`
+                `${timestamp}-${responseJson.id}.mp4`
             );
             downloadFile(videoUrl, filePath)
                 .then(() => {
@@ -555,13 +502,13 @@ export class douBao extends plugin {
                     // 删除文件
                     fs.unlink(filePath, (err) => {
                         if (err) {
-                            console.error(`[douBao]删除视频失败: ${err}`);
+                            logger.error("[douBao]删除文件出错", err);
                         }
                         return;
                     });
                 })
                 .catch((err) => {
-                    console.error(`[douBao]${err}`);
+                    logger.error("[douBao]下载文件出错", err);
                 });
         }
     }
@@ -575,12 +522,8 @@ export class douBao extends plugin {
  * images: 图片部分
  * content: 按顺序排列的消息体
  */
-async function processMessage(e) {
-    var result = {
-        texts: "",
-        images: [],
-        content: [],
-    };
+async function processMessage(e: any) {
+    var result: RequestMsg = { texts: "", images: [], content: [] };
     var msgList = e.message;
     var texts = [];
     for (var i = 0; i < msgList.length; i++) {
@@ -596,10 +539,10 @@ async function processMessage(e) {
             result.images.push(msg.url);
         } else if (msg.type == "reply") {
             var sourceImages = await e.getReply(msg.id);
-            sourceImages = sourceImages?.message.filter((each) => {
+            sourceImages = sourceImages?.message.filter((each: any) => {
                 return each.type == "image";
             });
-            sourceImages.forEach((each) => {
+            sourceImages.forEach((each: any) => {
                 result.content.push({ type: "image", url: each.url });
                 result.images.push(each.url);
             });

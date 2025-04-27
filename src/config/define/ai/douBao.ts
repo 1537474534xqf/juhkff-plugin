@@ -31,7 +31,7 @@ type ImageGenerate = {
     modelVersion: string;
     reqScheduleConf: string;
     usePreLlm: boolean;
-    useSrc: boolean;
+    useSr: boolean;
     returnUrl: boolean;
     withImgReqKey: boolean;
     withImgModelVersion: "";
@@ -95,7 +95,7 @@ const douBao: DouBao = {
         modelVersion: "",
         reqScheduleConf: "",
         usePreLlm: false,
-        useSrc: false,
+        useSr: false,
         returnUrl: false,
         withImgReqKey: false,
         withImgModelVersion: "",

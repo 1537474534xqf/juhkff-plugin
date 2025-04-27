@@ -1,30 +1,17 @@
-import setting from "#juhkff.setting";
-import { formatDateDetail } from "#juhkff.date";
-import { Objects } from "#juhkff.kits";
-import {
-    parseImage,
-    parseSourceMessage,
-    parseJson,
-    parseUrl,
-    generateAnswer,
-    saveContext,
-} from "#juhkff.handle";
-import {
-    parseImageVisual,
-    parseSourceMessageVisual,
-    parseJsonVisual,
-    parseUrlVisual,
-    parseTextVisual,
-    generateAnswerVisual,
-    saveContextVisual,
-} from "#juhkff.handle.visual";
+import { sleep } from "../bgProcess/timer";
+import { AutoReply } from "../config/define/autoReply";
+import setting from "../model/setting";
+import { formatDateDetail } from "../utils/date";
+import { generateAnswer, parseImage, parseJson, parseSourceMessage, parseUrl, saveContext } from "../utils/handle";
+import { generateAnswerVisual, parseImageVisual, parseJsonVisual, parseSourceMessageVisual, parseTextVisual, parseUrlVisual, saveContextVisual } from "../utils/handleVisual";
+import { Objects } from "../utils/kits";
 
 export const help = () => {
     return {
         name: "主动群聊",
         type: "passive",
         dsc: "假装人类发言",
-        enable: setting.getConfig("autoReply").useAutoReply,
+        enable: (setting.getConfig("autoReply") as AutoReply).useAutoReply,
     }
 }
 
@@ -61,21 +48,11 @@ export class autoReply extends plugin {
         }
     }
 
-    get Config() {
+    get Config(): AutoReply {
         return setting.getConfig("autoReply");
     }
 
-    get Help() {
-        var help = {
-            name: "主动群聊",
-            type: "passive",
-            dsc: "假装人类发言",
-        }
-        help["disable"] = this.Config.useAutoReply;
-        return help;
-    }
-
-    async autoReply(e) {
+    async autoReply(e: any) {
         if (!this.Config.useAutoReply) return false;
         if (e.message_type != "group") return false;
         if (this.Config.useVisual && this.Config.visualReplaceChat) {
@@ -90,7 +67,7 @@ export class autoReply extends plugin {
      * @param {*} e
      * @returns
      */
-    async commonProcess(e) {
+    async commonProcess(e: any) {
         // 避免重复保存上下文
         // 借助siliconflow-plugin保存群聊上下文
         var time = Date.now();
@@ -105,7 +82,7 @@ export class autoReply extends plugin {
             await parseUrl(e);
         }
         // 通过自定义的e.j_msg拼接完整消息内容
-        var msg = e.j_msg.map((msg) => msg.text).join(" ");
+        var msg = e.j_msg.map((msg: { text: string }) => msg.text).join(" ");
         logger.info(`[autoReply]解析后的消息内容: ${msg}`);
 
         if (msg) msg = msg.trim();
@@ -152,7 +129,7 @@ export class autoReply extends plugin {
             await saveContext(time, e.group_id, e.message_id, "user", content);
             // 保存AI回复
             if (answer && !answer.startsWith("[autoReply]")) {
-                await saveContext(answer_time, e.group_id, 0, "assistant", answer);
+                await saveContext(answer_time!, e.group_id, 0, "assistant", answer);
             }
         }
         return false;
@@ -162,7 +139,7 @@ export class autoReply extends plugin {
      * @description: 视觉模型处理
      * @param {*} e
      */
-    async visualProcess(e) {
+    async visualProcess(e: any) {
         // 避免重复保存上下文
         // 借助siliconflow-plugin保存群聊上下文
         var time = Date.now();
@@ -227,7 +204,7 @@ export class autoReply extends plugin {
             // 保存AI回复
             if (answer && !answer.startsWith("[autoReply]")) {
                 await saveContextVisual(
-                    answer_time,
+                    answer_time!,
                     answer_date,
                     e.group_id,
                     0,
@@ -247,7 +224,7 @@ export class autoReply extends plugin {
      * @param {*} e 
      * @param {*} answer 
      */
-    async handleReply(e, answer) {
+    async handleReply(e: any, answer: string) {
         // 如果为连续短句，概率间隔发送，感觉这样更真实一点
         if (answer.split(" ").length > 1 && Math.random() < 0.5) {
             var answerList = answer.split(" ");

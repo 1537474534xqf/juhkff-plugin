@@ -3,16 +3,15 @@
  * @description: 原始消息处理相关
  */
 
-import { ChatInterface } from "#juhkff.api.chat";
-import { chatMap } from "#juhkff.map";
-import { formatDateDetail } from "#juhkff.date";
-import { extractUrlContent, analyseImage } from "#juhkff.helper";
-import { Objects } from "#juhkff.kits";
-import { get_source_message } from "#juhkff.redis";
-import { EMOTION_KEY } from "#juhkff.redis";
-import setting from "#juhkff.setting";
+import { AutoReply } from "../config/define/autoReply";
+import { ChatAgentInstance } from "../model/map";
+import setting from "../model/setting"
+import { formatDateDetail } from "./date";
+import { analyseImage, extractUrlContent } from "./helper";
+import { Objects } from "./kits";
+import { EMOTION_KEY, getSourceMessage } from "./redis";
 
-function getConfig() {
+function getConfig(): AutoReply {
     return setting.getConfig("autoReply");
 }
 
@@ -20,16 +19,13 @@ function getConfig() {
  * 由于会生成插件专属消息处理列表j_msg，该方法必须作为消息处理的第一个函数
  * @param {} e
  */
-export async function parseImage(e) {
+export async function parseImage(e: { j_msg: any[]; message: string | any[]; }) {
     if (!e.j_msg) e.j_msg = [];
     for (let i = 0; i < e.message.length; i++) {
         if (e.message[i].type == "image") {
             if (!getConfig().useVisual) continue;
             var url = e.message[i].url;
-            var result = await analyseImage(
-                url,
-                "该图片是否为表情包，只输出是或否，不要加标点符号"
-            );
+            var result = await analyseImage(url, "该图片是否为表情包，只输出是或否，不要加标点符号");
             logger.info(`[parseImage]图片是否为表情包: ${result}`);
             if (result === "是") {
                 // 表情包不加入消息
@@ -53,12 +49,12 @@ export async function parseImage(e) {
  * @param {*} e
  * @returns
  */
-export async function parseSourceMessage(e) {
+export async function parseSourceMessage(e: { j_msg: any[]; group_id: string | number; getReply: (arg0: any) => any; }) {
     if (!e.j_msg) return;
     for (let i = 0; i < e.j_msg.length; i++) {
         if (e.j_msg[i].type === "reply") {
             // 优先从redis中获取引用消息
-            var redis_source = await get_source_message(e.group_id, e.j_msg[i].id);
+            var redis_source = await getSourceMessage(e.group_id, e.j_msg[i].id);
             if (redis_source != undefined) {
                 var msg = `[回复 ${redis_source}]`;
                 e.j_msg[i] = { text: msg, type: "reply" };
@@ -69,10 +65,10 @@ export async function parseSourceMessage(e) {
             if (reply) {
                 let senderTime = undefined; // 存储发送者时间
                 let senderNickname = ""; // 存储发送者昵称
-                let msg = []; // 存储发送者消息
+                let msg: string[] = []; // 存储发送者消息
 
                 // 获取发送者昵称和时间
-                senderTime = await formatDateDetail(reply.time * 1000);
+                senderTime = formatDateDetail(reply.time * 1000);
                 senderNickname = reply.sender?.card || reply.sender?.nickname;
                 for (var val of reply.message) {
                     if (val.type == "image") {
@@ -86,10 +82,7 @@ export async function parseSourceMessage(e) {
                             // 表情包不加入消息
                             continue;
                         } else {
-                            var analyseMsg = await analyseImage(
-                                val.url,
-                                "提取图中关键信息，以中文的自然语言的形式回答"
-                            );
+                            var analyseMsg = await analyseImage(val.url, "提取图中关键信息，以中文的自然语言的形式回答");
                             msg.push(`<发送图片，内容: ${analyseMsg}>`);
                         }
                     } else if (val.type == "text") {
@@ -98,10 +91,8 @@ export async function parseSourceMessage(e) {
                         // 不支持消息中的文件
                         continue;
                     } else if (val.type == "json") {
-                        var result = analyseJsonMessage(val.data);
-                        if (result) {
-                            msg.push(result);
-                        }
+                        let result = analyseJsonMessage(val.data);
+                        if (result) msg.push(result);
                     }
                 }
                 var quotedLines;
@@ -125,7 +116,7 @@ export async function parseSourceMessage(e) {
  * @param {} e
  * @returns
  */
-export async function parseJson(e) {
+export async function parseJson(e: { j_msg: any[]; }) {
     if (!e.j_msg) return;
     for (let i = 0; i < e.j_msg.length; i++) {
         if (e.j_msg[i].type === "json") {
@@ -137,7 +128,7 @@ export async function parseJson(e) {
     }
 }
 
-function analyseJsonMessage(message) {
+function analyseJsonMessage(message: string) {
     try {
         let data = JSON.parse(message);
         if (data.meta?.detail_1?.title === "哔哩哔哩") {
@@ -145,10 +136,10 @@ function analyseJsonMessage(message) {
         } else if (data.meta?.news?.tag === "小黑盒") {
             return `<分享链接，链接内容的分析结果——标题：${data.meta?.news?.title}，内容：${data.meta?.news?.desc}>`;
         }
-        return undefined;
+        return null;
     } catch (error) {
-        logger.error(`[analyseJsonMessage] JSON解析错误: ${error.message}`);
-        return undefined;
+        logger.error("[analyseJsonMessage] JSON解析错误", error);
+        return null;
     }
 }
 
@@ -157,7 +148,7 @@ function analyseJsonMessage(message) {
  * @param {*} e
  * @returns
  */
-export async function parseUrl(e) {
+export async function parseUrl(e: { j_msg: any[]; }) {
     if (!e.j_msg) return;
     // 更新正则表达式以匹配包含中文和空格的URL
     const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/gi;
@@ -170,18 +161,13 @@ export async function parseUrl(e) {
                 // 替换原始消息
                 for (let url of matches) {
                     // 移除URL末尾的标点符号和中文字符
-                    let cleanUrl = url.replace(
-                        /[.,!?;:，。！？、；：\s\u4e00-\u9fa5]+$/,
-                        ""
-                    );
+                    let cleanUrl = url.replace(/[.,!?;:，。！？、；：\s\u4e00-\u9fa5]+$/, "");
                     // 处理URL中的空格和中文字符
                     try {
                         // 尝试解码URL，如果已经是解码状态则保持不变
                         cleanUrl = decodeURIComponent(cleanUrl);
                         // 重新编码空格和特殊字符，但保留中文字符
-                        cleanUrl = cleanUrl
-                            .replace(/\s+/g, "%20")
-                            .replace(/[[\](){}|\\^<>]/g, encodeURIComponent);
+                        cleanUrl = cleanUrl.replace(/\s+/g, "%20").replace(/[[\](){}|\\^<>]/g, encodeURIComponent);
                     } catch (e) {
                         // 如果解码失败，说明URL可能已经是正确格式
                         logger.warn(`[URL处理]URL解码失败: ${url} => ${cleanUrl}`);
@@ -197,21 +183,14 @@ export async function parseUrl(e) {
                         logger.info(`[URL处理]成功提取URL内容`);
                         var config = getConfig();
                         // 借助chatApi对提取的内容进行总结
-                        var apiKey = config.chatApiKey;
                         var model = config.chatModel;
-                        var chatInstance = chatMap[config.chatApi];
-                        var result = await chatInstance[ChatInterface.generateRequest]({
-                            apiKey: apiKey,
-                            model: model,
-                            input:
-                                "根据从URL抓取的信息，以自然语言简练地总结URL中的主要内容，其中无关信息可以过滤掉",
-                            historyMessages: [{ role: "user", content: extractResult.content }],
-                            useSystemRole: false,
-                        });
-                        e.j_msg[i].text = e.j_msg[i].text.replace(
-                            url,
-                            `<分享URL，URL内容的分析结果——${result}>`
+                        var result = await ChatAgentInstance!.chatRequest(
+                            model,
+                            "根据从URL抓取的信息，以自然语言简练地总结URL中的主要内容，其中无关信息可以过滤掉",
+                            [{ role: "user", content: extractResult.content }],
+                            false,
                         );
+                        e.j_msg[i].text = e.j_msg[i].text.replace(url, `<分享URL，URL内容的分析结果——${result}>`);
                         e.j_msg[i].type = "url2text";
                     }
                 }
@@ -225,26 +204,21 @@ export async function parseUrl(e) {
  * @param {string} url URL地址
  * @returns {boolean} 是否为不需要提取的文件类型
  */
-function isSkippedUrl(url) {
+function isSkippedUrl(url: string) {
     // 检查常见图片后缀
-    const imageExtensions =
-        /\.(jpg|jpeg|png|gif|bmp|webp|svg|ico|tiff|tif|raw|cr2|nef|arw|dng|heif|heic|avif|jfif|psd|ai)$/i;
+    const imageExtensions = /\.(jpg|jpeg|png|gif|bmp|webp|svg|ico|tiff|tif|raw|cr2|nef|arw|dng|heif|heic|avif|jfif|psd|ai)$/i;
 
     // 检查常见视频后缀
-    const videoExtensions =
-        /\.(mp4|webm|mkv|flv|avi|mov|wmv|rmvb|m4v|3gp|mpeg|mpg|ts|mts)$/i;
+    const videoExtensions = /\.(mp4|webm|mkv|flv|avi|mov|wmv|rmvb|m4v|3gp|mpeg|mpg|ts|mts)$/i;
 
     // 检查可执行文件和二进制文件
-    const binaryExtensions =
-        /\.(exe|msi|dll|sys|bin|dat|iso|img|dmg|pkg|deb|rpm|apk|ipa|jar|class|pyc|o|so|dylib)$/i;
+    const binaryExtensions = /\.(exe|msi|dll|sys|bin|dat|iso|img|dmg|pkg|deb|rpm|apk|ipa|jar|class|pyc|o|so|dylib)$/i;
 
     // 检查压缩文件
-    const archiveExtensions =
-        /\.(zip|rar|7z|tar|gz|bz2|xz|tgz|tbz|cab|ace|arc)$/i;
+    const archiveExtensions = /\.(zip|rar|7z|tar|gz|bz2|xz|tgz|tbz|cab|ace|arc)$/i;
 
     // 检查是否包含媒体或下载相关路径关键词
-    const skipKeywords =
-        /\/(images?|photos?|pics?|videos?|medias?|downloads?|uploads?|binaries|assets)\//i;
+    const skipKeywords = /\/(images?|photos?|pics?|videos?|medias?|downloads?|uploads?|binaries|assets)\//i;
 
     // 不跳过的URL类型
     const allowedExtensions = /(\.bilibili.com\/video|b23\.tv)\//i;
@@ -267,37 +241,33 @@ function isSkippedUrl(url) {
  * @param {*} currentImages 正文图片数组
  * @returns answer 回复内容
  */
-export async function generateAnswer(e, msg) {
+export async function generateAnswer(e: { group_id: any; sender: { card: string; }; }, msg: string) {
     var chatApi = getConfig().chatApi;
     let apiKey = getConfig().chatApiKey;
     let model = getConfig().chatModel;
     if (!apiKey || apiKey == "") {
-        logger.error("[autoReply]请先在autoReply.yaml中设置chatApiKey");
-        return "[autoReply]请先在autoReply.yaml中设置chatApiKey";
+        logger.error("[handle]请先设置chatApiKey");
+        return "[handle]请先设置chatApiKey";
     }
     if (!model || model == "") {
-        logger.error("[autoReply]请先在autoReply.yaml中设置chatModel");
-        return "[autoReply]请先在autoReply.yaml中设置chatModel";
+        logger.error("[handle]请先设置chatModel");
+        return "[handle]请先设置chatModel";
     }
 
     // 获取历史对话
-    let historyMessages = [];
+    let historyMessages: string[] = [];
     if (getConfig().useContext) {
         historyMessages = await loadContext(e.group_id);
-        logger.info(`[autoReply]加载历史对话: ${historyMessages.length} 条`);
+        logger.info(`[handle]加载历史对话: ${historyMessages.length} 条`);
     }
 
     // 如果启用了情感，并且redis中不存在情感，则进行情感生成
     if (getConfig().useEmotion && Objects.isNull(await redis.get(EMOTION_KEY))) {
-        redis.set(EMOTION_KEY, await emotionGenerate(), {
-            EX: 24 * 60 * 60,
-        });
+        redis.set(EMOTION_KEY, await emotionGenerate(), { EX: 24 * 60 * 60 });
     }
 
     let answer = await sendChatRequest(
         e.sender.card + "：" + msg,
-        chatApi,
-        apiKey,
         model,
         historyMessages
     );
@@ -306,43 +276,23 @@ export async function generateAnswer(e, msg) {
     return answer;
 }
 
+
 /**
- * @description: 自动提示词
- * @param {*} input
- * @param {*} chatApi 使用的AI接口
- * @param {*} apiKey
- * @param {*} model 使用的API模型
- * @param {*} opt 图片参数
- * @return {string}
+ * 发送ChatApi请求
+ * @param input 
+ * @param model 
+ * @param historyMessages 
+ * @param useSystemRole 是否使用system预设
+ * @returns 
  */
-async function sendChatRequest(
-    input,
-    chatApi,
-    apiKey,
-    model = "",
-    historyMessages = [],
-    useSystemRole = true
-) {
-    var chatInstance = chatMap[chatApi];
-    if (!chatInstance) return "[autoReply]请在autoReply.yaml中设置有效的AI接口";
-    var result = await chatInstance[ChatInterface.generateRequest]({
-        apiKey,
-        model,
-        input,
-        historyMessages,
-        useSystemRole,
-    });
+async function sendChatRequest(input: string, model = "", historyMessages: string[] = [], useSystemRole = true) {
+    if (!ChatAgentInstance) return "[handle]请设置有效的AI接口";
+    var result = await ChatAgentInstance.chatRequest(model, input, historyMessages, useSystemRole);
     return result;
 }
 
 // 保存对话上下文
-export async function saveContext(
-    time,
-    groupId,
-    message_id = 0,
-    role,
-    message
-) {
+export async function saveContext(time: number | string, groupId: number | string, message_id = 0, role: "user" | "assistant", message: string) {
     try {
         const maxHistory = getConfig().maxHistoryLength;
         const key = `juhkff:auto_reply:${groupId}:${time}`;
@@ -357,7 +307,7 @@ export async function saveContext(
 
         // 获取该群的所有消息
         var keys = await redis.keys(`juhkff:auto_reply:${groupId}:*`);
-        keys.sort((a, b) => {
+        keys.sort((a: string, b: string) => {
             const timeA = parseInt(a.split(":")[3]);
             const timeB = parseInt(b.split(":")[3]);
             return timeB - timeA; // 按时间戳降序排序
@@ -373,19 +323,19 @@ export async function saveContext(
 
         return true;
     } catch (error) {
-        logger.error("[autoReply]保存上下文失败:", error);
+        logger.error("[handle]保存上下文失败:", error);
         return false;
     }
 }
 
 // 加载群历史对话
-export async function loadContext(groupId) {
+export async function loadContext(groupId: number | string) {
     try {
         const maxHistory = getConfig().maxHistoryLength;
 
         // 获取该群的所有消息
         const keys = await redis.keys(`juhkff:auto_reply:${groupId}:*`);
-        keys.sort((a, b) => {
+        keys.sort((a: string, b: string) => {
             const timeA = parseInt(a.split(":")[3]);
             const timeB = parseInt(b.split(":")[3]);
             return timeA - timeB; // 按时间戳升序排序
@@ -404,7 +354,7 @@ export async function loadContext(groupId) {
 
         return messages;
     } catch (error) {
-        logger.error("[autoReply]加载上下文失败:", error);
+        logger.error("[handle]加载上下文失败:", error);
         return [];
     }
 }
@@ -415,29 +365,15 @@ export async function loadContext(groupId) {
  * @return {*}
  * @author: JUHKFF
  */
-export async function emotionGenerate() {
-    var chatApi = getConfig().chatApi;
-    let apiKey = getConfig().chatApiKey;
+export async function emotionGenerate(): Promise<string> {
     let model = getConfig().chatModel;
-    if (Objects.hasNull(chatApi, apiKey, model)) {
-        return null;
-    }
-    var emotion = await sendChatRequest(
-        getConfig().emotionGeneratePrompt,
-        chatApi,
-        apiKey,
-        model,
-        [],
-        false
-    );
-    logger.info(`[autoReply]情感生成: ${emotion}`);
+    var emotion = await sendChatRequest(getConfig().emotionGeneratePrompt, model, [], false);
+    logger.info(`[handle]情感生成: ${emotion}`);
     return emotion;
 }
 
-export async function getImageUniqueId(e) {
+export async function getImageUniqueId(e: { message: { type: string, url: string }[]; }): Promise<string> {
     let image = e.message.filter((item) => item.type === "image");
-    if (image.length > 0) {
-        return image[0].url;
-    }
-    return null;
+    if (image.length > 0) return image[0].url;
+    return "";
 }

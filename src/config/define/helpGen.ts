@@ -13,11 +13,13 @@ type ColorOptions = {
 type HelpType = "active" | "passive" | "group" | "sub";
 
 type MaunalList = {
-    title: string;
+    name?: string;
     type: HelpType;
-    command: string;
-    description: string;
-    belongTo: string;
+    command?: string;
+    dsc?: string;
+    enable?: boolean,
+    belongTo?: string;
+    subMenu?: any;
 }
 
 export type HelpGen = {

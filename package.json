@@ -7,7 +7,10 @@
   "type": "module",
   "module": "index.js",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "tsc": "tsc",
+    "clean": "tsc --clean"
+  },
   "imports": {
     "#juhkff.path": "./model/path.js",
     "#juhkff.api.chat": "./model/chat/chatApi.js",

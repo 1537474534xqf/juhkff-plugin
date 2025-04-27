@@ -11,14 +11,14 @@ class ArkEngine extends ChatAgent implements ChatInterface {
         return null;
     }
 
-    public async chatRequest(apiKey: string, model: string, input: string, historyMessages: any[] = [], useSystemRole: boolean = true) {
+    public async chatRequest(model: string, input: string, historyMessages: any[] = [], useSystemRole: boolean = true) {
         // 构造请求体
         let request: Request = {
             url: this.apiBaseUrl as string,
             options: {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${apiKey}`,
+                    Authorization: `Bearer ${this.apiKey}`,
                     "Content-Type": "application/json",
                 },
                 body: { model: model, stream: false, messages: [], temperature: 1.5 },

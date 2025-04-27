@@ -1,10 +1,11 @@
-import setting from "#juhkff.setting";
-import { pluginResources, pluginRoot } from "#juhkff.path";
+import setting from "../model/setting";
 import path from "path";
 import fs from "fs";
 import { pathToFileURL } from "url";
 import { renderPage } from "../utils/page.js"
-import { Objects, StringUtils } from "#juhkff.kits";
+import { HelpGen } from "../config/define/helpGen";
+import { PLUGIN_RESOURCES_DIR, PLUGIN_ROOT_DIR } from "../model/path";
+import { Objects, StringUtils } from "../utils/kits";
 
 export class helpGen extends plugin {
     constructor() {
@@ -23,15 +24,15 @@ export class helpGen extends plugin {
         this.extraHelp = initExtraHelp();
     }
 
-    get Config() {
+    get Config(): HelpGen {
         return setting.getConfig("helpGen");
     }
 
-    async helpGenerate(e) {
+    async helpGenerate(e: any) {
         if (!this.Config.useHelpGen) return false;
         // 获取apps目录下的所有插件
-        const pluginDir = path.join(pluginRoot, "apps");
-        var helpList = []
+        const pluginDir = path.join(PLUGIN_ROOT_DIR, "apps");
+        var helpList: any[] = []
         await this.loadPluginHelp(pluginDir, helpList, /*[`${path.join(pluginDir, "helpGen.js")}`]*/);
         this.addManualHelp(helpList);
         if (!this.Config.hd) {
@@ -43,7 +44,7 @@ export class helpGen extends plugin {
             e.runtime.render("juhkff-plugin", "help/index", {
                 // cssFile: "../../../../../plugins/juhkff-plugin/resources/help/index.css",
                 // 用绝对路径似乎也没问题，调试时将Yunzai/temp/html/juhkff-plugin/help/index/index.html中的css导入路径改为相对路径
-                cssFile: path.join(pluginResources, "help", "index.css"),
+                cssFile: path.join(PLUGIN_RESOURCES_DIR, "help", "index.css"),
                 quality: 100,   // 还是好糊啊啊啊
                 titleZh: Objects.isNull(this.Config?.titleZh) ? this.Config.command : this.Config?.titleZh,
                 titleEn: Objects.isNull(this.Config?.titleEn) ? "JUHKFF-PLUGIN" : this.Config?.titleEn,
@@ -55,7 +56,7 @@ export class helpGen extends plugin {
         } else {
             // 自行实现的渲染器，分辨率较高，出图慢
             // TODO 考虑像内置的渲染器一样实现下生命周期
-            var buffer = await renderPage(path.join(pluginResources, "help", "index.html"),
+            var buffer = await renderPage(path.join(PLUGIN_RESOURCES_DIR, "help", "index.html"),
                 {
                     cssFile: "index.css",
                     titleZh: Objects.isNull(this.Config?.titleZh) ? this.Config.command : this.Config?.titleZh,
@@ -77,7 +78,7 @@ export class helpGen extends plugin {
      * @param {*} helpList 最终的帮助列表，一般入口处传入空数组对象即可
      * @param {*} extract 排除列表，每一项为绝对路径
      */
-    async loadPluginHelp(dir, helpList, extract = []) {
+    async loadPluginHelp(dir: string, helpList: any[], extract: string[] = []) {
         var files = fs.readdirSync(dir);
         for (var file of files) {
             var filePath = path.join(dir, file);
@@ -108,7 +109,7 @@ export class helpGen extends plugin {
         }
     }
 
-    addManualHelp(helpList) {
+    addManualHelp(helpList: any) {
         var manualHelpList = this.Config.manualList;
         if (Objects.isNull(manualHelpList)) return;
         var groupHelpList = manualHelpList.filter((item) => item?.type === "group");
@@ -147,13 +148,13 @@ export class helpGen extends plugin {
 
 
 function initExtraHelp() {
-    let extraHelp = {};
+    let extraHelp: Record<string, any> = {};
     extraHelp["douBao"] = douBaoHelp;
     extraHelp["helpGen"] = helpDesc;
     return extraHelp;
 }
 
-function isAppFile(filePath) {
+function isAppFile(filePath: string) {
     const extname = path.extname(filePath);
     return extname === ".js";
 }

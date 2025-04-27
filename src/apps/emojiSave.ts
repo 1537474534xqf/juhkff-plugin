@@ -1,8 +1,8 @@
 import fs from "fs";
-import setting from "#juhkff.setting";
-import { downloadFile } from "#juhkff.net";
-import { _path, pluginData } from "#juhkff.path";
+import setting from "../model/setting";
 import path from "path";
+import { PLUGIN_DATA_DIR } from "../model/path";
+import { downloadFile } from "../utils/net";
 
 export const help = () => {
     return {
@@ -38,10 +38,10 @@ export class emojiSave extends plugin {
         return setting.getConfig("emojiSave");
     }
 
-    async emojiSave(e) {
+    async emojiSave(e: any) {
         if (!this.Config.useEmojiSave) return false;
         if (e.message_type != "group") return false;
-        var emojiSaveDir = path.join(pluginData, `${e.group_id}`, "emoji_save");
+        var emojiSaveDir = path.join(PLUGIN_DATA_DIR, `${e.group_id}`, "emoji_save");
         let replyRate = this.Config.defaultReplyRate; // 回复表情概率
         let emojiRate = this.Config.defaultEmojiRate; // 发送偷的图的概率
 

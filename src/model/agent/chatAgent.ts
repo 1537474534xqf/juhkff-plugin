@@ -10,10 +10,12 @@ import { AutoReply } from "../../config/define/autoReply";
 
 export default abstract class ChatAgent {
     protected config: AutoReply;
+    protected apiKey: string;
     protected apiBaseUrl: undefined | string;
     protected abstract models: Record<string, any> | null;
     protected constructor(apiBaseUrl: string | null = null) {
         this.config = setting.getConfig("autoReply");
+        this.apiKey = this.config.chatApiKey;
         if (apiBaseUrl)
             this.apiBaseUrl = apiBaseUrl;
         else

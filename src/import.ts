@@ -21,5 +21,5 @@ declare module 'lunar-javascript' {
 }
 
 declare module 'fast-image-size' {
-    export default function fastImageSize(buffer: Buffer): { width: number; height: number };
+    export default function fastImageSize(args0: Buffer | string): { width: number; height: number };
 }

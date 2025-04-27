@@ -13,7 +13,7 @@ class DeepSeek extends ChatAgent implements ChatInterface {
             "deepseek-reasoner": this.deepseek_reasoner.bind(this),
         };
     }
-    public async chatRequest(apiKey: string, model: string, input: string, historyMessages?: any[], useSystemRole?: boolean): Promise<any> {
+    public async chatRequest(model: string, input: string, historyMessages?: any[], useSystemRole?: boolean): Promise<any> {
         if (!this.models![model]) {
             logger.error("[ds]不支持的模型：" + model);
             return "[ds]不支持的模型：" + model;
@@ -23,7 +23,7 @@ class DeepSeek extends ChatAgent implements ChatInterface {
             options: {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${apiKey}`,
+                    Authorization: `Bearer ${this.apiKey}`,
                     "Content-Type": "application/json",
                 },
                 body: {

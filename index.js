@@ -26,7 +26,7 @@ async function getFiles(dir) {
     return Array.prototype.concat(...files);
 }
 
-const files = await getFiles(path.join(pluginRoot, "apps")).then((files) =>
+const files = await getFiles(path.join(pluginRoot, "js", "apps")).then((files) =>
     files.filter((file) => file.endsWith(".js"))
 );
 

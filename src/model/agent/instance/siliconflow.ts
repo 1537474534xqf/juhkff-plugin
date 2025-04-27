@@ -56,14 +56,14 @@ class Siliconflow extends ChatAgent implements ChatInterface, VisualInterface {
         return modelMap;
     }
 
-    public async chatRequest(apiKey: string, model: string, input: string, historyMessages?: any[], useSystemRole?: boolean): Promise<any> {
+    public async chatRequest(model: string, input: string, historyMessages?: any[], useSystemRole?: boolean): Promise<any> {
         // 构造请求体
         var request: Request = {
             url: `${this.apiBaseUrl}/chat/completions`,
             options: {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${apiKey}`,
+                    Authorization: `Bearer ${this.apiKey}`,
                     "Content-Type": "application/json",
                 },
                 body: {
@@ -79,7 +79,7 @@ class Siliconflow extends ChatAgent implements ChatInterface, VisualInterface {
         var response = await this.commonRequestChat(request, input, historyMessages, useSystemRole);
         return response;
     }
-    public async visualRequest(apiKey: string, model: string, nickName: string, j_msg: any, historyMessages?: any[], useSystemRole?: boolean): Promise<any> {
+    public async visualRequest(model: string, nickName: string, j_msg: any, historyMessages?: any[], useSystemRole?: boolean): Promise<any> {
         if (!this.modelsVisual[model]) {
             logger.error("[autoReply]不支持的视觉模型：" + model);
             return "[autoReply]不支持的视觉模型：" + model;
@@ -89,7 +89,7 @@ class Siliconflow extends ChatAgent implements ChatInterface, VisualInterface {
             options: {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${apiKey}`,
+                    Authorization: `Bearer ${this.apiKey}`,
                     "Content-Type": "application/json",
                 },
                 body: {
@@ -103,7 +103,7 @@ class Siliconflow extends ChatAgent implements ChatInterface, VisualInterface {
         return response;
     }
 
-    public async toolRequest(apiKey: string, model: string, j_msg: any): Promise<any> {
+    public async toolRequest(model: string, j_msg: any): Promise<any> {
         if (!this.modelsVisual[model]) {
             logger.error(`[sf]不支持的视觉模型: ${model}`);
             return `[sf]不支持的视觉模型: ${model}`;
@@ -113,7 +113,7 @@ class Siliconflow extends ChatAgent implements ChatInterface, VisualInterface {
             options: {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${apiKey}`,
+                    Authorization: `Bearer ${this.apiKey}`,
                     "Content-Type": "application/json",
                 },
                 body: {

@@ -1,8 +1,8 @@
-export async function get_source_message(
+export async function getSourceMessage(
     groupId: number | string,
     message_id: number | string,
     returnFullMessage = false
-): Promise<string | null> {
+): Promise<any> {
     try {
         // 获取该群的所有消息
         const keys = await redis.keys(`juhkff:auto_reply:${groupId}:*`);

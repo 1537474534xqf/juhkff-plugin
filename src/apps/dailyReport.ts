@@ -1,7 +1,8 @@
-import setting from "#juhkff.setting";
-import { get, getXML } from "#juhkff.net";
-import { generateDailyReport } from "#juhkff.page";
-import { getFestivalsDates, formatDate } from "#juhkff.date";
+import setting from "../model/setting";
+import { DailyReport } from "../config/define/dailyReport";
+import { get, getXML } from "../utils/net";
+import { formatDate, getFestivalsDates } from "../utils/date";
+import { generateDailyReport } from "../utils/page";
 
 export const help = () => {
     return {
@@ -9,7 +10,7 @@ export const help = () => {
         type: "passive",
         command: "#日报",
         dsc: "主动或定时推送日报",
-        enable: setting.getConfig("dailyReport").useDailyReport,
+        enable: (setting.getConfig("dailyReport") as DailyReport).useDailyReport,
     }
 }
 
@@ -47,7 +48,7 @@ export class dailyReport extends plugin {
     bili_url = "https://s.search.bilibili.com/main/hotword";
     it_url = "https://www.ithome.com/rss/";
     anime_url = "https://api.bgm.tv/calendar";
-    week = {
+    week: Record<number, string> = {
         0: "日",
         1: "一",
         2: "二",
@@ -61,7 +62,7 @@ export class dailyReport extends plugin {
         return setting.getConfig("dailyReport");
     }
 
-    async dailyReport(e) {
+    async dailyReport(e?: any) {
         if (!this.Config.useDailyReport) return false;
         if (e && e.message_type != "group") {
             await e.reply("功能只对群聊开放");
@@ -104,8 +105,7 @@ export class dailyReport extends plugin {
         var items = itResp.getElementsByTagName("item");
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
-            var title =
-                item.getElementsByTagName("title")[0]?.textContent || "无标题";
+            var title = item.getElementsByTagName("title")[0]?.textContent || "无标题";
             it.push(title);
             if (it.length >= 11) break;
         }
@@ -113,16 +113,16 @@ export class dailyReport extends plugin {
         for (var day of animeResp) {
             if (day.weekday.cn === currentDay) {
                 var i = 0;
-                for (var item of day.items) {
-                    if (item.name_cn) {
+                for (var eachItem of day.items) {
+                    if (eachItem.name_cn) {
                         anime.push({
-                            name: item.name_cn,
-                            image: item.images.large ? item.images.large : item.images.common,
+                            name: eachItem.name_cn,
+                            image: eachItem.images.large ? eachItem.images.large : eachItem.images.common,
                         });
                     } else {
                         anime.push({
-                            name: item.name,
-                            image: item.images.large ? item.images.large : item.images.common,
+                            name: eachItem.name,
+                            image: eachItem.images.large ? eachItem.images.large : eachItem.images.common,
                         });
                     }
                     i++;
