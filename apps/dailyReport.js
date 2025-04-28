@@ -2,6 +2,7 @@ import setting from "#juhkff.setting";
 import { get, getXML } from "#juhkff.net";
 import { generateDailyReport } from "#juhkff.page";
 import { getFestivalsDates, formatDate } from "#juhkff.date";
+import { Objects } from "#juhkff.kits";
 
 export const help = () => {
     return {
@@ -82,9 +83,25 @@ export class dailyReport extends plugin {
 
         hitokoto = hitokotoResp.hitokoto;
 
-        if (this.Config.alapiToken) {
+        if (!Objects.isNull(this.Config.alapiToken)) {
             // todo 使用 alapitoken 获取数据
-            // var alapi = await get(this.alapi_url);
+            var alapi = await get(`${this.alapi_url}?token=${this.Config.alapiToken}`);
+            var news = alapi.data.news;
+            // 删掉、
+            news.forEach((item, index) => {
+                var find = news[index].indexOf('、');
+                if (find !== -1) {
+                    news[index] = item.substring(find + 1, item.length);
+                }
+                // 删除句子最后的标点
+                if (news[index].endsWith('。') || news[index].endsWith('！') || news[index].endsWith('；') || news[index].endsWith('？')) {
+                    news[index] = news[index].substring(0, news[index].length - 1);
+                }
+            });
+            six = news;
+            if (six.length > 11) {
+                six = six.slice(0, 11);
+            }
         } else {
             sixResp = await get(this.six_url);
             six = sixResp.data.news;
