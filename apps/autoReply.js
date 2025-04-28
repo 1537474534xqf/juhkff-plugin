@@ -249,6 +249,7 @@ export class autoReply extends plugin {
      */
     async handleReply(e, answer) {
         // 如果为连续短句，概率间隔发送，感觉这样更真实一点
+        /*
         if (answer.split(" ").length > 1 && Math.random() < 0.5) {
             var answerList = answer.split(" ");
             for (var i = 0; i < answerList.length; i++) {
@@ -258,6 +259,7 @@ export class autoReply extends plugin {
             }
             return;
         }
+        */
         await e.reply(answer);
     }
 }
