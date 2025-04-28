@@ -1,18 +1,14 @@
-import { ChatAgent } from "../chatAgent.js";
 import axios from "axios";
+import { ChatAgent } from "../chatAgent.js";
 import { Request, RequestBody } from "../../../type.js";
 import { Objects } from "../../../utils/kits.js";
+import { autoReplyConfig } from "../../../config/define/autoReply.js";
 
-export class Siliconflow extends ChatAgent implements ChatInterface, VisualInterface {
-    protected models: Record<string, any> | null;
-    protected modelsVisual: Record<string, any>;
-    constructor() {
-        super("https://api.siliconflow.cn/v1");
-        this.models = this.chatModels();
-        this.modelsVisual = this.visualModels();
-    }
+export class Siliconflow extends ChatAgent {
+    constructor() { super("https://api.siliconflow.cn/v1"); }
+    static hasVisual = () => true;
 
-    public async visualModels(): Promise<Record<string, any> | null> {
+    public async visualModels(): Promise<Record<string, { chat: Function, tool: Function }> | undefined> {
         // TODO SF官网的API竟然不能查询特定Tag，只能自己写在这了，时不时更新一下
         return {
             "Qwen/Qwen2.5-VL-72B-Instruct": {
@@ -41,11 +37,11 @@ export class Siliconflow extends ChatAgent implements ChatInterface, VisualInter
             },
         };
     }
-    public async chatModels(): Promise<Record<string, any> | null> {
-        let response = await axios.get(`${this.apiBaseUrl}/models?type=text`, {
+    public async chatModels(): Promise<Record<string, Function> | undefined> {
+        let response = await axios.get(`${this.apiUrl}/models?type=text`, {
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${this.config.chatApiKey}`,
+                Authorization: `Bearer ${autoReplyConfig.chatApiKey}`,
             },
         });
         let modelMap: Record<string, Function> = {};
@@ -59,11 +55,11 @@ export class Siliconflow extends ChatAgent implements ChatInterface, VisualInter
     public async chatRequest(model: string, input: string, historyMessages?: any[], useSystemRole?: boolean): Promise<any> {
         // 构造请求体
         var request: Request = {
-            url: `${this.apiBaseUrl}/chat/completions`,
+            url: `${this.apiUrl}/chat/completions`,
             options: {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
+                    Authorization: `Bearer ${autoReplyConfig.chatApiKey}`,
                     "Content-Type": "application/json",
                 },
                 body: {
@@ -75,8 +71,7 @@ export class Siliconflow extends ChatAgent implements ChatInterface, VisualInter
             },
         };
 
-        // var response = await this.ModelMap[model](
-        var response = await this.commonRequestChat(request, input, historyMessages, useSystemRole);
+        let response = await this.modelsChat[model](request, input, historyMessages, useSystemRole)
         return response;
     }
     public async visualRequest(model: string, nickName: string, j_msg: any, historyMessages?: any[], useSystemRole?: boolean): Promise<any> {
@@ -85,11 +80,11 @@ export class Siliconflow extends ChatAgent implements ChatInterface, VisualInter
             return "[autoReply]不支持的视觉模型：" + model;
         }
         let request: Request = {
-            url: `${this.apiBaseUrl}/chat/completions`,
+            url: `${this.apiUrl}/chat/completions`,
             options: {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
+                    Authorization: `Bearer ${autoReplyConfig.visualApiKey}`,
                     "Content-Type": "application/json",
                 },
                 body: {
@@ -109,11 +104,11 @@ export class Siliconflow extends ChatAgent implements ChatInterface, VisualInter
             return `[sf]不支持的视觉模型: ${model}`;
         }
         var request: Request = {
-            url: `${this.apiBaseUrl}/chat/completions`,
+            url: `${this.apiUrl}/chat/completions`,
             options: {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
+                    Authorization: `Bearer ${autoReplyConfig.visualApiKey}`,
                     "Content-Type": "application/json",
                 },
                 body: {
@@ -129,7 +124,7 @@ export class Siliconflow extends ChatAgent implements ChatInterface, VisualInter
 
     private async commonRequestChat(request: Request, input: string, historyMessages: any[] = [], useSystemRole = true) {
         if (useSystemRole) {
-            var systemContent = await this.generateSystemContent(this.config.useEmotion, this.config.chatPrompt);
+            var systemContent = await this.generateSystemContent(autoReplyConfig.useEmotion, autoReplyConfig.chatPrompt);
             (request.options.body as RequestBody).messages.push(systemContent);
         }
         // 添加历史对话
@@ -161,7 +156,7 @@ export class Siliconflow extends ChatAgent implements ChatInterface, VisualInter
 
     private async commonRequestVisual(request: Request, nickeName: string, j_msg: any, historyMessages?: any[], useSystemRole?: boolean) {
         if (useSystemRole) {
-            var systemContent = await this.generateSystemContentVisual(this.config.useEmotion, this.config.chatPrompt);
+            var systemContent = await this.generateSystemContentVisual(autoReplyConfig.useEmotion, autoReplyConfig.chatPrompt);
             (request.options.body as RequestBody).messages.push(systemContent);
         }
         // 添加历史对话

@@ -1,29 +1,28 @@
+import { autoReplyConfig } from "../../../config/define/autoReply.js";
 import { Request, RequestBody } from "../../../type.js";
 import { ChatAgent } from "../chatAgent.js";
 
-export class DeepSeek extends ChatAgent implements ChatInterface {
-    protected models: Record<string, any> | null;
-    private constructor() {
-        super("https://api.deepseek.com");
-        this.models = this.chatModels();
-    }
-    public async chatModels(): Promise<Record<string, any> | null> {
+export class DeepSeek extends ChatAgent {
+    constructor() { super("https://api.deepseek.com"); }
+    static hasVisual = () => false;
+
+    public async chatModels(): Promise<Record<string, Function> | undefined> {
         return {
             "deepseek-chat": this.deepseek_chat.bind(this),
             "deepseek-reasoner": this.deepseek_reasoner.bind(this),
         };
     }
     public async chatRequest(model: string, input: string, historyMessages?: any[], useSystemRole?: boolean): Promise<any> {
-        if (!this.models![model]) {
+        if (!this.modelsChat![model]) {
             logger.error("[ds]不支持的模型：" + model);
             return "[ds]不支持的模型：" + model;
         }
         let request: Request = {
-            url: `${this.apiBaseUrl}/chat/completions`,
+            url: `${this.apiUrl}/chat/completions`,
             options: {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
+                    Authorization: `Bearer ${autoReplyConfig.chatApiKey}`,
                     "Content-Type": "application/json",
                 },
                 body: {
@@ -35,7 +34,7 @@ export class DeepSeek extends ChatAgent implements ChatInterface {
             },
         };
 
-        let response = await this.models![model](request, input, historyMessages, useSystemRole);
+        let response = await this.modelsChat![model](request, input, historyMessages, useSystemRole);
         // 如果 DeepSeek-R1 失败，尝试使用 DeepSeek-V3
 
         if (typeof response === "string" && response.startsWith("[ds]DeepSeek-R1调用失败")) {
@@ -48,7 +47,7 @@ export class DeepSeek extends ChatAgent implements ChatInterface {
     private async deepseek_chat(request: Request, input: string, historyMessages: any[] = [], useSystemRole = true) {
         // 添加消息内容
         if (useSystemRole) {
-            let systemContent = await this.generateSystemContent(this.config.useEmotion, this.config.chatPrompt);
+            let systemContent = await this.generateSystemContent(autoReplyConfig.useEmotion, autoReplyConfig.chatPrompt);
             (request.options.body as RequestBody).messages.push(systemContent);
         }
         // 添加历史对话
@@ -84,7 +83,7 @@ export class DeepSeek extends ChatAgent implements ChatInterface {
     private async deepseek_reasoner(request: Request, input: string, historyMessages: any[] = [], useSystemRole = true) {
         // 添加消息内容
         if (useSystemRole) {
-            let systemContent = await this.generateSystemContent(this.config.useEmotion, this.config.chatPrompt);
+            let systemContent = await this.generateSystemContent(autoReplyConfig.useEmotion, autoReplyConfig.chatPrompt);
             (request.options.body as RequestBody).messages.push(systemContent);
         }
         // 添加历史对话
@@ -115,5 +114,15 @@ export class DeepSeek extends ChatAgent implements ChatInterface {
             logger.error(`[ds]DeepSeek-R1调用失败`, error);
             return "[ds]DeepSeek-R1调用失败，详情请查阅控制台。";
         }
+    }
+
+    visualRequest(model: string, nickName: string, j_msg: any, historyMessages?: any[], useSystemRole?: boolean): Promise<any> {
+        return undefined;
+    }
+    toolRequest(model: string, j_msg: any): Promise<any> {
+        return undefined;
+    }
+    visualModels(): Promise<Record<string, any> | undefined> {
+        return undefined;
     }
 }

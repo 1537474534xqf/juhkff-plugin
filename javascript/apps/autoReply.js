@@ -1,5 +1,5 @@
 import { sleep } from "../bgProcess/timer.js";
-import setting from "../model/setting.js";
+import { autoReplyConfig } from "../config/define/autoReply.js";
 import { formatDateDetail } from "../utils/date.js";
 import { generateAnswer, parseImage, parseJson, parseSourceMessage, parseUrl, saveContext } from "../utils/handle.js";
 import { generateAnswerVisual, parseImageVisual, parseJsonVisual, parseSourceMessageVisual, parseTextVisual, parseUrlVisual, saveContextVisual } from "../utils/handleVisual.js";
@@ -9,7 +9,7 @@ export const help = () => {
         name: "主动群聊",
         type: "passive",
         dsc: "假装人类发言",
-        enable: setting.getConfig("autoReply").useAutoReply,
+        enable: autoReplyConfig.useAutoReply,
     };
 };
 /**
@@ -32,24 +32,21 @@ export class autoReply extends plugin {
                 },
             ],
         });
-        if (this.Config.useEmotion) {
+        if (autoReplyConfig.useEmotion) {
             this.task = Object.defineProperties({}, {
-                cron: { value: this.Config.emotionGenerateTime, writable: false },
+                cron: { value: autoReplyConfig.emotionGenerateTime, writable: false },
                 name: { value: "情感生成", writable: false },
                 fnc: { value: () => this.emotionGenerate(), writable: false },
                 log: { get: () => false },
             });
         }
     }
-    get Config() {
-        return setting.getConfig("autoReply");
-    }
     async autoReply(e) {
-        if (!this.Config.useAutoReply)
+        if (!autoReplyConfig.useAutoReply)
             return false;
         if (e.message_type != "group")
             return false;
-        if (this.Config.useVisual && this.Config.visualReplaceChat) {
+        if (autoReplyConfig.useVisual && autoReplyConfig.visualReplaceChat) {
             await this.visualProcess(e);
         }
         else {
@@ -71,7 +68,7 @@ export class autoReply extends plugin {
         await parseSourceMessage(e);
         // 处理分享链接
         await parseJson(e);
-        if (this.Config.attachUrlAnalysis) {
+        if (autoReplyConfig.attachUrlAnalysis) {
             // 处理URL
             await parseUrl(e);
         }
@@ -84,11 +81,11 @@ export class autoReply extends plugin {
             // logger.info('[潜伏模板]非通常消息，不回复')
             return false;
         }
-        var chatRate = this.Config.defaultChatRate; // 主动回复概率
-        var replyAtBot = this.Config.defaultReplyAtBot; // 是否回复@机器人的消息
+        var chatRate = autoReplyConfig.defaultChatRate; // 主动回复概率
+        var replyAtBot = autoReplyConfig.defaultReplyAtBot; // 是否回复@机器人的消息
         // 如果 groupRate 配置存在且不为空
-        if (this.Config.groupChatRate && this.Config.groupChatRate.length > 0) {
-            for (var config of this.Config.groupChatRate) {
+        if (autoReplyConfig.groupChatRate && autoReplyConfig.groupChatRate.length > 0) {
+            for (var config of autoReplyConfig.groupChatRate) {
                 // 确保 config.groupList 是数组，以避免 undefined 的情况
                 if (Array.isArray(config.groupList) &&
                     config.groupList.includes(e.group_id)) {
@@ -114,7 +111,7 @@ export class autoReply extends plugin {
                 answer_time = Date.now();
             }
         }
-        if (this.Config.useContext) {
+        if (autoReplyConfig.useContext) {
             // 保存用户消息
             var content = chatDate + " - " + e.sender.card + "：" + msg;
             await saveContext(time, e.group_id, e.message_id, "user", content);
@@ -139,17 +136,17 @@ export class autoReply extends plugin {
         await parseSourceMessageVisual(e);
         // 处理分享链接
         await parseJsonVisual(e);
-        if (this.Config.attachUrlAnalysis) {
+        if (autoReplyConfig.attachUrlAnalysis) {
             // 处理URL
             await parseUrlVisual(e);
         }
         // 通过自定义的e.j_msg拼接完整消息内容
         await parseTextVisual(e);
-        var chatRate = this.Config.defaultChatRate; // 主动回复概率
-        var replyAtBot = this.Config.defaultReplyAtBot; // 是否回复@机器人的消息
+        var chatRate = autoReplyConfig.defaultChatRate; // 主动回复概率
+        var replyAtBot = autoReplyConfig.defaultReplyAtBot; // 是否回复@机器人的消息
         // 如果 groupRate 配置存在且不为空
-        if (this.Config.groupChatRate && this.Config.groupChatRate.length > 0) {
-            for (var config of this.Config.groupChatRate) {
+        if (autoReplyConfig.groupChatRate && autoReplyConfig.groupChatRate.length > 0) {
+            for (var config of autoReplyConfig.groupChatRate) {
                 // 确保 config.groupList 是数组，以避免 undefined 的情况
                 if (Array.isArray(config.groupList) &&
                     config.groupList.includes(e.group_id)) {
@@ -177,7 +174,7 @@ export class autoReply extends plugin {
                 answer_date = formatDateDetail(answer_time);
             }
         }
-        if (this.Config.useContext) {
+        if (autoReplyConfig.useContext) {
             // 保存用户消息
             await saveContextVisual(time, chatDate, e.group_id, e.message_id, "user", e.sender.card, e.j_msg);
             // 保存AI回复

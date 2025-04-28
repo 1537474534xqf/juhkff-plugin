@@ -1,10 +1,11 @@
-import setting from "../model/setting.js";
 import path from "path";
 import fs from "fs";
 import { pathToFileURL } from "url";
 import { renderPage } from "../utils/page.js";
-import { PLUGIN_RESOURCES_DIR, PLUGIN_ROOT_DIR } from "../model/path.js";
+import { helpGenConfig } from "../config/define/helpGen.js";
+import { PLUGIN_APP_DIR, PLUGIN_RESOURCES_DIR } from "../model/path.js";
 import { Objects, StringUtils } from "../utils/kits.js";
+import { douBaoConfig } from "../config/define/ai/douBao.js";
 export class helpGen extends plugin {
     constructor() {
         super({
@@ -14,25 +15,20 @@ export class helpGen extends plugin {
             priority: 1,
             rule: [
                 {
-                    reg: `^#${setting.getConfig("helpGen").command}$`,
+                    reg: `^#${helpGenConfig.command}$`,
                     fnc: "helpGenerate",
                 }
             ],
         });
         this.extraHelp = initExtraHelp();
     }
-    get Config() {
-        return setting.getConfig("helpGen");
-    }
     async helpGenerate(e) {
-        if (!this.Config.useHelpGen)
+        if (!helpGenConfig.useHelpGen)
             return false;
-        // 获取apps目录下的所有插件
-        const pluginDir = path.join(PLUGIN_ROOT_DIR, "apps");
         var helpList = [];
-        await this.loadPluginHelp(pluginDir, helpList);
+        await this.loadPluginHelp(PLUGIN_APP_DIR, helpList);
         this.addManualHelp(helpList);
-        if (!this.Config.hd) {
+        if (!helpGenConfig.hd) {
             // 使用内置的渲染器，此时会自行回复，不需要e.reply
             if (!e.runtime) {
                 await e.reply('目前版本不支持，请升级至最新版Yunzai，或尝试切换hd模式');
@@ -43,12 +39,12 @@ export class helpGen extends plugin {
                 // 用绝对路径似乎也没问题，调试时将Yunzai/temp/html/juhkff-plugin/help/index/index.html中的css导入路径改为相对路径
                 cssFile: path.join(PLUGIN_RESOURCES_DIR, "help", "index.css"),
                 quality: 100, // 还是好糊啊啊啊
-                titleZh: Objects.isNull(this.Config?.titleZh) ? this.Config.command : this.Config?.titleZh,
-                titleEn: Objects.isNull(this.Config?.titleEn) ? "JUHKFF-PLUGIN" : this.Config?.titleEn,
+                titleZh: Objects.isNull(helpGenConfig?.titleZh) ? helpGenConfig.command : helpGenConfig?.titleZh,
+                titleEn: Objects.isNull(helpGenConfig?.titleEn) ? "JUHKFF-PLUGIN" : helpGenConfig?.titleEn,
                 helpGroup: helpList.filter((item) => item?.type === "group" && item?.enable),
                 helpActive: helpList.filter((item) => item?.type === "active" && item?.enable),
                 helpPassive: helpList.filter((item) => item?.type === "passive" && item?.enable),
-                colorOptions: this.Config.colorOptions,
+                colorOptions: helpGenConfig.colorOptions,
             });
         }
         else {
@@ -56,12 +52,12 @@ export class helpGen extends plugin {
             // TODO 考虑像内置的渲染器一样实现下生命周期
             var buffer = await renderPage(path.join(PLUGIN_RESOURCES_DIR, "help", "index.html"), {
                 cssFile: "index.css",
-                titleZh: Objects.isNull(this.Config?.titleZh) ? this.Config.command : this.Config?.titleZh,
-                titleEn: Objects.isNull(this.Config?.titleEn) ? "JUHKFF-PLUGIN" : this.Config?.titleEn,
+                titleZh: Objects.isNull(helpGenConfig?.titleZh) ? helpGenConfig.command : helpGenConfig?.titleZh,
+                titleEn: Objects.isNull(helpGenConfig?.titleEn) ? "JUHKFF-PLUGIN" : helpGenConfig?.titleEn,
                 helpGroup: helpList.filter((item) => item?.type === "group" && item?.enable),
                 helpActive: helpList.filter((item) => item?.type === "active" && item?.enable),
                 helpPassive: helpList.filter((item) => item?.type === "passive" && item?.enable),
-                colorOptions: this.Config.colorOptions,
+                colorOptions: helpGenConfig.colorOptions,
             });
             await e.reply(segment.image(buffer));
         }
@@ -102,14 +98,14 @@ export class helpGen extends plugin {
                 }
                 else if (plugin.help instanceof Object) {
                     // 如果不使用方法，插件开关应统一格式为use+插件文件名
-                    plugin.help.enable = setting.getConfig(fileName)[`use${StringUtils.toUpperFirst(fileName)}`];
+                    plugin.help.enable = fileName[`use${StringUtils.toUpperFirst(fileName)}`];
                     helpList.push(plugin.help);
                 }
             }
         }
     }
     addManualHelp(helpList) {
-        var manualHelpList = this.Config.manualList;
+        var manualHelpList = helpGenConfig.manualList;
         if (Objects.isNull(manualHelpList))
             return;
         var groupHelpList = manualHelpList.filter((item) => item?.type === "group");
@@ -160,46 +156,45 @@ var helpDesc = () => {
     return {
         name: "帮助",
         type: "active",
-        command: `#${setting.getConfig("helpGen").command}`,
+        command: `#${helpGenConfig.command}`,
         dsc: "生成帮助图片",
-        enable: setting.getConfig("helpGen").useHelpGen,
+        enable: helpGenConfig.useHelpGen,
     };
 };
 // 配置过长的插件单独导入插件帮助
 var douBaoHelp = () => {
-    var config = setting.getConfig("douBao");
     return {
         name: "豆包",
         type: "group",
         dsc: "接入豆包",
-        enable: config.useDouBao,
+        enable: douBaoConfig.useDouBao,
         subMenu: [
             {
                 name: "视频生成",
                 type: "active",
                 command: "#视频生成 文本|图片 [宽高比] [5|10](视频秒数)",
-                enable: config.useVideoGenerate,
+                enable: douBaoConfig.useVideoGenerate,
             },
             {
                 name: "图片生成",
                 type: "active",
                 command: "#图片生成 文本 图片1|图片...(同宽高) [-w 宽] [-h 高]",
-                enable: config.useImageGenerate,
+                enable: douBaoConfig.useImageGenerate,
             },
             {
                 name: "图片模仿",
                 command: "#图片模仿 文本 图片",
-                enable: config.useImageImitate,
+                enable: douBaoConfig.useImageImitate,
             },
             {
                 name: "图片风格化",
                 command: "#图片风格化 类型前缀 图片",
-                enable: config.useImageStyle,
+                enable: douBaoConfig.useImageStyle,
             },
             {
                 name: "图片风格化",
                 command: "#图片风格化 类型列表",
-                enable: config.useImageStyle,
+                enable: douBaoConfig.useImageStyle,
             }
         ]
     };

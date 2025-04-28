@@ -15,7 +15,7 @@ useEmojiSave: true
 #       - xxxxxxxxx (群号...)
 #     replyRate: 0.2
 #     emojiRate: 0.2
-groupRate:
+groupRate: []
 
 # 默认回复概率
 defaultReplyRate: 0.1

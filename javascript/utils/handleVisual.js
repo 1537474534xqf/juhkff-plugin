@@ -2,16 +2,13 @@
  * @file handle.js
  * @description: 原始消息处理相关
  */
-import { VisualAgentInstance } from "../model/map.js";
-import setting from "../model/setting.js";
+import { autoReplyConfig } from "../config/define/autoReply.js";
+import { visualInstance } from "../model/map.js";
 import { formatDateDetail } from "./date.js";
 import { extractUrlContent } from "./helper.js";
 import { Objects } from "./kits.js";
 import { url2Base64 } from "./net.js";
 import { EMOTION_KEY, getSourceMessage } from "./redis.js";
-function getConfig() {
-    return setting.getConfig("autoReply");
-}
 /**
  * 视觉模型版handle：由于会生成插件专属消息处理列表j_msg，该方法必须作为消息处理的第一个函数
  * @param {} e
@@ -182,11 +179,10 @@ export async function parseUrlVisual(e) {
                     const extractResult = await extractUrlContent(cleanUrl);
                     if (!Objects.isNull(extractResult)) {
                         logger.info(`[URL处理]成功提取URL内容`);
-                        var config = getConfig();
                         // 借助chatApi对提取的内容进行总结
-                        var model = config.visualModel;
+                        var model = autoReplyConfig.visualModel;
                         // var result = await chatInstance[VisualInterface.toolRequest]({
-                        let result = await VisualAgentInstance.toolRequest(model, { text: [extractResult.content, "根据从URL抓取的信息，以自然语言简练地总结URL中的主要内容，其中无关信息可以过滤掉"] });
+                        let result = await visualInstance.toolRequest(model, { text: [extractResult.content, "根据从URL抓取的信息，以自然语言简练地总结URL中的主要内容，其中无关信息可以过滤掉"] });
                         e.j_msg.notProcessed[i].text = e.j_msg.notProcessed[i].text.replace(url, `<分享URL，URL内容的分析结果——${result}>`);
                         e.j_msg.notProcessed[i].type = "url2text";
                     }
@@ -241,19 +237,19 @@ function isSkippedUrl(url) {
  * @returns 回复内容
  */
 export async function generateAnswerVisual(e) {
-    let model = getConfig().visualModel;
+    let model = autoReplyConfig.visualModel;
     if (!model || model == "") {
         logger.error("[handleVisual]请先设置visualModel");
         return "[handleVisual]请先设置visualModel";
     }
     // 获取历史对话
     let historyMessages = [];
-    if (getConfig().useContext) {
+    if (autoReplyConfig.useContext) {
         historyMessages = await loadContextVisual(e.group_id);
         logger.info(`[handleVisual]加载历史对话: ${historyMessages.length} 条`);
     }
     // 如果启用了情感，并且redis中不存在情感，则进行情感生成
-    if (getConfig().useEmotion && Objects.isNull(await redis.get(EMOTION_KEY))) {
+    if (autoReplyConfig.useEmotion && Objects.isNull(await redis.get(EMOTION_KEY))) {
         redis.set(EMOTION_KEY, await emotionGenerateVisual(), { EX: 24 * 60 * 60 });
     }
     let answer = await sendChatRequestVisual(e.j_msg, e.sender.card, model, historyMessages);
@@ -273,15 +269,15 @@ export async function generateAnswerVisual(e) {
  * @returns
  */
 async function sendChatRequestVisual(j_msg, nickName, model = "", historyMessages = [], useSystemRole = true) {
-    if (!VisualAgentInstance)
+    if (!visualInstance)
         return "[handleVisual]请设置有效的AI接口";
-    var result = await VisualAgentInstance.visualRequest(model, nickName, j_msg, historyMessages, useSystemRole);
+    var result = await visualInstance.visualRequest(model, nickName, j_msg, historyMessages, useSystemRole);
     return result;
 }
 // 保存对话上下文
 export async function saveContextVisual(time, date, groupId, message_id = 0, role, nickName, j_msg) {
     try {
-        const maxHistory = getConfig().maxHistoryLength;
+        const maxHistory = autoReplyConfig.maxHistoryLength;
         const key = `juhkff:auto_reply:${groupId}:${time}`;
         // message_id = 0时，表示是AI回复
         var saveContent = { message_id: message_id, role: role, nickName: nickName, time: date, content: j_msg };
@@ -310,7 +306,7 @@ export async function saveContextVisual(time, date, groupId, message_id = 0, rol
 // 加载群历史对话
 export async function loadContextVisual(groupId) {
     try {
-        const maxHistory = getConfig().maxHistoryLength;
+        const maxHistory = autoReplyConfig.maxHistoryLength;
         // 获取该群的所有消息
         const keys = await redis.keys(`juhkff:auto_reply:${groupId}:*`);
         keys.sort((a, b) => {
@@ -335,16 +331,14 @@ export async function loadContextVisual(groupId) {
     }
 }
 /**
- * @description: 情感生成
- * @param {*}
- * @return {*}
- * @author: JUHKFF
+ * 情感生成
+ * @returns
  */
 export async function emotionGenerateVisual() {
-    if (!VisualAgentInstance)
+    if (!visualInstance)
         return null;
-    let model = getConfig().visualModel;
-    var emotion = await VisualAgentInstance.toolRequest(model, { text: [getConfig().emotionGeneratePrompt] });
+    let model = autoReplyConfig.visualModel;
+    var emotion = await visualInstance.toolRequest(model, { text: [autoReplyConfig.emotionGeneratePrompt] });
     logger.info(`[handleVisual]情感生成: ${emotion}`);
     return emotion;
 }

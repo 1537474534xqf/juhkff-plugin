@@ -4,38 +4,42 @@
  * @author: juhkff
  */
 
-import ArkEngine from "./agent/instance/arkvolc.js";
-import DeepSeek from "./agent/instance/deepseek.js";
-import Siliconflow from "./agent/instance/siliconflow.js";
-import setting from "../model/setting.js"
-import { AutoReply } from "../config/define/autoReply.js";
+import { ArkEngine } from "./agent/instance/arkvolc.js";
+import { DeepSeek } from "./agent/instance/deepseek.js";
+import { Siliconflow } from "./agent/instance/siliconflow.js";
+import { autoReplyConfig } from "../config/define/autoReply.js";
+import { ChatAgent } from "./agent/chatAgent.js";
+
 /**
  * 模型列表，新增的都加里面
  */
-export const agentMap: Record<string, any> = {
+const agentMap: Record<string, { new(...args: string[]): ChatAgent; hasVisual: () => boolean }> = {
     siliconflow: Siliconflow,
     deepseek: DeepSeek,
     火山方舟: ArkEngine
 };
 
-let ChatAgentInstance: ChatInterface | null = null;
+let chatInstance: ChatAgent | null = null;
 
-if ((setting.getConfig("autoReply") as AutoReply).useAutoReply) {
-    ChatAgentInstance = new agentMap[(setting.getConfig("autoReply") as AutoReply).chatApi]();
-}
+let visualInstance: ChatAgent | null = null;
 
-let VisualAgentInstance: VisualInterface | null = null;
-if ((setting.getConfig("autoReply") as AutoReply).useVisual) {
-    VisualAgentInstance = new agentMap[(setting.getConfig("autoReply") as AutoReply).visualApi]();
-}
+(() => {
+    if (autoReplyConfig.useAutoReply) {
+        chatInstance = new agentMap[autoReplyConfig.chatApi]();
+    }
+    if (autoReplyConfig.useVisual) {
+        visualInstance = new agentMap[autoReplyConfig.visualApi]();
+    }
+})();
 
 const resetInstance = () => {
-    if ((setting.getConfig("autoReply") as AutoReply).useAutoReply) {
-        ChatAgentInstance = new agentMap[(setting.getConfig("autoReply") as AutoReply).chatApi]();
+    if (autoReplyConfig.useAutoReply) {
+        chatInstance = new agentMap[autoReplyConfig.chatApi]();
     }
-    if ((setting.getConfig("autoReply") as AutoReply).useVisual) {
-        VisualAgentInstance = new agentMap[(setting.getConfig("autoReply") as AutoReply).visualApi]();
+    if (autoReplyConfig.useVisual) {
+        visualInstance = new agentMap[autoReplyConfig.visualApi]();
     }
 }
 
-export { ChatAgentInstance, VisualAgentInstance, resetInstance };
+
+export { agentMap, chatInstance, visualInstance, resetInstance }

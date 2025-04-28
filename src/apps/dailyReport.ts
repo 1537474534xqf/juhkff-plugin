@@ -1,5 +1,4 @@
-import setting from "../model/setting.js";
-import { DailyReport } from "../config/define/dailyReport.js";
+import { dailyReportConfig } from "../config/define/dailyReport.js";
 import { get, getXML } from "../utils/net.js";
 import { formatDate, getFestivalsDates } from "../utils/date.js";
 import { generateDailyReport } from "../utils/page.js";
@@ -10,7 +9,7 @@ export const help = () => {
         type: "passive",
         command: "#日报",
         dsc: "主动或定时推送日报",
-        enable: (setting.getConfig("dailyReport") as DailyReport).useDailyReport,
+        enable: dailyReportConfig.useDailyReport,
     }
 }
 
@@ -28,11 +27,11 @@ export class dailyReport extends plugin {
                 },
             ],
         });
-        if (this.Config.useDailyReport && this.Config.push) {
+        if (dailyReportConfig.useDailyReport && dailyReportConfig.push) {
             this.task = Object.defineProperties(
                 {},
                 {
-                    cron: { value: this.Config.dailyReportTime, writable: false },
+                    cron: { value: dailyReportConfig.dailyReportTime, writable: false },
                     name: { value: "推送日报", writable: false },
                     fnc: { value: () => this.dailyReport(), writable: false },
                     log: { get: () => false },
@@ -58,12 +57,8 @@ export class dailyReport extends plugin {
         6: "六",
     };
 
-    get Config() {
-        return setting.getConfig("dailyReport");
-    }
-
     async dailyReport(e?: any) {
-        if (!this.Config.useDailyReport) return false;
+        if (!dailyReportConfig.useDailyReport) return false;
         if (e && e.message_type != "group") {
             await e.reply("功能只对群聊开放");
             return true;
@@ -83,7 +78,7 @@ export class dailyReport extends plugin {
 
         hitokoto = hitokotoResp.hitokoto;
 
-        if (this.Config.alapiToken) {
+        if (dailyReportConfig.alapiToken) {
             // todo 使用 alapitoken 获取数据
             // var alapi = await get(this.alapi_url);
         } else {
@@ -140,7 +135,7 @@ export class dailyReport extends plugin {
             week: this.week[new Date().getDay()],
             date: await formatDate(Date.now()),
             zh_date: await formatDate(Date.now(), "zh"),
-            full_show: this.Config.dailyReportFullShow,
+            full_show: dailyReportConfig.dailyReportFullShow,
             data_festival: await getFestivalsDates(),
         };
 
@@ -152,10 +147,10 @@ export class dailyReport extends plugin {
             e.reply([segment.image(imageBuffer)]);
             return true;
         } else {
-            for (let i = 0; i < this.Config.pushGroupList.length; i++) {
+            for (let i = 0; i < dailyReportConfig.pushGroupList.length; i++) {
                 // 添加延迟以防止消息发送过快
                 setTimeout(async () => {
-                    const group = Bot.pickGroup(this.Config.pushGroupList[i]);
+                    const group = Bot.pickGroup(dailyReportConfig.pushGroupList[i]);
                     logger.info(`正在向群组 ${group} 推送新闻。`);
                     await group.sendMsg([segment.image(imageBuffer)]);
                 }, i * 1000);

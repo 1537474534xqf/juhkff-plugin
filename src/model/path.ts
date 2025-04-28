@@ -14,6 +14,11 @@ const PLUGIN_ROOT_DIR: string = path.resolve(_filename, '..', '..', '..');
 const PLUGIN_NAME: string = path.basename(PLUGIN_ROOT_DIR);
 
 /**
+ * 插件apps文件夹目录
+ */
+const PLUGIN_APP_DIR: string = path.join(PLUGIN_ROOT_DIR, "javascript", "apps");
+
+/**
  * 插件资源目录路径
  */
 const PLUGIN_RESOURCES_DIR: string = path.join(PLUGIN_ROOT_DIR, "resources");
@@ -36,6 +41,7 @@ const PLUGIN_DATA_DIR: string = path.join(PLUGIN_ROOT_DIR, "data");
 
 export {
     PLUGIN_NAME,
+    PLUGIN_APP_DIR,
     PLUGIN_ROOT_DIR,
     PLUGIN_RESOURCES_DIR,
     PLUGIN_CONFIG_DIR,

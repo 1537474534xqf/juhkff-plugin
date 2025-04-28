@@ -1,6 +1,5 @@
 import path from "path";
 import fs from "fs";
-import setting from "../../model/setting.js";
 import { getServiceApi } from "../../ai/doubao/api.js";
 import { segment } from "oicq";
 // @ts-ignore
@@ -8,6 +7,7 @@ import fastImageSize from "fast-image-size";
 import { PLUGIN_DATA_DIR } from "../../model/path.js";
 import { Base64, Objects } from "../../utils/kits.js";
 import { downloadFile, url2Base64 } from "../../utils/net.js";
+import { douBaoConfig } from "../../config/define/ai/douBao.js";
 export class douBao extends plugin {
     constructor() {
         super({
@@ -42,27 +42,24 @@ export class douBao extends plugin {
             ],
         });
         // ---------------------------------------------------- ServiceApi ----------------------------------------------------
-        if (this.Config.useDouBao) {
-            this.fetchImageService = getServiceApi(this.Config.imageService.host, this.Config.imageService.accessKeyId, this.Config.imageService.secretAccessKey, "POST", this.Config.imageService.action, this.Config.imageService.version, this.Config.imageService.region, this.Config.imageService.service);
+        if (douBaoConfig.useDouBao) {
+            this.fetchImageService = getServiceApi(douBaoConfig.imageService.host, douBaoConfig.imageService.accessKeyId, douBaoConfig.imageService.secretAccessKey, "POST", douBaoConfig.imageService.action, douBaoConfig.imageService.version, douBaoConfig.imageService.region, douBaoConfig.imageService.service);
         }
         // --------------------------------------------------------------------------------------------------------------------
     }
-    get Config() {
-        return setting.getConfig("douBao");
-    }
     async help(e) {
-        if (!this.Config.useDouBao)
+        if (!douBaoConfig.useDouBao)
             return false;
         var helpMsg = `可用指令：[]中为可选项，()中为解释说明`;
-        if (this.Config.useVideoGenerate)
+        if (douBaoConfig.useVideoGenerate)
             helpMsg += `\n  #视频生成 文本|图片 [宽高比] [5|10](视频秒数)`;
-        if (this.Config.useImageGenerate) {
+        if (douBaoConfig.useImageGenerate) {
             helpMsg += `\n  #图片生成 文本 图片1|图片...(同宽高) [-w 宽] [-h 高]`;
         }
-        if (this.Config.useImageImitate) {
+        if (douBaoConfig.useImageImitate) {
             helpMsg += `\n  #图片模仿 文本 图片`;
         }
-        if (this.Config.useImageStyle) {
+        if (douBaoConfig.useImageStyle) {
             helpMsg += `\n  #图片风格化 类型前缀 图片`;
             helpMsg += `\n  #图片风格化 类型列表`;
         }
@@ -71,7 +68,7 @@ export class douBao extends plugin {
     }
     // ------------------------------------------------ 图片服务通用检查 -------------------------------------------------
     async preCheck(e) {
-        if (Objects.hasNull(this.Config.imageService.accessKeyId, this.Config.imageService.secretAccessKey)) {
+        if (Objects.hasNull(douBaoConfig.imageService.accessKeyId, douBaoConfig.imageService.secretAccessKey)) {
             await e.reply("请先设置accessKeyId和secretAccessKey");
             return false;
         }
@@ -81,7 +78,7 @@ export class douBao extends plugin {
     }
     // --------------------------------------------------- 图片风格化 ---------------------------------------------------
     get imageStyleReqKeyMap() {
-        var reqKeyList = this.Config.imageStyle.reqKeyMap;
+        var reqKeyList = douBaoConfig.imageStyle.reqKeyMap;
         var reqKeyMap = {};
         reqKeyList.forEach((item) => {
             reqKeyMap[item.key] = item.value;
@@ -89,7 +86,7 @@ export class douBao extends plugin {
         return reqKeyMap;
     }
     get iamgeStyleSubReqKeyMap() {
-        var subReqKeyList = this.Config.imageStyle.subReqKeyMap;
+        var subReqKeyList = douBaoConfig.imageStyle.subReqKeyMap;
         var subReqKeyMap = {};
         subReqKeyList.forEach((item) => {
             subReqKeyMap[item.key] = item.value;
@@ -97,9 +94,9 @@ export class douBao extends plugin {
         return subReqKeyMap;
     }
     async imageStyle(e) {
-        if (!this.Config.useDouBao)
+        if (!douBaoConfig.useDouBao)
             return false;
-        if (!this.Config.useImageStyle)
+        if (!douBaoConfig.useImageStyle)
             return true;
         if (!this.preCheck(e))
             return true;
@@ -146,7 +143,7 @@ export class douBao extends plugin {
         if (!Objects.isNull(this.iamgeStyleSubReqKeyMap[type]))
             body.sub_req_key = this.iamgeStyleSubReqKeyMap[type];
         body.image_urls = result.images;
-        body.return_url = this.Config.imageStyle.returnUrl;
+        body.return_url = douBaoConfig.imageStyle.returnUrl;
         await e.reply("正在生成图片，请稍等...");
         var response = await this.fetchImageService(body, { timeout: 0 });
         if (response?.ResponseMetadata?.Error) {
@@ -174,9 +171,9 @@ export class douBao extends plugin {
     }
     // ---------------------------------------------------- 图片模仿 ----------------------------------------------------
     async imageImitate(e) {
-        if (!this.Config.useDouBao)
+        if (!douBaoConfig.useDouBao)
             return false;
-        if (!this.Config.useImageImitate)
+        if (!douBaoConfig.useImageImitate)
             return true;
         if (!this.preCheck(e))
             return true;
@@ -203,13 +200,13 @@ export class douBao extends plugin {
             await e.reply("请发送图片");
             return true;
         }
-        body.req_key = this.Config.imageImitate.reqKey;
+        body.req_key = douBaoConfig.imageImitate.reqKey;
         body.image_urls = result.images;
         body.prompt = result.texts;
-        if (!Objects.isNull(this.Config.imageImitate.returnUrl))
-            body.return_url = this.Config.imageImitate.returnUrl;
-        if (!Objects.isNull(this.Config.imageImitate.useSr))
-            body.use_sr = this.Config.imageImitate.useSr;
+        if (!Objects.isNull(douBaoConfig.imageImitate.returnUrl))
+            body.return_url = douBaoConfig.imageImitate.returnUrl;
+        if (!Objects.isNull(douBaoConfig.imageImitate.useSr))
+            body.use_sr = douBaoConfig.imageImitate.useSr;
         await e.reply("正在生成图片，请稍等...");
         var response = await this.fetchImageService(body, { timeout: 0 });
         if (response?.ResponseMetadata?.Error) {
@@ -236,9 +233,9 @@ export class douBao extends plugin {
     }
     // ---------------------------------------------------- 图片生成 ----------------------------------------------------
     async imageGenerate(e) {
-        if (!this.Config.useDouBao)
+        if (!douBaoConfig.useDouBao)
             return false;
-        if (!this.Config.useImageGenerate)
+        if (!douBaoConfig.useImageGenerate)
             return true;
         if (!this.preCheck(e))
             return true;
@@ -262,18 +259,18 @@ export class douBao extends plugin {
             body.height = height;
         if (Objects.isNull(result.images)) {
             // 纯文本
-            body.req_key = this.Config.imageGenerate.reqKey;
+            body.req_key = douBaoConfig.imageGenerate.reqKey;
             body.prompt = result.texts;
-            if (!Objects.isNull(this.Config.imageGenerate.modelVersion))
-                body.model_version = this.Config.imageGenerate.modelVersion;
-            if (!Objects.isNull(this.Config.imageGenerate.reqScheduleConf))
-                body.req_schedule_conf = this.Config.imageGenerate.reqScheduleConf;
-            if (!Objects.isNull(this.Config.imageGenerate.usePreLlm))
-                body.use_pre_llm = this.Config.imageGenerate.usePreLlm;
-            if (!Objects.isNull(this.Config.imageGenerate.useSr))
-                body.use_sr = this.Config.imageGenerate.useSr;
-            if (!Objects.isNull(this.Config.imageGenerate.returnUrl))
-                body.return_url = this.Config.imageGenerate.returnUrl;
+            if (!Objects.isNull(douBaoConfig.imageGenerate.modelVersion))
+                body.model_version = douBaoConfig.imageGenerate.modelVersion;
+            if (!Objects.isNull(douBaoConfig.imageGenerate.reqScheduleConf))
+                body.req_schedule_conf = douBaoConfig.imageGenerate.reqScheduleConf;
+            if (!Objects.isNull(douBaoConfig.imageGenerate.usePreLlm))
+                body.use_pre_llm = douBaoConfig.imageGenerate.usePreLlm;
+            if (!Objects.isNull(douBaoConfig.imageGenerate.useSr))
+                body.use_sr = douBaoConfig.imageGenerate.useSr;
+            if (!Objects.isNull(douBaoConfig.imageGenerate.returnUrl))
+                body.return_url = douBaoConfig.imageGenerate.returnUrl;
         }
         else {
             // 图生图
@@ -297,20 +294,20 @@ export class douBao extends plugin {
                     return true;
                 }
             }
-            body.req_key = this.Config.imageGenerate.withImgReqKey;
-            if (!Objects.isNull(this.Config.imageGenerate.withImgModelVersion))
-                body.model_version = this.Config.imageGenerate.withImgModelVersion;
+            body.req_key = douBaoConfig.imageGenerate.withImgReqKey;
+            if (!Objects.isNull(douBaoConfig.imageGenerate.withImgModelVersion))
+                body.model_version = douBaoConfig.imageGenerate.withImgModelVersion;
             body.image_urls = result.images;
             body.prompt = result.texts;
-            if (!Objects.isNull(this.Config.imageGenerate.withImgUseRephraser))
-                body.use_rephraser = this.Config.imageGenerate.withImgUseRephraser;
-            if (!Objects.isNull(this.Config.imageGenerate.withImgReturnUrl))
-                body.return_url = this.Config.imageGenerate.withImgReturnUrl;
+            if (!Objects.isNull(douBaoConfig.imageGenerate.withImgUseRephraser))
+                body.use_rephraser = douBaoConfig.imageGenerate.withImgUseRephraser;
+            if (!Objects.isNull(douBaoConfig.imageGenerate.withImgReturnUrl))
+                body.return_url = douBaoConfig.imageGenerate.withImgReturnUrl;
             body.controlnet_args = [];
             for (var i = 0; i < result.images.length; i++) {
                 body.controlnet_args.push({
-                    type: this.Config.imageGenerate.withImgControlnetArgs.type,
-                    strength: this.Config.imageGenerate.withImgControlnetArgs.strength,
+                    type: douBaoConfig.imageGenerate.withImgControlnetArgs.type,
+                    strength: douBaoConfig.imageGenerate.withImgControlnetArgs.strength,
                     binary_data_index: i,
                 });
             }
@@ -338,9 +335,9 @@ export class douBao extends plugin {
     }
     // ---------------------------------------------------- 视频生成 ----------------------------------------------------
     get VideoGenerateApiKey() {
-        return Objects.isNull(this.Config.videoGenerate.apiKey)
+        return Objects.isNull(douBaoConfig.videoGenerate.apiKey)
             ? ""
-            : this.Config.videoGenerate.apiKey;
+            : douBaoConfig.videoGenerate.apiKey;
     }
     get VideoGenerateRequestPost() {
         return {
@@ -362,14 +359,14 @@ export class douBao extends plugin {
         };
     }
     get VideoGenerateUrl() {
-        return Objects.isNull(this.Config.videoGenerate.url)
+        return Objects.isNull(douBaoConfig.videoGenerate.url)
             ? ""
-            : this.Config.videoGenerate.url;
+            : douBaoConfig.videoGenerate.url;
     }
     get VideoGenerateModel() {
-        return Objects.isNull(this.Config.videoGenerate.model)
+        return Objects.isNull(douBaoConfig.videoGenerate.model)
             ? ""
-            : this.Config.videoGenerate.model;
+            : douBaoConfig.videoGenerate.model;
     }
     get VideoGenerateBody() {
         return {
@@ -380,9 +377,9 @@ export class douBao extends plugin {
         };
     }
     async videoGenerate(e) {
-        if (!this.Config.useDouBao)
+        if (!douBaoConfig.useDouBao)
             return false;
-        if (!this.Config.useVideoGenerate)
+        if (!douBaoConfig.useVideoGenerate)
             return true;
         if (Objects.isNull(this.VideoGenerateApiKey)) {
             await e.reply("请先设置apiKey");

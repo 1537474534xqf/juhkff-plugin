@@ -5,22 +5,38 @@
  */
 import { Objects } from "../../utils/kits.js";
 import { EMOTION_KEY } from "../../utils/redis.js";
-import { AutoReply } from "../../config/define/autoReply.js";
-import { setting } from "../setting.js";
 
-export abstract class ChatAgent {
-    protected config: AutoReply;
-    protected apiKey: string;
-    protected apiBaseUrl: undefined | string;
-    protected abstract models: Record<string, any> | null;
-    protected constructor(apiBaseUrl: string | null = null) {
-        this.config = setting.getConfig("autoReply");
-        this.apiKey = this.config.chatApiKey;
+export interface ChatInterface {
+    chatRequest(model: string, input: string, historyMessages?: any[], useSystemRole?: boolean): Promise<any>;
+    chatModels(): Promise<Record<string, Function> | undefined>;
+}
+
+export interface VisualInterface {
+    visualRequest(model: string, nickName: string, j_msg: any, historyMessages?: any[], useSystemRole?: boolean): Promise<any>;
+    toolRequest(model: string, j_msg: any): Promise<any>;
+    visualModels(): Promise<Record<string, { chat: Function, tool: Function }> | undefined>;
+}
+
+export abstract class ChatAgent implements ChatInterface, VisualInterface {
+    public apiUrl: undefined | string = undefined;
+    public modelsChat: Record<string, Function>;
+    public modelsVisual: Record<string, { chat: Function, tool: Function }>;
+    constructor(apiBaseUrl: string | null = null) {
         if (apiBaseUrl)
-            this.apiBaseUrl = apiBaseUrl;
-        else
-            this.apiBaseUrl = this.config.apiCustomUrl;
+            this.apiUrl = apiBaseUrl;
+        (async () => {
+            this.modelsChat = await this.chatModels();
+            this.modelsVisual = await this.visualModels();
+        })()
     }
+
+    public static hasVisual = (): boolean => { throw new Error("Method not implemented."); }
+
+    abstract chatRequest(model: string, input: string, historyMessages?: any[], useSystemRole?: boolean): Promise<any>;
+    abstract chatModels(): Promise<Record<string, Function> | undefined>;
+    abstract visualRequest(model: string, nickName: string, j_msg: any, historyMessages?: any[], useSystemRole?: boolean): Promise<any>;
+    abstract toolRequest(model: string, j_msg: any): Promise<any>;
+    abstract visualModels(): Promise<Record<string, { chat: Function, tool: Function }> | undefined>;
 
     /**
      * 生成 role = system 的内容

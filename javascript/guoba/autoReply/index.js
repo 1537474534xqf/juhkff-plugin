@@ -1,4 +1,5 @@
-const config = [
+import { appendIfShouldInputSelf, appendIfShouldInputSelfVisual, listAllChatApi, listAllVisualApi } from "./handler.js";
+export const autoReplySchema = [
     {
         label: "群聊配置",
         // 第一个分组标记开始，无需标记结束
@@ -13,8 +14,7 @@ const config = [
     {
         field: "autoReply.attachUrlAnalysis",
         label: "是否解析URL",
-        bottomHelpMessage:
-            "是否解析消息中包含的链接，确保chatApi生效时开启，可能会降低AI回复准确度",
+        bottomHelpMessage: "是否解析消息中包含的链接，确保chatApi生效时开启，可能会降低AI回复准确度",
         component: "Switch",
     },
     {
@@ -48,8 +48,7 @@ const config = [
     {
         field: "autoReply.defaultReplyAtBot",
         label: "@BOT时回复",
-        bottomHelpMessage:
-            "当有人@BOT时，BOT是否回复。如果关闭，@BOT也会走概率回复",
+        bottomHelpMessage: "当有人@BOT时，BOT是否回复。如果关闭，@BOT也会走概率回复",
         component: "Switch",
         required: true,
     },
@@ -67,7 +66,6 @@ const config = [
                     required: true,
                     bottomHelpMessage: "群号",
                     component: "GSelectGroup",
-                    required: true,
                 },
                 {
                     field: "chatRate",
@@ -106,15 +104,13 @@ const config = [
     {
         field: "autoReply.useEmotion",
         label: "BOT情感开关",
-        bottomHelpMessage:
-            "若开启，会生成每日心情辅助生成群聊内容，由于意义不明，默认设为关闭",
+        bottomHelpMessage: "若开启，会生成每日心情辅助生成群聊内容，由于意义不明，默认设为关闭",
         component: "Switch",
     },
     {
         field: "autoReply.emotionGenerateTime",
         label: "定时生成情感时间",
-        bottomHelpMessage:
-            "秒[0,59] 分钟[0,59] 小时[0,23] 日期[1,31] 月份[1,12] 星期[0,7/SUN,SAT]",
+        bottomHelpMessage: "秒[0,59] 分钟[0,59] 小时[0,23] 日期[1,31] 月份[1,12] 星期[0,7/SUN,SAT]",
         component: "EasyCron",
         componentProps: {
             placeholder: "*表示任意，?表示不指定（月日和星期互斥）",
@@ -148,8 +144,7 @@ const config = [
     {
         field: "autoReply.chatApi",
         label: "群聊AI接口选择",
-        bottomHelpMessage:
-            "AI接口选择，如果开启解析URL，则该接口也会用于URL内容总结",
+        bottomHelpMessage: "AI接口选择，如果开启解析URL，则该接口也会用于URL内容总结",
         component: "Select",
         componentProps: {
             options: listAllChatApi(),
@@ -158,8 +153,7 @@ const config = [
     {
         field: "autoReply.chatApiKey",
         label: "群聊AI ApiKey",
-        bottomHelpMessage:
-            "填写AI接口和ApiKey、确保主动群聊开关开启后，务必先保存并刷新页面，否则模型无法选择！",
+        bottomHelpMessage: "填写AI接口和ApiKey、确保主动群聊开关开启后，务必先保存并刷新页面，否则模型无法选择！",
         component: "InputPassword",
     },
     ...appendIfShouldInputSelf(),
@@ -186,8 +180,7 @@ const config = [
     {
         field: "autoReply.visualReplaceChat",
         label: "视觉AI替代群聊AI",
-        bottomHelpMessage:
-            "开启此选项，视觉AI将替代群聊AI，常规接口配置将失效；关闭此选项（并开启视觉AI接口），视觉AI仅会将图片转文本存入上下文。群聊AI准确度高于视觉AI时可关闭该项。切换此选项会清空已经记录的上下文",
+        bottomHelpMessage: "开启此选项，视觉AI将替代群聊AI，常规接口配置将失效；关闭此选项（并开启视觉AI接口），视觉AI仅会将图片转文本存入上下文。群聊AI准确度高于视觉AI时可关闭该项。切换此选项会清空已经记录的上下文",
         component: "Switch",
     },
     {
@@ -202,10 +195,9 @@ const config = [
     {
         field: "autoReply.visualApiKey",
         label: "视觉AI ApiKey",
-        bottomHelpMessage:
-            "填写AI接口和ApiKey、确保视觉AI接口开启后，务必先保存并刷新页面，否则模型无法选择！",
+        bottomHelpMessage: "填写AI接口和ApiKey、确保视觉AI接口开启后，务必先保存并刷新页面，否则模型无法选择！",
         component: "InputPassword",
     },
     ...appendIfShouldInputSelfVisual(),
-]
-export default 
+];
+//# sourceMappingURL=index.js.map

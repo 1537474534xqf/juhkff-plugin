@@ -13,8 +13,7 @@ import path from "path";
  * @returns 图片路径
  */
 export function getRandomUrl(imageUrls: string | string[]) {
-    let imageUrl;
-
+    let imageUrl: string;
     if (Array.isArray(imageUrls)) {
         imageUrl = imageUrls[Math.floor(Math.random() * imageUrls.length)];
     } else {
@@ -55,4 +54,23 @@ function getAllImageFiles(dirPath: string, imageFiles: string[] = []): string[] 
         }
     }
     return imageFiles;
+}
+
+
+/**
+ * 递归获取目录下所有文件
+ * @param dir 目录路径
+ * @param fileList 文件列表，作为输出
+ */
+export function getAllFiles(dir: string, fileList: string[]): void {
+    const files = fs.readdirSync(dir);
+    files.forEach((file) => {
+        const filePath = path.join(dir, file);
+        const stat = fs.statSync(filePath);
+        if (stat.isDirectory()) {
+            getAllFiles(filePath, fileList);
+        } else {
+            fileList.push(filePath);
+        }
+    });
 }

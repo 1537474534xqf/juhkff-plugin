@@ -1,121 +1,80 @@
-type VideoGenerate = {
-    apiKey: string;
-    url: string;
-    model: string;
-}
-
-type ImageService = {
-    host: string;
-    accessKeyId: string;
-    secretAccessKey: string;
-    region: string;
-    service: string;
-    action: string;
-    version: string;
-}
-
-type WithImgControlnetArgs = {
-    type: string;
-    strength: number;
-}
-
-type ImageGenerate = {
-    host: string;
-    accessKeyId: string;
-    secretAccessKey: string;
-    region: string;
-    service: string;
-    action: string;
-    version: string;
-    reqKey: string;
-    modelVersion: string;
-    reqScheduleConf: string;
-    usePreLlm: boolean;
-    useSr: boolean;
-    returnUrl: boolean;
-    withImgReqKey: boolean;
-    withImgModelVersion: "";
-    withImgUseRephraser: boolean;
-    withImgReturnUrl: boolean;
-    withImgControlnetArgs: WithImgControlnetArgs;
-}
-
-type ImageImitate = {
-    reqKey: string;
-    useSr: boolean;
-    returnUrl: boolean;
-}
-
-type ImageStyle = {
-    reqKeyMap: Record<string, string>[];
-    subReqKeyMap: Record<string, string>[];
-    returnUrl: boolean;
-}
+import path from "path";
+import fs from "fs";
+import YAML from "yaml";
+import chokidar from "chokidar";
+import { PLUGIN_CONFIG_DIR, PLUGIN_DEFAULT_CONFIG_DIR } from "../../../model/path.js";
+import { configFolderCheck, configSync } from "../../common.js";
 
 export type DouBao = {
     useDouBao: boolean;
     useVideoGenerate: boolean;
-    videoGenerate: VideoGenerate;
-    imageService: ImageService;
+    videoGenerate: {
+        apiKey: string;
+        url: string;
+        model: string;
+    };
+    imageService: {
+        host: string;
+        accessKeyId: string;
+        secretAccessKey: string;
+        region: string;
+        service: string;
+        action: string;
+        version: string;
+    };
     useImageGenerate: boolean;
-    imageGenerate: ImageGenerate;
+    imageGenerate: {
+        host: string;
+        accessKeyId: string;
+        secretAccessKey: string;
+        region: string;
+        service: string;
+        action: string;
+        version: string;
+        reqKey: string;
+        modelVersion: string;
+        reqScheduleConf: string;
+        usePreLlm: boolean;
+        useSr: boolean;
+        returnUrl: boolean;
+        withImgReqKey: boolean;
+        withImgModelVersion: "";
+        withImgUseRephraser: boolean;
+        withImgReturnUrl: boolean;
+        withImgControlnetArgs: {
+            type: string;
+            strength: number;
+        };
+    };
     useImageImitate: boolean;
-    imageImitate: ImageImitate;
+    imageImitate: {
+        reqKey: string;
+        useSr: boolean;
+        returnUrl: boolean;
+    };
     useImageStyle: boolean;
-    imageStyle: ImageStyle;
+    imageStyle: {
+        reqKeyMap: Record<string, string>[];
+        subReqKeyMap: Record<string, string>[];
+        returnUrl: boolean;
+    };
 }
 
-export const douBao: DouBao = {
-    useDouBao: false,
-    useVideoGenerate: false,
-    videoGenerate: {
-        apiKey: "",
-        url: "",
-        model: ""
-    },
-    imageService: {
-        host: "",
-        accessKeyId: "",
-        secretAccessKey: "",
-        region: "",
-        service: "",
-        action: "",
-        version: ""
-    },
-    useImageGenerate: false,
-    imageGenerate: {
-        host: "",
-        accessKeyId: "",
-        secretAccessKey: "",
-        region: "",
-        service: "",
-        action: "",
-        version: "",
-        reqKey: "",
-        modelVersion: "",
-        reqScheduleConf: "",
-        usePreLlm: false,
-        useSr: false,
-        returnUrl: false,
-        withImgReqKey: false,
-        withImgModelVersion: "",
-        withImgUseRephraser: false,
-        withImgReturnUrl: false,
-        withImgControlnetArgs: {
-            type: "",
-            strength: 0
-        }
-    },
-    useImageImitate: false,
-    imageImitate: {
-        reqKey: "",
-        useSr: false,
-        returnUrl: false
-    },
-    useImageStyle: false,
-    imageStyle: {
-        reqKeyMap: [],
-        subReqKeyMap: [],
-        returnUrl: false
-    }
-}
+export let douBaoConfig: DouBao = null;
+
+(() => {
+    const file = path.join(PLUGIN_CONFIG_DIR, "ai", `douBao.yaml`);
+    const defaultFile = path.join(PLUGIN_DEFAULT_CONFIG_DIR, "ai", `douBao.yaml`);
+    if (configFolderCheck(file, defaultFile)) logger.info(`[JUHKFF-PLUGIN]创建豆包配置`);
+
+    douBaoConfig = YAML.parse(fs.readFileSync(file, "utf8")) as DouBao;
+    const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8")) as DouBao;
+
+    configSync(douBaoConfig, defaultConfig);
+    fs.writeFileSync(file, YAML.stringify(douBaoConfig));
+
+    chokidar.watch(file).on("change", () => {
+        douBaoConfig = YAML.parse(fs.readFileSync(file, "utf8"));
+        logger.info(`[JUHKFF-PLUGIN]同步豆包配置`);
+    }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]豆包同步配置异常`, err) })
+})();

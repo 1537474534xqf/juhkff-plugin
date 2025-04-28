@@ -3,21 +3,21 @@
  * @fileoverview 聊天接口定义和公用函数
  * @author juhkff
  */
-import setting from "../setting.js";
 import { Objects } from "../../utils/kits.js";
 import { EMOTION_KEY } from "../../utils/redis.js";
-export default class ChatAgent {
-    config;
-    apiKey;
-    apiBaseUrl;
+export class ChatAgent {
+    apiUrl = undefined;
+    modelsChat;
+    modelsVisual;
     constructor(apiBaseUrl = null) {
-        this.config = setting.getConfig("autoReply");
-        this.apiKey = this.config.chatApiKey;
         if (apiBaseUrl)
-            this.apiBaseUrl = apiBaseUrl;
-        else
-            this.apiBaseUrl = this.config.apiCustomUrl;
+            this.apiUrl = apiBaseUrl;
+        (async () => {
+            this.modelsChat = await this.chatModels();
+            this.modelsVisual = await this.visualModels();
+        })();
     }
+    static hasVisual = () => { throw new Error("Method not implemented."); };
     /**
      * 生成 role = system 的内容
      * @param useEmotion 是否使用情感

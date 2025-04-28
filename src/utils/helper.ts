@@ -3,14 +3,9 @@
  * @description: 原始数据调用第三方处理相关
  */
 
-import { AutoReply } from "../config/define/autoReply.js";
-import { VisualAgentInstance } from "../model/map.js";
-import setting from "../model/setting.js";
+import { autoReplyConfig } from "../config/define/autoReply.js";
+import { visualInstance } from "../model/map.js";
 import { url2Base64 } from "./net.js";
-
-function getConfig(): AutoReply {
-    return setting.getConfig("autoReply");
-}
 
 /**
  * 从URL提取内容
@@ -35,15 +30,14 @@ export async function extractUrlContent(url: string): Promise<{ content: string;
 }
 
 export async function analyseImage(image: string, input: any) {
-    var config = getConfig();
-    var model = config.visualModel;
+    var model = autoReplyConfig.visualModel;
     if (!image.startsWith("data:")) {
         image = await url2Base64(image) as string;
     }
-    if (!VisualAgentInstance) {
+    if (!visualInstance) {
         return "[helper]请设置有效的视觉AI接口";
     }
-    var result = await VisualAgentInstance.toolRequest(
+    var result = await visualInstance.toolRequest(
         model,
         { img: [image], text: [input] },
     );

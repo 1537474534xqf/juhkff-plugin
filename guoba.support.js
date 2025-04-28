@@ -2,7 +2,7 @@ import path from "path";
 import lodash from "lodash";
 import { Objects } from "./javascript/utils/kits.js";
 import { PLUGIN_RESOURCES_DIR } from "./javascript/model/path.js";
-import { agentMap } from "./javascript/model/map.js";
+import { autoReplySchema } from "./javascript/guoba/autoReply/index.js";
 // 支持锅巴
 export function supportGuoba() {
     return {
@@ -42,6 +42,7 @@ export function supportGuoba() {
             // https://doc.vvbin.cn/components/introduction.html
             // https://3x.antdv.com/components/overview-cn/
             schemas: [
+                ...autoReplySchema,
                 {
                     label: "日报配置",
                     // 第二个分组标记开始

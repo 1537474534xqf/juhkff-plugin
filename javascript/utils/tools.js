@@ -46,4 +46,22 @@ function getAllImageFiles(dirPath, imageFiles = []) {
     }
     return imageFiles;
 }
+/**
+ * 递归获取目录下所有文件
+ * @param dir 目录路径
+ * @param fileList 文件列表，作为输出
+ */
+export function getAllFiles(dir, fileList) {
+    const files = fs.readdirSync(dir);
+    files.forEach((file) => {
+        const filePath = path.join(dir, file);
+        const stat = fs.statSync(filePath);
+        if (stat.isDirectory()) {
+            getAllFiles(filePath, fileList);
+        }
+        else {
+            fileList.push(filePath);
+        }
+    });
+}
 //# sourceMappingURL=tools.js.map

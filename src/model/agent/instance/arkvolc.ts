@@ -1,24 +1,21 @@
+import { autoReplyConfig } from "../../../config/define/autoReply.js";
 import { Request, RequestBody } from "../../../type.js";
 import { ChatAgent } from "../chatAgent.js";
 
-export class ArkEngine extends ChatAgent implements ChatInterface {
-    protected models: Record<string, any> | null = null;
-    private constructor() {
+export class ArkEngine extends ChatAgent {
+    constructor() {
         super();
     }
-
-    async chatModels(): Promise<Record<string, any> | null> {
-        return null;
-    }
+    static hasVisual = () => false;
 
     public async chatRequest(model: string, input: string, historyMessages: any[] = [], useSystemRole: boolean = true) {
         // 构造请求体
         let request: Request = {
-            url: this.apiBaseUrl as string,
+            url: autoReplyConfig.apiCustomUrl as string,
             options: {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
+                    Authorization: `Bearer ${autoReplyConfig.chatApiKey}`,
                     "Content-Type": "application/json",
                 },
                 body: { model: model, stream: false, messages: [], temperature: 1.5 },
@@ -32,7 +29,7 @@ export class ArkEngine extends ChatAgent implements ChatInterface {
     }
     private async commonRequest(request: Request, input: string, historyMessages: any[] = [], useSystemRole: boolean = true) {
         if (useSystemRole) {
-            let systemContent = await this.generateSystemContent(this.config.useEmotion, this.config.chatPrompt);
+            let systemContent = await this.generateSystemContent(autoReplyConfig.useEmotion, autoReplyConfig.chatPrompt);
             (request.options.body as RequestBody).messages.push(systemContent);
         }
         // 添加历史对话
@@ -62,5 +59,18 @@ export class ArkEngine extends ChatAgent implements ChatInterface {
             logger.error(`[autoReply]火山方舟调用失败`, error);
             return "[autoReply]火山方舟调用失败，详情请查阅控制台。";
         }
+    }
+
+    chatModels(): Promise<Record<string, Function> | undefined> {
+        return undefined;
+    }
+    visualModels(): Promise<Record<string, { chat: Function; tool: Function; }> | undefined> {
+        return undefined;
+    }
+    visualRequest(model: string, nickName: string, j_msg: any, historyMessages?: any[], useSystemRole?: boolean): Promise<any> {
+        return undefined;
+    }
+    toolRequest(model: string, j_msg: any): Promise<any> {
+        return undefined;
     }
 }

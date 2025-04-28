@@ -1,20 +1,18 @@
-import ChatAgent from "../chatAgent.js";
-class ArkEngine extends ChatAgent {
-    models = null;
+import { autoReplyConfig } from "../../../config/define/autoReply.js";
+import { ChatAgent } from "../chatAgent.js";
+export class ArkEngine extends ChatAgent {
     constructor() {
         super();
     }
-    async chatModels() {
-        return null;
-    }
+    static hasVisual = () => false;
     async chatRequest(model, input, historyMessages = [], useSystemRole = true) {
         // 构造请求体
         let request = {
-            url: this.apiBaseUrl,
+            url: autoReplyConfig.apiCustomUrl,
             options: {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
+                    Authorization: `Bearer ${autoReplyConfig.chatApiKey}`,
                     "Content-Type": "application/json",
                 },
                 body: { model: model, stream: false, messages: [], temperature: 1.5 },
@@ -28,7 +26,7 @@ class ArkEngine extends ChatAgent {
     }
     async commonRequest(request, input, historyMessages = [], useSystemRole = true) {
         if (useSystemRole) {
-            let systemContent = await this.generateSystemContent(this.config.useEmotion, this.config.chatPrompt);
+            let systemContent = await this.generateSystemContent(autoReplyConfig.useEmotion, autoReplyConfig.chatPrompt);
             request.options.body.messages.push(systemContent);
         }
         // 添加历史对话
@@ -59,6 +57,17 @@ class ArkEngine extends ChatAgent {
             return "[autoReply]火山方舟调用失败，详情请查阅控制台。";
         }
     }
+    chatModels() {
+        return undefined;
+    }
+    visualModels() {
+        return undefined;
+    }
+    visualRequest(model, nickName, j_msg, historyMessages, useSystemRole) {
+        return undefined;
+    }
+    toolRequest(model, j_msg) {
+        return undefined;
+    }
 }
-export default ArkEngine;
 //# sourceMappingURL=arkvolc.js.map

@@ -1,28 +1,27 @@
 import { agentMap, chatInstance, visualInstance } from "../../model/map.js";
 import { Objects } from "../../utils/kits.js";
-
 /**
  * 获取群聊AI模型
  * @returns 群聊AI模型列表
  */
 function getChatModels() {
-    if (!chatInstance) return [];
+    if (!chatInstance)
+        return [];
     var result = [];
     for (const key of Object.keys(chatInstance.modelsChat)) {
         result.push({ label: key, value: key });
     }
     return result;
 }
-
 function getVisualModels() {
-    if (!visualInstance) return [];
+    if (!visualInstance)
+        return [];
     var result = [];
     for (const key of Object.keys(visualInstance.modelsVisual)) {
         result.push({ label: key, value: key });
     }
     return result;
 }
-
 /**
  * 获取群聊AI接口列表
  * @returns 群聊AI接口列表
@@ -35,7 +34,6 @@ export function listAllChatApi() {
     }
     return result;
 }
-
 /**
  * 获取视觉AI接口列表
  * @returns 视觉AI接口列表
@@ -50,47 +48,26 @@ export function listAllVisualApi() {
     }
     return result;
 }
-
 export function appendIfShouldInputSelf() {
-    type ChatModelInput = {
-        field: string;
-        label: string;
-        bottomHelpMessage: string;
-        component: string;
-    };
-    type ChatApiCustomUrl = {
-        field: string;
-        label: string;
-        bottomHelpMessage: string;
-        component: string;
-    };
-    type ChatModelSelect = {
-        field: string;
-        label: string;
-        bottomHelpMessage: string;
-        component: string;
-        componentProps: {
-            options: { label: string; value: string }[];
-        };
-    }
-
-    let schemas: [ChatModelInput, ChatApiCustomUrl] | [ChatModelSelect] | [] = [];
-    if (!chatInstance) return schemas;
+    let schemas;
+    if (!chatInstance)
+        return [];
     if (!Objects.isNull(chatInstance.apiUrl)) {
-        const chatModelInput: ChatModelInput = {
+        const chatModelInput = {
             field: "autoReply.chatModel",
             label: "群聊AI模型",
             bottomHelpMessage: "确保开关开启，保存并刷新页面后，再选择或填写该项！",
             component: "Input",
         };
-        const chatApiCustomUrl: ChatApiCustomUrl = {
+        const chatApiCustomUrl = {
             field: "autoReply.apiCustomUrl",
             label: "模型请求URL",
             bottomHelpMessage: "格式一般以http(s)开头，以/chat/completions结尾",
             component: "Input",
         };
         schemas = [chatModelInput, chatApiCustomUrl];
-    } else {
+    }
+    else {
         const chatModelSelect = {
             field: "autoReply.chatModel",
             label: "群聊AI模型",
@@ -103,33 +80,13 @@ export function appendIfShouldInputSelf() {
         schemas = [chatModelSelect];
     }
     return schemas;
-};
-
+}
+;
 export function appendIfShouldInputSelfVisual() {
-    type VisualModelInput = {
-        field: string;
-        label: string;
-        bottomHelpMessage: string;
-        component: string;
-    };
-    type VisualApiCustomUrl = {
-        field: string;
-        label: string;
-        bottomHelpMessage?: string;
-        component: string;
-    };
-    type VisualModelSelect = {
-        field: string;
-        label: string;
-        bottomHelpMessage: string;
-        component: string;
-        componentProps: {
-            options: { label: string; value: string }[];
-        };
+    let schemas;
+    if (!visualInstance) {
+        return [];
     }
-
-    let schemas: [VisualModelInput, VisualApiCustomUrl] | [VisualModelSelect] | [] = [];
-    if (!visualInstance) return schemas;
     if (!visualInstance.apiUrl) {
         schemas = [
             {
@@ -144,7 +101,8 @@ export function appendIfShouldInputSelfVisual() {
                 component: "Input",
             },
         ];
-    } else {
+    }
+    else {
         schemas = [
             {
                 field: "autoReply.visualModel",
@@ -159,3 +117,4 @@ export function appendIfShouldInputSelfVisual() {
     }
     return schemas;
 }
+//# sourceMappingURL=handler.js.map
