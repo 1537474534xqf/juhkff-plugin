@@ -11,7 +11,9 @@
     "esModuleInterop": true, // 允许 ESM 和 CJS 互操作
     "skipLibCheck": true, // 跳过库文件检查
     "forceConsistentCasingInFileNames": true, // 强制文件名大小写一致
-    "noUnusedLocals": true // 禁止未使用的局部变量
+    "noUnusedLocals": true, // 禁止未使用的局部变量
+    "noEmitOnError": false, // 禁用 BOM 头
+    "newLine": "lf" // 强制输出 LF 行尾
   },
   "include": ["src/**/*.ts"]
 }
