@@ -32,7 +32,7 @@ export type HelpGen = {
     manualList: MaunalList[];
 }
 
-const helpGen: HelpGen = {
+export const helpGen: HelpGen = {
     useHelpGen: true,
     command: "帮助",
     titleZh: "",
@@ -51,5 +51,3 @@ const helpGen: HelpGen = {
     },
     manualList: []
 }
-
-export default helpGen;

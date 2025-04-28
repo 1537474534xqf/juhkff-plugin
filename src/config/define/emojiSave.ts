@@ -12,12 +12,10 @@ export type EmojiSave = {
     expireTimeInSeconds: number;
 }
 
-const emojiSave: EmojiSave = {
+export const emojiSave: EmojiSave = {
     useEmojiSave: false,
     groupRate: [],
     defaultReplyRate: 0.1,
     defaultEmojiRate: 0.1,
     expireTimeInSeconds: 3600 * 24 * 3,
 }
-
-export default emojiSave;

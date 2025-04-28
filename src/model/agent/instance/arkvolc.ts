@@ -1,7 +1,7 @@
-import ChatAgent from "../chatAgent.js";
 import { Request, RequestBody } from "../../../type.js";
+import { ChatAgent } from "../chatAgent.js";
 
-class ArkEngine extends ChatAgent implements ChatInterface {
+export class ArkEngine extends ChatAgent implements ChatInterface {
     protected models: Record<string, any> | null = null;
     private constructor() {
         super();
@@ -64,5 +64,3 @@ class ArkEngine extends ChatAgent implements ChatInterface {
         }
     }
 }
-
-export default ArkEngine;

@@ -3,12 +3,12 @@
  * @fileoverview 聊天接口定义和公用函数
  * @author juhkff
  */
-import setting from "../setting.js";
 import { Objects } from "../../utils/kits.js";
 import { EMOTION_KEY } from "../../utils/redis.js";
 import { AutoReply } from "../../config/define/autoReply.js";
+import { setting } from "../setting.js";
 
-export default abstract class ChatAgent {
+export abstract class ChatAgent {
     protected config: AutoReply;
     protected apiKey: string;
     protected apiBaseUrl: undefined | string;

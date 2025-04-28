@@ -1,9 +1,9 @@
-import ChatAgent from "../chatAgent.js";
+import { ChatAgent } from "../chatAgent.js";
 import axios from "axios";
 import { Request, RequestBody } from "../../../type.js";
 import { Objects } from "../../../utils/kits.js";
 
-class Siliconflow extends ChatAgent implements ChatInterface, VisualInterface {
+export class Siliconflow extends ChatAgent implements ChatInterface, VisualInterface {
     protected models: Record<string, any> | null;
     protected modelsVisual: Record<string, any>;
     constructor() {
@@ -331,5 +331,3 @@ class Siliconflow extends ChatAgent implements ChatInterface, VisualInterface {
         }
     }
 }
-
-export default Siliconflow;

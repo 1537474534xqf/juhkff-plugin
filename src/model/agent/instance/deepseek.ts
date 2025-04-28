@@ -1,7 +1,7 @@
 import { Request, RequestBody } from "../../../type.js";
-import ChatAgent from "../chatAgent.js";
+import { ChatAgent } from "../chatAgent.js";
 
-class DeepSeek extends ChatAgent implements ChatInterface {
+export class DeepSeek extends ChatAgent implements ChatInterface {
     protected models: Record<string, any> | null;
     private constructor() {
         super("https://api.deepseek.com");
@@ -117,5 +117,3 @@ class DeepSeek extends ChatAgent implements ChatInterface {
         }
     }
 }
-
-export default DeepSeek;

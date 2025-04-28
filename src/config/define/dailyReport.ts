@@ -8,12 +8,10 @@ export type DailyReport = {
     dailyReportTime: CronExpression;
 }
 
-const dailyReport: DailyReport = {
+export const dailyReport: DailyReport = {
     useDailyReport: true,
     alapiToken: "",
     dailyReportFullShow: true,
     push: true,
     dailyReportTime: "0 0 12 * * ?"
 }
-
-export default dailyReport;

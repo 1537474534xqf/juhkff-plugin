@@ -65,7 +65,7 @@ export type DouBao = {
     imageStyle: ImageStyle;
 }
 
-const douBao: DouBao = {
+export const douBao: DouBao = {
     useDouBao: false,
     useVideoGenerate: false,
     videoGenerate: {
@@ -119,5 +119,3 @@ const douBao: DouBao = {
         returnUrl: false
     }
 }
-
-export default douBao;

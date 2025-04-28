@@ -19,22 +19,26 @@ const PLUGIN_NAME: string = path.basename(PLUGIN_ROOT_DIR);
 const PLUGIN_RESOURCES_DIR: string = path.join(PLUGIN_ROOT_DIR, "resources");
 
 /**
+ * 插件配置目录路径
+ */
+const PLUGIN_CONFIG_DIR: string = path.join(PLUGIN_ROOT_DIR, "config");
+
+/**
+ * 插件默认配置目录路径
+ */
+const PLUGIN_DEFAULT_CONFIG_DIR: string = path.join(PLUGIN_ROOT_DIR, "config", "default");
+
+/**
  * 插件数据目录路径
  */
 const PLUGIN_DATA_DIR: string = path.join(PLUGIN_ROOT_DIR, "data");
 
-// 使用命名导出（更符合 TS 模块规范）
+
 export {
     PLUGIN_NAME,
     PLUGIN_ROOT_DIR,
     PLUGIN_RESOURCES_DIR,
-    PLUGIN_DATA_DIR
-};
-
-// 如果需要默认导出（可选）
-export default {
-    PLUGIN_NAME,
-    PLUGIN_ROOT_DIR,
-    PLUGIN_RESOURCES_DIR,
+    PLUGIN_CONFIG_DIR,
+    PLUGIN_DEFAULT_CONFIG_DIR,
     PLUGIN_DATA_DIR
 };

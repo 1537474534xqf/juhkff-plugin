@@ -3,26 +3,24 @@ import fs from "fs";
 import path from "path";
 import { PLUGIN_ROOT_DIR } from "./path.js";
 import { Objects } from "../utils/kits.js";
+import Config from "../config/index.js";
 
 class Setting {
     static Instance: Setting = new Setting();
     appFile: Record<string, string>;
     configPath: string;
-    config: Record<string, any>;
     dataPath: string;
     data: object;
     private constructor() {
         /** 用户设置 */
         this.appFile = {};
         this.configPath = path.join(PLUGIN_ROOT_DIR, "config");
-        this.config = this.initConfig();
-
+        this.initConfig();
         this.dataPath = path.join(PLUGIN_ROOT_DIR, "data");
         this.data = {};
     }
 
-    initConfig(): Record<string, object> {
-        var config: Record<string, any> = {};
+    private initConfig(): void {
         if (!fs.existsSync(this.configPath)) {
             throw new Error("插件缺失配置文件夹");
         }
@@ -47,7 +45,7 @@ class Setting {
                 logger.info(`已复制 ${app} 默认配置文件`);
             }
             var file = path.join(this.configPath, `${relativePath}`);
-            if (app in config) {
+            if (app in Config) {
                 throw new Error(`[${app}] 配置文件不止一个`);
             }
 
@@ -55,15 +53,14 @@ class Setting {
 
             try {
                 // 先读取用户配置文件
-                config[app] = YAML.parse(fs.readFileSync(file, "utf8"));
+                Config[app] = YAML.parse(fs.readFileSync(file, "utf8"));
                 var defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8"));
-
                 // 对预设单独处理，将旧预设自动更新为新预设
                 var oldPromptList = defaultConfig["oldPrompt"];
                 if (!Objects.isNull(oldPromptList)) {
-                    var curPrompt = config["autoReply"]["chatPrompt"];
+                    var curPrompt = Config["autoReply"]["chatPrompt"];
                     if (oldPromptList.includes(curPrompt.trim())) {
-                        config["autoReply"]["chatPrompt"] = defaultConfig["chatPrompt"];
+                        Config["autoReply"]["chatPrompt"] = defaultConfig["chatPrompt"];
                     }
                 }
 
@@ -88,70 +85,20 @@ class Setting {
                 }
 
                 // 优先使用用户配置文件，添加缺少的配置，便于版本更新同步
-                mergeAndCleanConfig(config[app], defaultConfig);
+                mergeAndCleanConfig(Config[app], defaultConfig);
 
                 // 手动删除不应同步的配置
-                delete config[app]["oldPrompt"];  // 预设默认值更新
+                delete Config[app]["oldPrompt"];  // 预设默认值更新
 
                 // 保存用户配置文件
-                fs.writeFileSync(file, YAML.stringify(config[app]));
+                fs.writeFileSync(file, YAML.stringify(Config[app]));
             } catch (error) {
                 throw new Error(`[${app}.yaml] 格式错误 ${error}`);
             }
         }
-        return config;
     }
 
-    // 获取所有应用配置
-    getAllConfig(): Record<string, any> {
-        return this.config;
-    }
-
-    setConfig(config: Record<string, any>): void {
-        this.config = config;
-        // 保存
-        for (var app in this.config) {
-            var filePath = this.appFile[app];
-            fs.writeFileSync(filePath, YAML.stringify(this.config[app]));
-        }
-    }
-
-    // 获取对应应用配置
-    getConfig(app: string | number) {
-        return this.config[app];
-    }
-
-    // 获取对应数据文件
-    getData(folderPath: string, filename: any) {
-        folderPath = path.join(this.dataPath, folderPath);
-        try {
-            if (!fs.existsSync(path.join(folderPath, `${filename}.yaml`))) {
-                return false;
-            }
-            return YAML.parse(
-                fs.readFileSync(path.join(folderPath, `${filename}.yaml`), "utf8")
-            );
-        } catch (error) {
-            logger.error(`[${filename}]读取失败`, error);
-            return false;
-        }
-    }
-
-    // 递归获取目录下所有文件
-    getAllFiles(dir: string, fileList: string[] = []): string[] {
-        const files = fs.readdirSync(dir);
-        files.forEach((file) => {
-            const filePath = path.join(dir, file);
-            const stat = fs.statSync(filePath);
-            if (stat.isDirectory()) {
-                this.getAllFiles(filePath, fileList);
-            } else {
-                fileList.push(filePath);
-            }
-        });
-        return fileList;
-    }
+    
 }
 
-
-export default Setting.Instance;
+export const setting = Setting.Instance
