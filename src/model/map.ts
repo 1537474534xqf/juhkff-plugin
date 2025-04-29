@@ -32,7 +32,7 @@ let visualInstance: ChatAgent | null = null;
     }
 })();
 
-const resetInstance = () => {
+const reloadInstance = () => {
     if (autoReplyConfig.useAutoReply) {
         chatInstance = new agentMap[autoReplyConfig.chatApi]();
     }
@@ -42,4 +42,4 @@ const resetInstance = () => {
 }
 
 
-export { agentMap, chatInstance, visualInstance, resetInstance }
+export { agentMap, chatInstance, visualInstance, reloadInstance }

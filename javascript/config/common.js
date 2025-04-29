@@ -1,4 +1,5 @@
 import fs from "fs";
+import path from "path";
 import { PLUGIN_CONFIG_DIR } from "../model/path.js";
 /**
  * 检查配置文件夹是否存在，如果不存在则创建
@@ -15,6 +16,10 @@ export function configFolderCheck(file, defaultFile) {
         return true;
     }
     return false;
+}
+export function saveConfigToFile(config, ...pathRelativeToConfigFolder) {
+    const file = path.join(PLUGIN_CONFIG_DIR, ...pathRelativeToConfigFolder);
+    fs.writeFileSync(file, JSON.stringify(config, null, 4));
 }
 /**
  * **新增配置项时，保证给该配置项空值而非null，例如字符串类型默认给""，数组类型默认给[]**

@@ -49,9 +49,9 @@ export function listAllVisualApi() {
     return result;
 }
 export function appendIfShouldInputSelf() {
-    let schemas;
+    let schemas = [];
     if (!chatInstance)
-        return [];
+        return schemas;
     if (!Objects.isNull(chatInstance.apiUrl)) {
         const chatModelInput = {
             field: "autoReply.chatModel",
@@ -83,10 +83,9 @@ export function appendIfShouldInputSelf() {
 }
 ;
 export function appendIfShouldInputSelfVisual() {
-    let schemas;
-    if (!visualInstance) {
-        return [];
-    }
+    let schemas = [];
+    if (!visualInstance)
+        return schemas;
     if (!visualInstance.apiUrl) {
         schemas = [
             {

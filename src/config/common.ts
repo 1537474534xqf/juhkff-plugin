@@ -1,5 +1,7 @@
 import fs from "fs";
+import path from "path";
 import { PLUGIN_CONFIG_DIR } from "../model/path.js";
+import { ConfigType } from "./index.js";
 
 
 /**
@@ -17,6 +19,11 @@ export function configFolderCheck(file: string, defaultFile: string): boolean {
         return true;
     }
     return false;
+}
+
+export function saveConfigToFile(config: ConfigType, ...pathRelativeToConfigFolder: string[]) {
+    const file = path.join(PLUGIN_CONFIG_DIR, ...pathRelativeToConfigFolder);
+    fs.writeFileSync(file, JSON.stringify(config, null, 4));
 }
 
 /**

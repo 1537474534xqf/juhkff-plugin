@@ -25,7 +25,7 @@ let visualInstance = null;
         visualInstance = new agentMap[autoReplyConfig.visualApi]();
     }
 })();
-const resetInstance = () => {
+const reloadInstance = () => {
     if (autoReplyConfig.useAutoReply) {
         chatInstance = new agentMap[autoReplyConfig.chatApi]();
     }
@@ -33,5 +33,5 @@ const resetInstance = () => {
         visualInstance = new agentMap[autoReplyConfig.visualApi]();
     }
 };
-export { agentMap, chatInstance, visualInstance, resetInstance };
+export { agentMap, chatInstance, visualInstance, reloadInstance };
 //# sourceMappingURL=map.js.map
