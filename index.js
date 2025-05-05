@@ -1,5 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
+import fs from "fs";
+import path from "path";
 import { fileURLToPath, pathToFileURL } from 'url';
 
 const _filename = fileURLToPath(import.meta.url);
@@ -13,7 +13,7 @@ if (!global.segment) {
 let ret = [];
 
 logger.info(logger.yellow("- 正在载入 JUHKFF-PLUGIN"));
-logger.info(logger.yellow("- [JUHKFF-PLUGIN] 如果插件更新后出现问题，可能是新的配置同步时出现错误，可以尝试删除并重装该插件"));
+logger.info("- [JUHKFF-PLUGIN] 如果插件更新后出现问题，可能是新的配置同步时出现错误，可以尝试删除并重装该插件");
 
 async function getFiles(dir) {
     const dirs = await fs.promises.readdir(dir, { withFileTypes: true });
@@ -26,7 +26,7 @@ async function getFiles(dir) {
     return Array.prototype.concat(...files);
 }
 
-const files = await getFiles(path.join(pluginRoot, "apps")).then((files) =>
+const files = await getFiles(path.join(pluginRoot, "javascript", "apps")).then((files) =>
     files.filter((file) => file.endsWith(".js"))
 );
 
