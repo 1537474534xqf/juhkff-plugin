@@ -21,13 +21,23 @@ export type Config = {
     douBao: DouBao
 }
 
-export const config: Config = {
-    autoReply: autoReplyConfig,
-    dailyReport: dailyReportConfig,
-    emojiSave: emojiSaveConfig,
-    helpGen: helpGenConfig,
-    douBao: douBaoConfig,
-}
+export const config = {
+    get autoReply() {
+        return autoReplyConfig;
+    },
+    get dailyReport() {
+        return dailyReportConfig;
+    },
+    get emojiSave() {
+        return emojiSaveConfig;
+    },
+    get helpGen() {
+        return helpGenConfig;
+    },
+    get douBao() {
+        return douBaoConfig;
+    }
+};
 
 export function updateConfig(data: Config) {
     saveConfigToFile(data.autoReply, "autoReply.yaml");
@@ -35,9 +45,4 @@ export function updateConfig(data: Config) {
     saveConfigToFile(data.emojiSave, "emojiSave.yaml");
     saveConfigToFile(data.helpGen, "helpGen.yaml");
     saveConfigToFile(data.douBao, "ai", "douBao.yaml");
-
-    config.autoReply = autoReplyConfig
-    config.dailyReport = dailyReportConfig
-    config.emojiSave = emojiSaveConfig
-    config.helpGen = helpGenConfig
 }

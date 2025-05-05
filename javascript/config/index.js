@@ -9,11 +9,21 @@ import { dailyReportConfig } from "./define/dailyReport.js";
 import { emojiSaveConfig } from "./define/emojiSave.js";
 import { helpGenConfig } from "./define/helpGen.js";
 export const config = {
-    autoReply: autoReplyConfig,
-    dailyReport: dailyReportConfig,
-    emojiSave: emojiSaveConfig,
-    helpGen: helpGenConfig,
-    douBao: douBaoConfig,
+    get autoReply() {
+        return autoReplyConfig;
+    },
+    get dailyReport() {
+        return dailyReportConfig;
+    },
+    get emojiSave() {
+        return emojiSaveConfig;
+    },
+    get helpGen() {
+        return helpGenConfig;
+    },
+    get douBao() {
+        return douBaoConfig;
+    }
 };
 export function updateConfig(data) {
     saveConfigToFile(data.autoReply, "autoReply.yaml");
@@ -21,9 +31,5 @@ export function updateConfig(data) {
     saveConfigToFile(data.emojiSave, "emojiSave.yaml");
     saveConfigToFile(data.helpGen, "helpGen.yaml");
     saveConfigToFile(data.douBao, "ai", "douBao.yaml");
-    config.autoReply = autoReplyConfig;
-    config.dailyReport = dailyReportConfig;
-    config.emojiSave = emojiSaveConfig;
-    config.helpGen = helpGenConfig;
 }
 //# sourceMappingURL=index.js.map
