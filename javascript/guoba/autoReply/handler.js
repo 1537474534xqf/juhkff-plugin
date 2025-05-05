@@ -1,23 +1,23 @@
-import { agentMap, chatInstance, visualInstance } from "../../model/map.js";
+import { agentMap, agent } from "../../model/map.js";
 import { Objects } from "../../utils/kits.js";
 /**
  * 获取群聊AI模型
  * @returns 群聊AI模型列表
  */
 function getChatModels() {
-    if (!chatInstance)
+    if (!agent.chat)
         return [];
     var result = [];
-    for (const key of Object.keys(chatInstance.modelsChat)) {
+    for (const key of Object.keys(agent.chat.modelsChat)) {
         result.push({ label: key, value: key });
     }
     return result;
 }
 function getVisualModels() {
-    if (!visualInstance)
+    if (!agent.visual)
         return [];
     var result = [];
-    for (const key of Object.keys(visualInstance.modelsVisual)) {
+    for (const key of Object.keys(agent.visual.modelsVisual)) {
         result.push({ label: key, value: key });
     }
     return result;
@@ -50,9 +50,9 @@ export function listAllVisualApi() {
 }
 export function appendIfShouldInputSelf() {
     let schemas = [];
-    if (!chatInstance)
+    if (!agent.chat)
         return schemas;
-    if (!Objects.isNull(chatInstance.apiUrl)) {
+    if (Objects.isNull(agent.chat.apiUrl)) {
         const chatModelInput = {
             field: "autoReply.chatModel",
             label: "群聊AI模型",
@@ -84,9 +84,9 @@ export function appendIfShouldInputSelf() {
 ;
 export function appendIfShouldInputSelfVisual() {
     let schemas = [];
-    if (!visualInstance)
+    if (!agent.visual)
         return schemas;
-    if (!visualInstance.apiUrl) {
+    if (!agent.visual.apiUrl) {
         schemas = [
             {
                 field: "autoReply.visualModel",

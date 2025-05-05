@@ -1,18 +1,18 @@
-import { autoReplyConfig } from "../../../config/define/autoReply.js";
+import { config } from "../../../config/index.js";
 import { ChatAgent } from "../chatAgent.js";
 export class ArkEngine extends ChatAgent {
-    constructor() {
-        super();
+    constructor(apiKey) {
+        super(apiKey);
     }
     static hasVisual = () => false;
     async chatRequest(model, input, historyMessages = [], useSystemRole = true) {
         // 构造请求体
         let request = {
-            url: autoReplyConfig.apiCustomUrl,
+            url: config.autoReply.apiCustomUrl,
             options: {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${autoReplyConfig.chatApiKey}`,
+                    Authorization: `Bearer ${this.apiKey}`,
                     "Content-Type": "application/json",
                 },
                 body: { model: model, stream: false, messages: [], temperature: 1.5 },
@@ -26,7 +26,7 @@ export class ArkEngine extends ChatAgent {
     }
     async commonRequest(request, input, historyMessages = [], useSystemRole = true) {
         if (useSystemRole) {
-            let systemContent = await this.generateSystemContent(autoReplyConfig.useEmotion, autoReplyConfig.chatPrompt);
+            let systemContent = await this.generateSystemContent(config.autoReply.useEmotion, config.autoReply.chatPrompt);
             request.options.body.messages.push(systemContent);
         }
         // 添加历史对话

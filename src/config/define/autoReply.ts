@@ -33,6 +33,9 @@ export type AutoReply = {
 }
 
 export let autoReplyConfig: AutoReply = null;
+export function setAutoReplyConfig(config: AutoReply) {
+    autoReplyConfig = config;
+}
 
 (() => {
     const file = path.join(PLUGIN_CONFIG_DIR, `autoReply.yaml`);
@@ -42,7 +45,7 @@ export let autoReplyConfig: AutoReply = null;
 
     autoReplyConfig = YAML.parse(fs.readFileSync(file, "utf8")) as AutoReply;
     const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8")) as AutoReply;
-    
+
     // 对预设单独处理，将旧预设自动更新为新预设
     if (defaultConfig.oldPrompt.includes(autoReplyConfig.chatPrompt.trim())) autoReplyConfig.chatPrompt = defaultConfig.chatPrompt;
     delete defaultConfig.oldPrompt;
@@ -50,7 +53,6 @@ export let autoReplyConfig: AutoReply = null;
 
     configSync(autoReplyConfig, defaultConfig);
     fs.writeFileSync(file, YAML.stringify(autoReplyConfig));
-
     chokidar.watch(file).on("change", () => {
         autoReplyConfig = YAML.parse(fs.readFileSync(file, "utf8"));
         logger.info(`[JUHKFF-PLUGIN]同步主动群聊配置`);

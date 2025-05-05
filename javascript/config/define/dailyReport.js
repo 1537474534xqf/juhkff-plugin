@@ -5,6 +5,9 @@ import chokidar from "chokidar";
 import { PLUGIN_CONFIG_DIR, PLUGIN_DEFAULT_CONFIG_DIR } from "../../model/path.js";
 import { configFolderCheck, configSync } from "../common.js";
 export let dailyReportConfig = null;
+export function setDailyReportConfig(config) {
+    dailyReportConfig = config;
+}
 (() => {
     const file = path.join(PLUGIN_CONFIG_DIR, `dailyReport.yaml`);
     const defaultFile = path.join(PLUGIN_DEFAULT_CONFIG_DIR, `dailyReport.yaml`);

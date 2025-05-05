@@ -17,6 +17,10 @@ export type DailyReport = {
 
 export let dailyReportConfig: DailyReport = null;
 
+export function setDailyReportConfig(config: DailyReport) {
+    dailyReportConfig = config;
+}
+
 (() => {
     const file = path.join(PLUGIN_CONFIG_DIR, `dailyReport.yaml`);
     const defaultFile = path.join(PLUGIN_DEFAULT_CONFIG_DIR, `dailyReport.yaml`);
@@ -27,7 +31,7 @@ export let dailyReportConfig: DailyReport = null;
 
     configSync(dailyReportConfig, defaultConfig);
     fs.writeFileSync(file, YAML.stringify(dailyReportConfig));
-
+    
     chokidar.watch(file).on("change", () => {
         dailyReportConfig = YAML.parse(fs.readFileSync(file, "utf8"));
         logger.info(`[JUHKFF-PLUGIN]同步日报配置`);

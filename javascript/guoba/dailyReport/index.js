@@ -1,4 +1,4 @@
-export const dailyReportSchema = [
+export const dailyReportSchema = () => [
     {
         label: "日报配置",
         // 第二个分组标记开始
@@ -19,7 +19,7 @@ export const dailyReportSchema = [
     {
         field: "dailyReport.alapiToken",
         label: "alapi_token",
-        bottomHelpMessage: "该项置空即可",
+        bottomHelpMessage: "如果发现无法生成图片时需填写该接口。填写内容：在https://admin.alapi.cn/user/login登录后，进入“我的API”获取token",
         component: "Input",
     },
     {

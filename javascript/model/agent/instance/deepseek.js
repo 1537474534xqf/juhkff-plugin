@@ -1,7 +1,7 @@
-import { autoReplyConfig } from "../../../config/define/autoReply.js";
+import { config } from "../../../config/index.js";
 import { ChatAgent } from "../chatAgent.js";
 export class DeepSeek extends ChatAgent {
-    constructor() { super("https://api.deepseek.com"); }
+    constructor(apiKey) { super(apiKey, "https://api.deepseek.com"); }
     static hasVisual = () => false;
     async chatModels() {
         return {
@@ -19,7 +19,7 @@ export class DeepSeek extends ChatAgent {
             options: {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${autoReplyConfig.chatApiKey}`,
+                    Authorization: `Bearer ${this.apiKey}`,
                     "Content-Type": "application/json",
                 },
                 body: {
@@ -41,7 +41,7 @@ export class DeepSeek extends ChatAgent {
     async deepseek_chat(request, input, historyMessages = [], useSystemRole = true) {
         // 添加消息内容
         if (useSystemRole) {
-            let systemContent = await this.generateSystemContent(autoReplyConfig.useEmotion, autoReplyConfig.chatPrompt);
+            let systemContent = await this.generateSystemContent(config.autoReply.useEmotion, config.autoReply.chatPrompt);
             request.options.body.messages.push(systemContent);
         }
         // 添加历史对话
@@ -76,7 +76,7 @@ export class DeepSeek extends ChatAgent {
     async deepseek_reasoner(request, input, historyMessages = [], useSystemRole = true) {
         // 添加消息内容
         if (useSystemRole) {
-            let systemContent = await this.generateSystemContent(autoReplyConfig.useEmotion, autoReplyConfig.chatPrompt);
+            let systemContent = await this.generateSystemContent(config.autoReply.useEmotion, config.autoReply.chatPrompt);
             request.options.body.messages.push(systemContent);
         }
         // 添加历史对话

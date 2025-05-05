@@ -1,4 +1,4 @@
-import { agentMap, chatInstance, visualInstance } from "../../model/map.js";
+import { agentMap, agent } from "../../model/map.js";
 import { Objects } from "../../utils/kits.js";
 
 /**
@@ -6,18 +6,18 @@ import { Objects } from "../../utils/kits.js";
  * @returns 群聊AI模型列表
  */
 function getChatModels() {
-    if (!chatInstance) return [];
+    if (!agent.chat) return [];
     var result = [];
-    for (const key of Object.keys(chatInstance.modelsChat)) {
+    for (const key of Object.keys(agent.chat.modelsChat)) {
         result.push({ label: key, value: key });
     }
     return result;
 }
 
 function getVisualModels() {
-    if (!visualInstance) return [];
+    if (!agent.visual) return [];
     var result = [];
-    for (const key of Object.keys(visualInstance.modelsVisual)) {
+    for (const key of Object.keys(agent.visual.modelsVisual)) {
         result.push({ label: key, value: key });
     }
     return result;
@@ -75,8 +75,8 @@ export function appendIfShouldInputSelf() {
     }
 
     let schemas: [ChatModelInput, ChatApiCustomUrl] | [ChatModelSelect] | [] = [];
-    if (!chatInstance) return schemas;
-    if (!Objects.isNull(chatInstance.apiUrl)) {
+    if (!agent.chat) return schemas;
+    if (Objects.isNull(agent.chat.apiUrl)) {
         const chatModelInput: ChatModelInput = {
             field: "autoReply.chatModel",
             label: "群聊AI模型",
@@ -129,8 +129,8 @@ export function appendIfShouldInputSelfVisual() {
     }
 
     let schemas: [VisualModelInput, VisualApiCustomUrl] | [VisualModelSelect] | [] = [];
-    if (!visualInstance) return schemas;
-    if (!visualInstance.apiUrl) {
+    if (!agent.visual) return schemas;
+    if (!agent.visual.apiUrl) {
         schemas = [
             {
                 field: "autoReply.visualModel",

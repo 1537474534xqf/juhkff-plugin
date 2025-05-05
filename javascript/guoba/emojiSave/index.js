@@ -1,4 +1,4 @@
-export const emojiSaveSchema = [
+export const emojiSaveSchema = () => [
     {
         label: "偷图配置",
         // 第三个分组标记开始

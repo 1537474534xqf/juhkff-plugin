@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import YAML from "yaml";
 import { PLUGIN_CONFIG_DIR } from "../model/path.js";
 import { ConfigType } from "./index.js";
 
@@ -23,7 +24,7 @@ export function configFolderCheck(file: string, defaultFile: string): boolean {
 
 export function saveConfigToFile(config: ConfigType, ...pathRelativeToConfigFolder: string[]) {
     const file = path.join(PLUGIN_CONFIG_DIR, ...pathRelativeToConfigFolder);
-    fs.writeFileSync(file, JSON.stringify(config, null, 4));
+    fs.writeFileSync(file, YAML.stringify(config));
 }
 
 /**
@@ -36,7 +37,7 @@ export function saveConfigToFile(config: ConfigType, ...pathRelativeToConfigFold
 export function configSync(config: Record<string, any>, defaultConfig: Record<string, any>) {
     for (var key in defaultConfig) {
         // 用户配置中没有的配置，添加到用户配置中
-        if (config.key === undefined) {
+        if (config[key] === undefined) {
             config[key] = defaultConfig[key];
             continue;
         }
@@ -59,6 +60,9 @@ export function configSync(config: Record<string, any>, defaultConfig: Record<st
         // 递归处理嵌套对象
         if (!Array.isArray(defaultConfig[key]) && !Array.isArray(config[key])) {
             configSync(config[key], defaultConfig[key]);
+            if (Object.keys(defaultConfig[key]).length === 0) {
+                delete defaultConfig[key];
+            }
             continue;
         }
         // 均为一般类型或数组类型就直接删除defaultConfig中的该项

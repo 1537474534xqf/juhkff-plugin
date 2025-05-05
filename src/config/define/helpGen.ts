@@ -35,6 +35,10 @@ export type HelpGen = {
 
 export let helpGenConfig: HelpGen = null;
 
+export function setHelpGenConfig(config: HelpGen) {
+    helpGenConfig = config;
+}
+
 (() => {
     const file = path.join(PLUGIN_CONFIG_DIR, `helpGen.yaml`);
     const defaultFile = path.join(PLUGIN_DEFAULT_CONFIG_DIR, `helpGen.yaml`);
@@ -45,7 +49,7 @@ export let helpGenConfig: HelpGen = null;
 
     configSync(helpGenConfig, defaultConfig);
     fs.writeFileSync(file, YAML.stringify(helpGenConfig));
-
+    
     chokidar.watch(file).on("change", () => {
         helpGenConfig = YAML.parse(fs.readFileSync(file, "utf8"));
         logger.info(`[JUHKFF-PLUGIN]同步帮助生成配置`);

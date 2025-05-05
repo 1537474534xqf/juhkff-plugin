@@ -2,8 +2,8 @@
  * @file handle.js
  * @description: 原始消息处理相关
  */
-import { autoReplyConfig } from "../config/define/autoReply.js";
-import { chatInstance } from "../model/map.js";
+import { config } from "../config/index.js";
+import { agent } from "../model/map.js";
 import { formatDateDetail } from "./date.js";
 import { analyseImage, extractUrlContent } from "./helper.js";
 import { Objects } from "./kits.js";
@@ -17,7 +17,7 @@ export async function parseImage(e) {
         e.j_msg = [];
     for (let i = 0; i < e.message.length; i++) {
         if (e.message[i].type == "image") {
-            if (!autoReplyConfig.useVisual)
+            if (!config.autoReply.useVisual)
                 continue;
             var url = e.message[i].url;
             var result = await analyseImage(url, "该图片是否为表情包，只输出是或否，不要加标点符号");
@@ -67,7 +67,7 @@ export async function parseSourceMessage(e) {
                 senderNickname = reply.sender?.card || reply.sender?.nickname;
                 for (var val of reply.message) {
                     if (val.type == "image") {
-                        if (!autoReplyConfig.useVisual)
+                        if (!config.autoReply.useVisual)
                             continue;
                         var result = await analyseImage(val.url, "该图片是否为表情包，只输出是或否");
                         logger.info(`[parseSourceMessage]图片是否为表情包: ${result}`);
@@ -183,8 +183,8 @@ export async function parseUrl(e) {
                     if (Objects.isNull(extractResult)) {
                         logger.info(`[URL处理]成功提取URL内容`);
                         // 借助chatApi对提取的内容进行总结
-                        var model = autoReplyConfig.chatModel;
-                        var result = await chatInstance.chatRequest(model, "根据从URL抓取的信息，以自然语言简练地总结URL中的主要内容，其中无关信息可以过滤掉", [{ role: "user", content: extractResult.content }], false);
+                        var model = config.autoReply.chatModel;
+                        var result = await agent.chat.chatRequest(model, "根据从URL抓取的信息，以自然语言简练地总结URL中的主要内容，其中无关信息可以过滤掉", [{ role: "user", content: extractResult.content }], false);
                         e.j_msg[i].text = e.j_msg[i].text.replace(url, `<分享URL，URL内容的分析结果——${result}>`);
                         e.j_msg[i].type = "url2text";
                     }
@@ -227,8 +227,8 @@ function isSkippedUrl(url) {
  * @returns answer 回复内容
  */
 export async function generateAnswer(e, msg) {
-    let apiKey = autoReplyConfig.chatApiKey;
-    let model = autoReplyConfig.chatModel;
+    let apiKey = config.autoReply.chatApiKey;
+    let model = config.autoReply.chatModel;
     if (!apiKey || apiKey == "") {
         logger.error("[handle]请先设置chatApiKey");
         return "[handle]请先设置chatApiKey";
@@ -239,12 +239,12 @@ export async function generateAnswer(e, msg) {
     }
     // 获取历史对话
     let historyMessages = [];
-    if (autoReplyConfig.useContext) {
+    if (config.autoReply.useContext) {
         historyMessages = await loadContext(e.group_id);
         logger.info(`[handle]加载历史对话: ${historyMessages.length} 条`);
     }
     // 如果启用了情感，并且redis中不存在情感，则进行情感生成
-    if (autoReplyConfig.useEmotion && Objects.isNull(await redis.get(EMOTION_KEY))) {
+    if (config.autoReply.useEmotion && Objects.isNull(await redis.get(EMOTION_KEY))) {
         redis.set(EMOTION_KEY, await emotionGenerate(), { EX: 24 * 60 * 60 });
     }
     let answer = await sendChatRequest(e.sender.card + "：" + msg, model, historyMessages);
@@ -261,15 +261,15 @@ export async function generateAnswer(e, msg) {
  * @returns
  */
 async function sendChatRequest(input, model = "", historyMessages = [], useSystemRole = true) {
-    if (!chatInstance)
+    if (!agent.chat)
         return "[handle]请设置有效的AI接口";
-    var result = await chatInstance.chatRequest(model, input, historyMessages, useSystemRole);
+    var result = await agent.chat.chatRequest(model, input, historyMessages, useSystemRole);
     return result;
 }
 // 保存对话上下文
 export async function saveContext(time, groupId, message_id = 0, role, message) {
     try {
-        const maxHistory = autoReplyConfig.maxHistoryLength;
+        const maxHistory = config.autoReply.maxHistoryLength;
         const key = `juhkff:auto_reply:${groupId}:${time}`;
         // message_id = 0时，表示是AI回复
         var saveContent = {
@@ -302,7 +302,7 @@ export async function saveContext(time, groupId, message_id = 0, role, message) 
 // 加载群历史对话
 export async function loadContext(groupId) {
     try {
-        const maxHistory = autoReplyConfig.maxHistoryLength;
+        const maxHistory = config.autoReply.maxHistoryLength;
         // 获取该群的所有消息
         const keys = await redis.keys(`juhkff:auto_reply:${groupId}:*`);
         keys.sort((a, b) => {
@@ -333,8 +333,8 @@ export async function loadContext(groupId) {
  * @author: JUHKFF
  */
 export async function emotionGenerate() {
-    let model = autoReplyConfig.chatModel;
-    var emotion = await sendChatRequest(autoReplyConfig.emotionGeneratePrompt, model, [], false);
+    let model = config.autoReply.chatModel;
+    var emotion = await sendChatRequest(config.autoReply.emotionGeneratePrompt, model, [], false);
     logger.info(`[handle]情感生成: ${emotion}`);
     return emotion;
 }

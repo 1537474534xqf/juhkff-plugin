@@ -62,6 +62,10 @@ export type DouBao = {
 
 export let douBaoConfig: DouBao = null;
 
+export function setDouBaoConfig(config: DouBao) {
+    douBaoConfig = config;
+}
+
 (() => {
     const file = path.join(PLUGIN_CONFIG_DIR, "ai", `douBao.yaml`);
     const defaultFile = path.join(PLUGIN_DEFAULT_CONFIG_DIR, "ai", `douBao.yaml`);
@@ -72,7 +76,7 @@ export let douBaoConfig: DouBao = null;
 
     configSync(douBaoConfig, defaultConfig);
     fs.writeFileSync(file, YAML.stringify(douBaoConfig));
-
+    
     chokidar.watch(file).on("change", () => {
         douBaoConfig = YAML.parse(fs.readFileSync(file, "utf8"));
         logger.info(`[JUHKFF-PLUGIN]同步豆包配置`);

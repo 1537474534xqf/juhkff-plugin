@@ -6,7 +6,7 @@
 import { ArkEngine } from "./agent/instance/arkvolc.js";
 import { DeepSeek } from "./agent/instance/deepseek.js";
 import { Siliconflow } from "./agent/instance/siliconflow.js";
-import { autoReplyConfig } from "../config/define/autoReply.js";
+import { config } from "../config/index.js";
 /**
  * 模型列表，新增的都加里面
  */
@@ -17,21 +17,29 @@ const agentMap = {
 };
 let chatInstance = null;
 let visualInstance = null;
-(() => {
-    if (autoReplyConfig.useAutoReply) {
-        chatInstance = new agentMap[autoReplyConfig.chatApi]();
+const agent = {
+    get chat() {
+        return chatInstance;
+    },
+    get visual() {
+        return visualInstance;
     }
-    if (autoReplyConfig.useVisual) {
-        visualInstance = new agentMap[autoReplyConfig.visualApi]();
+};
+(() => {
+    if (!config.autoReply.useAutoReply)
+        return;
+    chatInstance = new agentMap[config.autoReply.chatApi](config.autoReply.chatApiKey);
+    if (config.autoReply.useVisual) {
+        visualInstance = new agentMap[config.autoReply.visualApi](config.autoReply.visualApiKey);
     }
 })();
 const reloadInstance = () => {
-    if (autoReplyConfig.useAutoReply) {
-        chatInstance = new agentMap[autoReplyConfig.chatApi]();
-    }
-    if (autoReplyConfig.useVisual) {
-        visualInstance = new agentMap[autoReplyConfig.visualApi]();
+    if (!config.autoReply.useAutoReply)
+        return;
+    chatInstance = new agentMap[config.autoReply.chatApi](config.autoReply.chatApiKey);
+    if (config.autoReply.useVisual) {
+        visualInstance = new agentMap[config.autoReply.visualApi](config.autoReply.visualApiKey);
     }
 };
-export { agentMap, chatInstance, visualInstance, reloadInstance };
+export { agentMap, agent, reloadInstance };
 //# sourceMappingURL=map.js.map

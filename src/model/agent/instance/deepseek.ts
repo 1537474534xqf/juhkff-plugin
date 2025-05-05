@@ -1,9 +1,9 @@
-import { autoReplyConfig } from "../../../config/define/autoReply.js";
+import { config } from "../../../config/index.js";
 import { Request, RequestBody } from "../../../type.js";
 import { ChatAgent } from "../chatAgent.js";
 
 export class DeepSeek extends ChatAgent {
-    constructor() { super("https://api.deepseek.com"); }
+    constructor(apiKey: string) { super(apiKey, "https://api.deepseek.com"); }
     static hasVisual = () => false;
 
     public async chatModels(): Promise<Record<string, Function> | undefined> {
@@ -22,7 +22,7 @@ export class DeepSeek extends ChatAgent {
             options: {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${autoReplyConfig.chatApiKey}`,
+                    Authorization: `Bearer ${this.apiKey}`,
                     "Content-Type": "application/json",
                 },
                 body: {
@@ -47,7 +47,7 @@ export class DeepSeek extends ChatAgent {
     private async deepseek_chat(request: Request, input: string, historyMessages: any[] = [], useSystemRole = true) {
         // 添加消息内容
         if (useSystemRole) {
-            let systemContent = await this.generateSystemContent(autoReplyConfig.useEmotion, autoReplyConfig.chatPrompt);
+            let systemContent = await this.generateSystemContent(config.autoReply.useEmotion, config.autoReply.chatPrompt);
             (request.options.body as RequestBody).messages.push(systemContent);
         }
         // 添加历史对话
@@ -83,7 +83,7 @@ export class DeepSeek extends ChatAgent {
     private async deepseek_reasoner(request: Request, input: string, historyMessages: any[] = [], useSystemRole = true) {
         // 添加消息内容
         if (useSystemRole) {
-            let systemContent = await this.generateSystemContent(autoReplyConfig.useEmotion, autoReplyConfig.chatPrompt);
+            let systemContent = await this.generateSystemContent(config.autoReply.useEmotion, config.autoReply.chatPrompt);
             (request.options.body as RequestBody).messages.push(systemContent);
         }
         // 添加历史对话

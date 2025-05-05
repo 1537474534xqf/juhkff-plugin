@@ -1,4 +1,4 @@
-export const douBaoSchema = [
+export const douBaoSchema = () => [
     {
         label: "豆包",
         // 第四个分组标记开始

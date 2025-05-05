@@ -1,5 +1,5 @@
 import { sleep } from "../bgProcess/timer.js";
-import { autoReplyConfig } from "../config/define/autoReply.js";
+import { config } from "../config/index.js";
 import { formatDateDetail } from "../utils/date.js";
 import { generateAnswer, parseImage, parseJson, parseSourceMessage, parseUrl, saveContext } from "../utils/handle.js";
 import { generateAnswerVisual, parseImageVisual, parseJsonVisual, parseSourceMessageVisual, parseTextVisual, parseUrlVisual, saveContextVisual } from "../utils/handleVisual.js";
@@ -10,7 +10,7 @@ export const help = () => {
         name: "主动群聊",
         type: "passive",
         dsc: "假装人类发言",
-        enable: autoReplyConfig.useAutoReply,
+        enable: config.autoReply.useAutoReply,
     }
 }
 
@@ -34,11 +34,11 @@ export class autoReply extends plugin {
                 },
             ],
         });
-        if (autoReplyConfig.useEmotion) {
+        if (config.autoReply.useEmotion) {
             this.task = Object.defineProperties(
                 {},
                 {
-                    cron: { value: autoReplyConfig.emotionGenerateTime, writable: false },
+                    cron: { value: config.autoReply.emotionGenerateTime, writable: false },
                     name: { value: "情感生成", writable: false },
                     fnc: { value: () => this.emotionGenerate(), writable: false },
                     log: { get: () => false },
@@ -48,9 +48,9 @@ export class autoReply extends plugin {
     }
 
     async autoReply(e: any) {
-        if (!autoReplyConfig.useAutoReply) return false;
+        if (!config.autoReply.useAutoReply) return false;
         if (e.message_type != "group") return false;
-        if (autoReplyConfig.useVisual && autoReplyConfig.visualReplaceChat) {
+        if (config.autoReply.useVisual && config.autoReply.visualReplaceChat) {
             await this.visualProcess(e);
         } else {
             await this.commonProcess(e);
@@ -72,13 +72,13 @@ export class autoReply extends plugin {
         await parseSourceMessage(e);
         // 处理分享链接
         await parseJson(e);
-        if (autoReplyConfig.attachUrlAnalysis) {
+        if (config.autoReply.attachUrlAnalysis) {
             // 处理URL
             await parseUrl(e);
         }
         // 通过自定义的e.j_msg拼接完整消息内容
         var msg = e.j_msg.map((msg: { text: string }) => msg.text).join(" ");
-        logger.info(`[autoReply]解析后的消息内容: ${msg}`);
+        logger.debug(`[autoReply]解析后的消息内容: ${msg}`);
 
         if (msg) msg = msg.trim();
         if (Objects.isNull(msg)) {
@@ -86,21 +86,21 @@ export class autoReply extends plugin {
             return false;
         }
 
-        var chatRate = autoReplyConfig.defaultChatRate; // 主动回复概率
-        var replyAtBot = autoReplyConfig.defaultReplyAtBot; // 是否回复@机器人的消息
+        var chatRate = config.autoReply.defaultChatRate; // 主动回复概率
+        var replyAtBot = config.autoReply.defaultReplyAtBot; // 是否回复@机器人的消息
         // 如果 groupRate 配置存在且不为空
-        if (autoReplyConfig.groupChatRate && autoReplyConfig.groupChatRate.length > 0) {
-            for (var config of autoReplyConfig.groupChatRate) {
+        if (config.autoReply.groupChatRate && config.autoReply.groupChatRate.length > 0) {
+            for (var each of config.autoReply.groupChatRate) {
                 // 确保 config.groupList 是数组，以避免 undefined 的情况
                 if (
-                    Array.isArray(config.groupList) &&
-                    config.groupList.includes(e.group_id)
+                    Array.isArray(each.groupList) &&
+                    each.groupList.includes(e.group_id)
                 ) {
                     // if(config.chatRate) 会将0概率认为是为false，改成如下写法
-                    if (config.chatRate !== undefined && config.chatRate !== null)
-                        chatRate = config.chatRate;
-                    if (config.replyAtBot !== undefined && config.replyAtBot !== null)
-                        replyAtBot = config.replyAtBot;
+                    if (each.chatRate !== undefined && each.chatRate !== null)
+                        chatRate = each.chatRate;
+                    if (each.replyAtBot !== undefined && each.replyAtBot !== null)
+                        replyAtBot = each.replyAtBot;
                     break;
                 }
             }
@@ -118,7 +118,7 @@ export class autoReply extends plugin {
                 answer_time = Date.now();
             }
         }
-        if (autoReplyConfig.useContext) {
+        if (config.autoReply.useContext) {
             // 保存用户消息
             var content = chatDate + " - " + e.sender.card + "：" + msg;
             await saveContext(time, e.group_id, e.message_id, "user", content);
@@ -144,28 +144,28 @@ export class autoReply extends plugin {
         await parseSourceMessageVisual(e);
         // 处理分享链接
         await parseJsonVisual(e);
-        if (autoReplyConfig.attachUrlAnalysis) {
+        if (config.autoReply.attachUrlAnalysis) {
             // 处理URL
             await parseUrlVisual(e);
         }
         // 通过自定义的e.j_msg拼接完整消息内容
         await parseTextVisual(e);
 
-        var chatRate = autoReplyConfig.defaultChatRate; // 主动回复概率
-        var replyAtBot = autoReplyConfig.defaultReplyAtBot; // 是否回复@机器人的消息
+        var chatRate = config.autoReply.defaultChatRate; // 主动回复概率
+        var replyAtBot = config.autoReply.defaultReplyAtBot; // 是否回复@机器人的消息
         // 如果 groupRate 配置存在且不为空
-        if (autoReplyConfig.groupChatRate && autoReplyConfig.groupChatRate.length > 0) {
-            for (var config of autoReplyConfig.groupChatRate) {
+        if (config.autoReply.groupChatRate && config.autoReply.groupChatRate.length > 0) {
+            for (var each of config.autoReply.groupChatRate) {
                 // 确保 config.groupList 是数组，以避免 undefined 的情况
                 if (
-                    Array.isArray(config.groupList) &&
-                    config.groupList.includes(e.group_id)
+                    Array.isArray(each.groupList) &&
+                    each.groupList.includes(e.group_id)
                 ) {
                     // if(config.chatRate) 会将0概率认为是为false，改成如下写法
-                    if (config.chatRate !== undefined && config.chatRate !== null)
-                        chatRate = config.chatRate;
-                    if (config.replyAtBot !== undefined && config.replyAtBot !== null)
-                        replyAtBot = config.replyAtBot;
+                    if (each.chatRate !== undefined && each.chatRate !== null)
+                        chatRate = each.chatRate;
+                    if (each.replyAtBot !== undefined && each.replyAtBot !== null)
+                        replyAtBot = each.replyAtBot;
                     break;
                 }
             }
@@ -185,7 +185,7 @@ export class autoReply extends plugin {
                 answer_date = formatDateDetail(answer_time);
             }
         }
-        if (autoReplyConfig.useContext) {
+        if (config.autoReply.useContext) {
             // 保存用户消息
             await saveContextVisual(
                 time,
@@ -221,7 +221,7 @@ export class autoReply extends plugin {
      */
     async handleReply(e: any, answer: string) {
         // 如果为连续短句，概率间隔发送，感觉这样更真实一点
-        if (answer.split(" ").length > 1 && Math.random() < 0.5) {
+        if (answer.split(" ").length > 1 && answer.split(" ").length < 4 && Math.random() < 0.5) {
             var answerList = answer.split(" ");
             for (var i = 0; i < answerList.length; i++) {
                 var each = answerList[i];

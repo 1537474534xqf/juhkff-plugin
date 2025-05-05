@@ -3,7 +3,6 @@
  */
 
 import { config, Config } from "../config/index.js";
-import { autoReplyConfig } from "../config/define/autoReply.js";
 import { reloadInstance } from "../model/map.js";
 import { Objects } from "../utils/kits.js";
 import { EMOTION_KEY, removeSubKeys } from "../utils/redis.js";
@@ -75,11 +74,11 @@ export function afterUpdate(previous: Config) {
         if (Objects.isNull(config.autoReply.visualApiKey)) return { code: -1, message: "请输入有效的视觉AI ApiKey" };
     }
 
-    if (previous.autoReply.chatApi != autoReplyConfig.chatApi) {
+    if (previous.autoReply.chatApi != config.autoReply.chatApi) {
         config.autoReply.chatModel = "";
     }
     // 因为实现逻辑和结构体不同，所以切换时删除之前的redis存储
-    if (previous.autoReply.visualReplaceChat != autoReplyConfig.visualReplaceChat) {
+    if (previous.autoReply.visualReplaceChat != config.autoReply.visualReplaceChat) {
         removeSubKeys("juhkff:auto_reply", [EMOTION_KEY]).then(() => { });
     }
 

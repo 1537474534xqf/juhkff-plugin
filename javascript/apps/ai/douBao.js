@@ -7,7 +7,7 @@ import fastImageSize from "fast-image-size";
 import { PLUGIN_DATA_DIR } from "../../model/path.js";
 import { Base64, Objects } from "../../utils/kits.js";
 import { downloadFile, url2Base64 } from "../../utils/net.js";
-import { douBaoConfig } from "../../config/define/ai/douBao.js";
+import { config } from "../../config/index.js";
 export class douBao extends plugin {
     constructor() {
         super({
@@ -42,24 +42,24 @@ export class douBao extends plugin {
             ],
         });
         // ---------------------------------------------------- ServiceApi ----------------------------------------------------
-        if (douBaoConfig.useDouBao) {
-            this.fetchImageService = getServiceApi(douBaoConfig.imageService.host, douBaoConfig.imageService.accessKeyId, douBaoConfig.imageService.secretAccessKey, "POST", douBaoConfig.imageService.action, douBaoConfig.imageService.version, douBaoConfig.imageService.region, douBaoConfig.imageService.service);
+        if (config.douBao.useDouBao) {
+            this.fetchImageService = getServiceApi(config.douBao.imageService.host, config.douBao.imageService.accessKeyId, config.douBao.imageService.secretAccessKey, "POST", config.douBao.imageService.action, config.douBao.imageService.version, config.douBao.imageService.region, config.douBao.imageService.service);
         }
         // --------------------------------------------------------------------------------------------------------------------
     }
     async help(e) {
-        if (!douBaoConfig.useDouBao)
+        if (!config.douBao.useDouBao)
             return false;
         var helpMsg = `可用指令：[]中为可选项，()中为解释说明`;
-        if (douBaoConfig.useVideoGenerate)
+        if (config.douBao.useVideoGenerate)
             helpMsg += `\n  #视频生成 文本|图片 [宽高比] [5|10](视频秒数)`;
-        if (douBaoConfig.useImageGenerate) {
+        if (config.douBao.useImageGenerate) {
             helpMsg += `\n  #图片生成 文本 图片1|图片...(同宽高) [-w 宽] [-h 高]`;
         }
-        if (douBaoConfig.useImageImitate) {
+        if (config.douBao.useImageImitate) {
             helpMsg += `\n  #图片模仿 文本 图片`;
         }
-        if (douBaoConfig.useImageStyle) {
+        if (config.douBao.useImageStyle) {
             helpMsg += `\n  #图片风格化 类型前缀 图片`;
             helpMsg += `\n  #图片风格化 类型列表`;
         }
@@ -68,17 +68,18 @@ export class douBao extends plugin {
     }
     // ------------------------------------------------ 图片服务通用检查 -------------------------------------------------
     async preCheck(e) {
-        if (Objects.hasNull(douBaoConfig.imageService.accessKeyId, douBaoConfig.imageService.secretAccessKey)) {
+        if (Objects.hasNull(config.douBao.imageService.accessKeyId, config.douBao.imageService.secretAccessKey)) {
             await e.reply("请先设置accessKeyId和secretAccessKey");
             return false;
         }
+        return true;
     }
     get SuccessCode() {
         return 10000;
     }
     // --------------------------------------------------- 图片风格化 ---------------------------------------------------
     get imageStyleReqKeyMap() {
-        var reqKeyList = douBaoConfig.imageStyle.reqKeyMap;
+        var reqKeyList = config.douBao.imageStyle.reqKeyMap;
         var reqKeyMap = {};
         reqKeyList.forEach((item) => {
             reqKeyMap[item.key] = item.value;
@@ -86,7 +87,7 @@ export class douBao extends plugin {
         return reqKeyMap;
     }
     get iamgeStyleSubReqKeyMap() {
-        var subReqKeyList = douBaoConfig.imageStyle.subReqKeyMap;
+        var subReqKeyList = config.douBao.imageStyle.subReqKeyMap;
         var subReqKeyMap = {};
         subReqKeyList.forEach((item) => {
             subReqKeyMap[item.key] = item.value;
@@ -94,9 +95,9 @@ export class douBao extends plugin {
         return subReqKeyMap;
     }
     async imageStyle(e) {
-        if (!douBaoConfig.useDouBao)
+        if (!config.douBao.useDouBao)
             return false;
-        if (!douBaoConfig.useImageStyle)
+        if (!config.douBao.useImageStyle)
             return true;
         if (!this.preCheck(e))
             return true;
@@ -143,7 +144,7 @@ export class douBao extends plugin {
         if (!Objects.isNull(this.iamgeStyleSubReqKeyMap[type]))
             body.sub_req_key = this.iamgeStyleSubReqKeyMap[type];
         body.image_urls = result.images;
-        body.return_url = douBaoConfig.imageStyle.returnUrl;
+        body.return_url = config.douBao.imageStyle.returnUrl;
         await e.reply("正在生成图片，请稍等...");
         var response = await this.fetchImageService(body, { timeout: 0 });
         if (response?.ResponseMetadata?.Error) {
@@ -171,9 +172,9 @@ export class douBao extends plugin {
     }
     // ---------------------------------------------------- 图片模仿 ----------------------------------------------------
     async imageImitate(e) {
-        if (!douBaoConfig.useDouBao)
+        if (!config.douBao.useDouBao)
             return false;
-        if (!douBaoConfig.useImageImitate)
+        if (!config.douBao.useImageImitate)
             return true;
         if (!this.preCheck(e))
             return true;
@@ -200,13 +201,13 @@ export class douBao extends plugin {
             await e.reply("请发送图片");
             return true;
         }
-        body.req_key = douBaoConfig.imageImitate.reqKey;
+        body.req_key = config.douBao.imageImitate.reqKey;
         body.image_urls = result.images;
         body.prompt = result.texts;
-        if (!Objects.isNull(douBaoConfig.imageImitate.returnUrl))
-            body.return_url = douBaoConfig.imageImitate.returnUrl;
-        if (!Objects.isNull(douBaoConfig.imageImitate.useSr))
-            body.use_sr = douBaoConfig.imageImitate.useSr;
+        if (!Objects.isNull(config.douBao.imageImitate.returnUrl))
+            body.return_url = config.douBao.imageImitate.returnUrl;
+        if (!Objects.isNull(config.douBao.imageImitate.useSr))
+            body.use_sr = config.douBao.imageImitate.useSr;
         await e.reply("正在生成图片，请稍等...");
         var response = await this.fetchImageService(body, { timeout: 0 });
         if (response?.ResponseMetadata?.Error) {
@@ -233,9 +234,9 @@ export class douBao extends plugin {
     }
     // ---------------------------------------------------- 图片生成 ----------------------------------------------------
     async imageGenerate(e) {
-        if (!douBaoConfig.useDouBao)
+        if (!config.douBao.useDouBao)
             return false;
-        if (!douBaoConfig.useImageGenerate)
+        if (!config.douBao.useImageGenerate)
             return true;
         if (!this.preCheck(e))
             return true;
@@ -259,18 +260,18 @@ export class douBao extends plugin {
             body.height = height;
         if (Objects.isNull(result.images)) {
             // 纯文本
-            body.req_key = douBaoConfig.imageGenerate.reqKey;
+            body.req_key = config.douBao.imageGenerate.reqKey;
             body.prompt = result.texts;
-            if (!Objects.isNull(douBaoConfig.imageGenerate.modelVersion))
-                body.model_version = douBaoConfig.imageGenerate.modelVersion;
-            if (!Objects.isNull(douBaoConfig.imageGenerate.reqScheduleConf))
-                body.req_schedule_conf = douBaoConfig.imageGenerate.reqScheduleConf;
-            if (!Objects.isNull(douBaoConfig.imageGenerate.usePreLlm))
-                body.use_pre_llm = douBaoConfig.imageGenerate.usePreLlm;
-            if (!Objects.isNull(douBaoConfig.imageGenerate.useSr))
-                body.use_sr = douBaoConfig.imageGenerate.useSr;
-            if (!Objects.isNull(douBaoConfig.imageGenerate.returnUrl))
-                body.return_url = douBaoConfig.imageGenerate.returnUrl;
+            if (!Objects.isNull(config.douBao.imageGenerate.modelVersion))
+                body.model_version = config.douBao.imageGenerate.modelVersion;
+            if (!Objects.isNull(config.douBao.imageGenerate.reqScheduleConf))
+                body.req_schedule_conf = config.douBao.imageGenerate.reqScheduleConf;
+            if (!Objects.isNull(config.douBao.imageGenerate.usePreLlm))
+                body.use_pre_llm = config.douBao.imageGenerate.usePreLlm;
+            if (!Objects.isNull(config.douBao.imageGenerate.useSr))
+                body.use_sr = config.douBao.imageGenerate.useSr;
+            if (!Objects.isNull(config.douBao.imageGenerate.returnUrl))
+                body.return_url = config.douBao.imageGenerate.returnUrl;
         }
         else {
             // 图生图
@@ -294,20 +295,20 @@ export class douBao extends plugin {
                     return true;
                 }
             }
-            body.req_key = douBaoConfig.imageGenerate.withImgReqKey;
-            if (!Objects.isNull(douBaoConfig.imageGenerate.withImgModelVersion))
-                body.model_version = douBaoConfig.imageGenerate.withImgModelVersion;
+            body.req_key = config.douBao.imageGenerate.withImgReqKey;
+            if (!Objects.isNull(config.douBao.imageGenerate.withImgModelVersion))
+                body.model_version = config.douBao.imageGenerate.withImgModelVersion;
             body.image_urls = result.images;
             body.prompt = result.texts;
-            if (!Objects.isNull(douBaoConfig.imageGenerate.withImgUseRephraser))
-                body.use_rephraser = douBaoConfig.imageGenerate.withImgUseRephraser;
-            if (!Objects.isNull(douBaoConfig.imageGenerate.withImgReturnUrl))
-                body.return_url = douBaoConfig.imageGenerate.withImgReturnUrl;
+            if (!Objects.isNull(config.douBao.imageGenerate.withImgUseRephraser))
+                body.use_rephraser = config.douBao.imageGenerate.withImgUseRephraser;
+            if (!Objects.isNull(config.douBao.imageGenerate.withImgReturnUrl))
+                body.return_url = config.douBao.imageGenerate.withImgReturnUrl;
             body.controlnet_args = [];
             for (var i = 0; i < result.images.length; i++) {
                 body.controlnet_args.push({
-                    type: douBaoConfig.imageGenerate.withImgControlnetArgs.type,
-                    strength: douBaoConfig.imageGenerate.withImgControlnetArgs.strength,
+                    type: config.douBao.imageGenerate.withImgControlnetArgs.type,
+                    strength: config.douBao.imageGenerate.withImgControlnetArgs.strength,
                     binary_data_index: i,
                 });
             }
@@ -335,9 +336,9 @@ export class douBao extends plugin {
     }
     // ---------------------------------------------------- 视频生成 ----------------------------------------------------
     get VideoGenerateApiKey() {
-        return Objects.isNull(douBaoConfig.videoGenerate.apiKey)
+        return Objects.isNull(config.douBao.videoGenerate.apiKey)
             ? ""
-            : douBaoConfig.videoGenerate.apiKey;
+            : config.douBao.videoGenerate.apiKey;
     }
     get VideoGenerateRequestPost() {
         return {
@@ -359,14 +360,14 @@ export class douBao extends plugin {
         };
     }
     get VideoGenerateUrl() {
-        return Objects.isNull(douBaoConfig.videoGenerate.url)
+        return Objects.isNull(config.douBao.videoGenerate.url)
             ? ""
-            : douBaoConfig.videoGenerate.url;
+            : config.douBao.videoGenerate.url;
     }
     get VideoGenerateModel() {
-        return Objects.isNull(douBaoConfig.videoGenerate.model)
+        return Objects.isNull(config.douBao.videoGenerate.model)
             ? ""
-            : douBaoConfig.videoGenerate.model;
+            : config.douBao.videoGenerate.model;
     }
     get VideoGenerateBody() {
         return {
@@ -377,9 +378,9 @@ export class douBao extends plugin {
         };
     }
     async videoGenerate(e) {
-        if (!douBaoConfig.useDouBao)
+        if (!config.douBao.useDouBao)
             return false;
-        if (!douBaoConfig.useVideoGenerate)
+        if (!config.douBao.useVideoGenerate)
             return true;
         if (Objects.isNull(this.VideoGenerateApiKey)) {
             await e.reply("请先设置apiKey");

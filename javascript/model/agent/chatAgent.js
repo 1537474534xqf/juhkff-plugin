@@ -6,10 +6,12 @@
 import { Objects } from "../../utils/kits.js";
 import { EMOTION_KEY } from "../../utils/redis.js";
 export class ChatAgent {
+    apiKey;
     apiUrl = undefined;
     modelsChat;
     modelsVisual;
-    constructor(apiBaseUrl = null) {
+    constructor(apiKey, apiBaseUrl = null) {
+        this.apiKey = apiKey;
         if (apiBaseUrl)
             this.apiUrl = apiBaseUrl;
         (async () => {

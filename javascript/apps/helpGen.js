@@ -2,10 +2,9 @@ import path from "path";
 import fs from "fs";
 import { pathToFileURL } from "url";
 import { renderPage } from "../utils/page.js";
-import { helpGenConfig } from "../config/define/helpGen.js";
 import { PLUGIN_APP_DIR, PLUGIN_RESOURCES_DIR } from "../model/path.js";
 import { Objects, StringUtils } from "../utils/kits.js";
-import { douBaoConfig } from "../config/define/ai/douBao.js";
+import { config } from "../config/index.js";
 export class helpGen extends plugin {
     constructor() {
         super({
@@ -15,7 +14,7 @@ export class helpGen extends plugin {
             priority: 1,
             rule: [
                 {
-                    reg: `^#${helpGenConfig.command}$`,
+                    reg: `^#${config.helpGen.command}$`,
                     fnc: "helpGenerate",
                 }
             ],
@@ -23,12 +22,12 @@ export class helpGen extends plugin {
         this.extraHelp = initExtraHelp();
     }
     async helpGenerate(e) {
-        if (!helpGenConfig.useHelpGen)
+        if (!config.helpGen.useHelpGen)
             return false;
         var helpList = [];
         await this.loadPluginHelp(PLUGIN_APP_DIR, helpList);
         this.addManualHelp(helpList);
-        if (!helpGenConfig.hd) {
+        if (!config.helpGen.hd) {
             // 使用内置的渲染器，此时会自行回复，不需要e.reply
             if (!e.runtime) {
                 await e.reply('目前版本不支持，请升级至最新版Yunzai，或尝试切换hd模式');
@@ -39,12 +38,12 @@ export class helpGen extends plugin {
                 // 用绝对路径似乎也没问题，调试时将Yunzai/temp/html/juhkff-plugin/help/index/index.html中的css导入路径改为相对路径
                 cssFile: path.join(PLUGIN_RESOURCES_DIR, "help", "index.css"),
                 quality: 100, // 还是好糊啊啊啊
-                titleZh: Objects.isNull(helpGenConfig?.titleZh) ? helpGenConfig.command : helpGenConfig?.titleZh,
-                titleEn: Objects.isNull(helpGenConfig?.titleEn) ? "JUHKFF-PLUGIN" : helpGenConfig?.titleEn,
+                titleZh: Objects.isNull(config.helpGen?.titleZh) ? config.helpGen.command : config.helpGen?.titleZh,
+                titleEn: Objects.isNull(config.helpGen?.titleEn) ? "JUHKFF-PLUGIN" : config.helpGen?.titleEn,
                 helpGroup: helpList.filter((item) => item?.type === "group" && item?.enable),
                 helpActive: helpList.filter((item) => item?.type === "active" && item?.enable),
                 helpPassive: helpList.filter((item) => item?.type === "passive" && item?.enable),
-                colorOptions: helpGenConfig.colorOptions,
+                colorOptions: config.helpGen.colorOptions,
             });
         }
         else {
@@ -52,12 +51,12 @@ export class helpGen extends plugin {
             // TODO 考虑像内置的渲染器一样实现下生命周期
             var buffer = await renderPage(path.join(PLUGIN_RESOURCES_DIR, "help", "index.html"), {
                 cssFile: "index.css",
-                titleZh: Objects.isNull(helpGenConfig?.titleZh) ? helpGenConfig.command : helpGenConfig?.titleZh,
-                titleEn: Objects.isNull(helpGenConfig?.titleEn) ? "JUHKFF-PLUGIN" : helpGenConfig?.titleEn,
+                titleZh: Objects.isNull(config.helpGen?.titleZh) ? config.helpGen.command : config.helpGen?.titleZh,
+                titleEn: Objects.isNull(config.helpGen?.titleEn) ? "JUHKFF-PLUGIN" : config.helpGen?.titleEn,
                 helpGroup: helpList.filter((item) => item?.type === "group" && item?.enable),
                 helpActive: helpList.filter((item) => item?.type === "active" && item?.enable),
                 helpPassive: helpList.filter((item) => item?.type === "passive" && item?.enable),
-                colorOptions: helpGenConfig.colorOptions,
+                colorOptions: config.helpGen.colorOptions,
             });
             await e.reply(segment.image(buffer));
         }
@@ -105,7 +104,7 @@ export class helpGen extends plugin {
         }
     }
     addManualHelp(helpList) {
-        var manualHelpList = helpGenConfig.manualList;
+        var manualHelpList = config.helpGen.manualList;
         if (Objects.isNull(manualHelpList))
             return;
         var groupHelpList = manualHelpList.filter((item) => item?.type === "group");
@@ -156,9 +155,9 @@ var helpDesc = () => {
     return {
         name: "帮助",
         type: "active",
-        command: `#${helpGenConfig.command}`,
+        command: `#${config.helpGen.command}`,
         dsc: "生成帮助图片",
-        enable: helpGenConfig.useHelpGen,
+        enable: config.helpGen.useHelpGen,
     };
 };
 // 配置过长的插件单独导入插件帮助
@@ -167,34 +166,34 @@ var douBaoHelp = () => {
         name: "豆包",
         type: "group",
         dsc: "接入豆包",
-        enable: douBaoConfig.useDouBao,
+        enable: config.douBao.useDouBao,
         subMenu: [
             {
                 name: "视频生成",
                 type: "active",
                 command: "#视频生成 文本|图片 [宽高比] [5|10](视频秒数)",
-                enable: douBaoConfig.useVideoGenerate,
+                enable: config.douBao.useVideoGenerate,
             },
             {
                 name: "图片生成",
                 type: "active",
                 command: "#图片生成 文本 图片1|图片...(同宽高) [-w 宽] [-h 高]",
-                enable: douBaoConfig.useImageGenerate,
+                enable: config.douBao.useImageGenerate,
             },
             {
                 name: "图片模仿",
                 command: "#图片模仿 文本 图片",
-                enable: douBaoConfig.useImageImitate,
+                enable: config.douBao.useImageImitate,
             },
             {
                 name: "图片风格化",
                 command: "#图片风格化 类型前缀 图片",
-                enable: douBaoConfig.useImageStyle,
+                enable: config.douBao.useImageStyle,
             },
             {
                 name: "图片风格化",
                 command: "#图片风格化 类型列表",
-                enable: douBaoConfig.useImageStyle,
+                enable: config.douBao.useImageStyle,
             }
         ]
     };

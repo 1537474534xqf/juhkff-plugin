@@ -2,13 +2,13 @@ import fs from "fs";
 import path from "path";
 import { PLUGIN_DATA_DIR } from "../model/path.js";
 import { downloadFile } from "../utils/net.js";
-import { emojiSaveConfig } from "../config/define/emojiSave.js";
+import { config } from "../config/index.js";
 export const help = () => {
     return {
         name: "偷图",
         type: "passive",
         dsc: "表情偷取和发送",
-        enable: emojiSaveConfig.useEmojiSave,
+        enable: config.emojiSave.useEmojiSave,
     };
 };
 /**
@@ -32,28 +32,28 @@ export class emojiSave extends plugin {
         });
     }
     async emojiSave(e) {
-        if (!emojiSaveConfig.useEmojiSave)
+        if (!config.emojiSave.useEmojiSave)
             return false;
         if (e.message_type != "group")
             return false;
         var emojiSaveDir = path.join(PLUGIN_DATA_DIR, `${e.group_id}`, "emoji_save");
-        let replyRate = emojiSaveConfig.defaultReplyRate; // 回复表情概率
-        let emojiRate = emojiSaveConfig.defaultEmojiRate; // 发送偷的图的概率
+        let replyRate = config.emojiSave.defaultReplyRate; // 回复表情概率
+        let emojiRate = config.emojiSave.defaultEmojiRate; // 发送偷的图的概率
         // 如果 groupRate 配置存在且不为空
-        if (emojiSaveConfig.groupRate && emojiSaveConfig.groupRate.length > 0) {
-            for (let config of emojiSaveConfig.groupRate) {
+        if (config.emojiSave.groupRate && config.emojiSave.groupRate.length > 0) {
+            for (let each of config.emojiSave.groupRate) {
                 // 确保 config.groupList 是数组，以避免 undefined 的情况
-                if (Array.isArray(config.groupList) &&
-                    config.groupList.includes(e.group_id)) {
-                    if (config.replyRate)
-                        replyRate = config.replyRate;
-                    if (config.emojiRate)
-                        emojiRate = config.emojiRate;
+                if (Array.isArray(each.groupList) &&
+                    each.groupList.includes(e.group_id)) {
+                    if (each.replyRate)
+                        replyRate = each.replyRate;
+                    if (each.emojiRate)
+                        emojiRate = each.emojiRate;
                     break;
                 }
             }
         }
-        const expireTimeInSeconds = emojiSaveConfig.expireTimeInSeconds;
+        const expireTimeInSeconds = config.emojiSave.expireTimeInSeconds;
         await fs.promises.mkdir(emojiSaveDir, { recursive: true });
         let list = await fs.promises.readdir(emojiSaveDir);
         // 处理消息的每一项

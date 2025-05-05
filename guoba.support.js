@@ -49,26 +49,25 @@ export function supportGuoba() {
             // https://doc.vvbin.cn/components/introduction.html
             // https://3x.antdv.com/components/overview-cn/
             schemas: [
-                ...autoReplySchema,
-                ...dailyReportSchema,
-                ...emojiSaveSchema,
-                ...douBaoSchema,
-                ...helpGenSchema,
+                ...autoReplySchema(),
+                ...dailyReportSchema(),
+                ...emojiSaveSchema(),
+                ...douBaoSchema(),
+                ...helpGenSchema(),
             ],
             // 获取配置数据方法（用于前端填充显示数据）
             getConfigData: () => config,
 
             // 设置配置的方法（前端点确定后调用的方法）
             setConfigData(data, { Result }) {
+                var previous = { autoReply: config.autoReply };
                 //将 data 变成递归嵌套而非两层嵌套
                 data = transformDataToType(data);
                 // 更新前校验和处理
                 if (beforeUpdate(data).code != 0) return Result.error(beforeResult.code, null, beforeResult.message);
                 updateConfig(data);
                 // 更新后校验和处理
-                logger.info(douBaoConfig)
-                logger.info(config.douBao);
-                if (afterUpdate(data).code != 0) return Result.error(afterResult.code, null, afterResult.message);
+                if (afterUpdate(previous).code != 0) return Result.error(afterResult.code, null, afterResult.message);
                 return Result.ok({}, "保存成功~");
             },
         },

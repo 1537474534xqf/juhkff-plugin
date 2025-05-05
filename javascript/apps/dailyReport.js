@@ -1,14 +1,15 @@
-import { dailyReportConfig } from "../config/define/dailyReport.js";
 import { get, getXML } from "../utils/net.js";
 import { formatDate, getFestivalsDates } from "../utils/date.js";
 import { generateDailyReport } from "../utils/page.js";
+import { config } from "../config/index.js";
+import { Objects } from "../utils/kits.js";
 export const help = () => {
     return {
         name: "日报",
         type: "passive",
         command: "#日报",
         dsc: "主动或定时推送日报",
-        enable: dailyReportConfig.useDailyReport,
+        enable: config.dailyReport.useDailyReport,
     };
 };
 export class dailyReport extends plugin {
@@ -25,9 +26,9 @@ export class dailyReport extends plugin {
                 },
             ],
         });
-        if (dailyReportConfig.useDailyReport && dailyReportConfig.push) {
+        if (config.dailyReport.useDailyReport && config.dailyReport.push) {
             this.task = Object.defineProperties({}, {
-                cron: { value: dailyReportConfig.dailyReportTime, writable: false },
+                cron: { value: config.dailyReport.dailyReportTime, writable: false },
                 name: { value: "推送日报", writable: false },
                 fnc: { value: () => this.dailyReport(), writable: false },
                 log: { get: () => false },
@@ -51,7 +52,7 @@ export class dailyReport extends plugin {
         6: "六",
     };
     async dailyReport(e) {
-        if (!dailyReportConfig.useDailyReport)
+        if (!config.dailyReport.useDailyReport)
             return false;
         if (e && e.message_type != "group") {
             await e.reply("功能只对群聊开放");
@@ -70,9 +71,25 @@ export class dailyReport extends plugin {
         var animeResp = await get(this.anime_url);
         var anime = [];
         hitokoto = hitokotoResp.hitokoto;
-        if (dailyReportConfig.alapiToken) {
-            // todo 使用 alapitoken 获取数据
-            // var alapi = await get(this.alapi_url);
+        if (Objects.isNull(config.dailyReport.alapiToken)) {
+            // 使用 alapitoken 获取数据
+            let alapi = await get(`${this.alapi_url}?token=${config.dailyReport.alapiToken}`);
+            let news = alapi.data.news;
+            // 删掉、
+            news.forEach((item, index) => {
+                var find = news[index].indexOf('、');
+                if (find !== -1) {
+                    news[index] = item.substring(find + 1, item.length);
+                }
+                // 删除句子最后的标点
+                if (news[index].endsWith('。') || news[index].endsWith('！') || news[index].endsWith('；') || news[index].endsWith('？')) {
+                    news[index] = news[index].substring(0, news[index].length - 1);
+                }
+            });
+            six = news;
+            if (six.length > 11) {
+                six = six.slice(0, 11);
+            }
         }
         else {
             sixResp = await get(this.six_url);
@@ -131,7 +148,7 @@ export class dailyReport extends plugin {
             week: this.week[new Date().getDay()],
             date: await formatDate(Date.now()),
             zh_date: await formatDate(Date.now(), "zh"),
-            full_show: dailyReportConfig.dailyReportFullShow,
+            full_show: config.dailyReport.dailyReportFullShow,
             data_festival: await getFestivalsDates(),
         };
         // 生成图片
@@ -142,10 +159,10 @@ export class dailyReport extends plugin {
             return true;
         }
         else {
-            for (let i = 0; i < dailyReportConfig.pushGroupList.length; i++) {
+            for (let i = 0; i < config.dailyReport.pushGroupList.length; i++) {
                 // 添加延迟以防止消息发送过快
                 setTimeout(async () => {
-                    const group = Bot.pickGroup(dailyReportConfig.pushGroupList[i]);
+                    const group = Bot.pickGroup(config.dailyReport.pushGroupList[i]);
                     logger.info(`正在向群组 ${group} 推送新闻。`);
                     await group.sendMsg([segment.image(imageBuffer)]);
                 }, i * 1000);

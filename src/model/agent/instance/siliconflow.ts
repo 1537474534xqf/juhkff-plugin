@@ -2,10 +2,10 @@ import axios from "axios";
 import { ChatAgent } from "../chatAgent.js";
 import { Request, RequestBody } from "../../../type.js";
 import { Objects } from "../../../utils/kits.js";
-import { autoReplyConfig } from "../../../config/define/autoReply.js";
+import { config } from "../../../config/index.js";
 
 export class Siliconflow extends ChatAgent {
-    constructor() { super("https://api.siliconflow.cn/v1"); }
+    constructor(apiKey: string) { super(apiKey, "https://api.siliconflow.cn/v1"); }
     static hasVisual = () => true;
 
     public async visualModels(): Promise<Record<string, { chat: Function, tool: Function }> | undefined> {
@@ -41,7 +41,7 @@ export class Siliconflow extends ChatAgent {
         let response = await axios.get(`${this.apiUrl}/models?type=text`, {
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${autoReplyConfig.chatApiKey}`,
+                Authorization: `Bearer ${this.apiKey}`,
             },
         });
         let modelMap: Record<string, Function> = {};
@@ -59,7 +59,7 @@ export class Siliconflow extends ChatAgent {
             options: {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${autoReplyConfig.chatApiKey}`,
+                    Authorization: `Bearer ${this.apiKey}`,
                     "Content-Type": "application/json",
                 },
                 body: {
@@ -84,7 +84,7 @@ export class Siliconflow extends ChatAgent {
             options: {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${autoReplyConfig.visualApiKey}`,
+                    Authorization: `Bearer ${this.apiKey}`,
                     "Content-Type": "application/json",
                 },
                 body: {
@@ -108,7 +108,7 @@ export class Siliconflow extends ChatAgent {
             options: {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${autoReplyConfig.visualApiKey}`,
+                    Authorization: `Bearer ${this.apiKey}`,
                     "Content-Type": "application/json",
                 },
                 body: {
@@ -124,7 +124,7 @@ export class Siliconflow extends ChatAgent {
 
     private async commonRequestChat(request: Request, input: string, historyMessages: any[] = [], useSystemRole = true) {
         if (useSystemRole) {
-            var systemContent = await this.generateSystemContent(autoReplyConfig.useEmotion, autoReplyConfig.chatPrompt);
+            var systemContent = await this.generateSystemContent(config.autoReply.useEmotion, config.autoReply.chatPrompt);
             (request.options.body as RequestBody).messages.push(systemContent);
         }
         // 添加历史对话
@@ -156,7 +156,7 @@ export class Siliconflow extends ChatAgent {
 
     private async commonRequestVisual(request: Request, nickeName: string, j_msg: any, historyMessages?: any[], useSystemRole?: boolean) {
         if (useSystemRole) {
-            var systemContent = await this.generateSystemContentVisual(autoReplyConfig.useEmotion, autoReplyConfig.chatPrompt);
+            var systemContent = await this.generateSystemContentVisual(config.autoReply.useEmotion, config.autoReply.chatPrompt);
             (request.options.body as RequestBody).messages.push(systemContent);
         }
         // 添加历史对话
