@@ -12,6 +12,8 @@ export function configFolderCheck(file, defaultFile) {
     if (!fs.existsSync(PLUGIN_CONFIG_DIR)) {
         throw new Error("[JUHKFF-PLUGIN]插件缺失配置文件夹");
     }
+    if (!fs.existsSync(path.dirname(file)))
+        fs.mkdirSync(path.dirname(file), { recursive: true });
     if (!fs.existsSync(file)) {
         fs.copyFileSync(defaultFile, file);
         return true;
