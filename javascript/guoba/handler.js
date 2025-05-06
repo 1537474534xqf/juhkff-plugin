@@ -31,6 +31,18 @@ export const transformDataToType = (data) => {
  * @returns
  */
 export function beforeUpdate(data) {
+    if (data.autoReply.useAutoReply) {
+        if (Objects.isNull(data.autoReply.chatApi))
+            return { code: -1, message: "请选择有效的群聊AI接口" };
+        if (Objects.isNull(data.autoReply.chatApiKey))
+            return { code: -1, message: "请输入有效的群聊AI ApiKey" };
+    }
+    if (data.autoReply.useVisual) {
+        if (Objects.isNull(data.autoReply.visualApi))
+            return { code: -1, message: "请选择有效的视觉AI接口" };
+        if (Objects.isNull(data.autoReply.visualApiKey))
+            return { code: -1, message: "请输入有效的视觉AI ApiKey" };
+    }
     if (data.helpGen.manualList.some((item) => Objects.isNull(item?.name?.trim()) && Objects.isNull(item?.command?.trim()) && Objects.isNull(item?.dsc?.trim()))) {
         return { code: -1, message: "功能名称、调用格式和功能描述至少填写一项！" };
     }
@@ -77,4 +89,3 @@ export function afterUpdate(previous) {
     reloadInstance();
     return { code: 0, message: "校验成功" };
 }
-//# sourceMappingURL=handler.js.map

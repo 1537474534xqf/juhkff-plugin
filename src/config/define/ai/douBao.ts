@@ -3,7 +3,7 @@ import fs from "fs";
 import YAML from "yaml";
 import chokidar from "chokidar";
 import { PLUGIN_CONFIG_DIR, PLUGIN_DEFAULT_CONFIG_DIR } from "../../../model/path.js";
-import { configFolderCheck, configSync } from "../../common.js";
+import { configFolderCheck, configSync, getFileHash } from "../../common.js";
 
 export type DouBao = {
     useDouBao: boolean;
@@ -74,11 +74,16 @@ export function setDouBaoConfig(config: DouBao) {
     douBaoConfig = YAML.parse(fs.readFileSync(file, "utf8")) as DouBao;
     const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8")) as DouBao;
 
+    let lastHash: string = getFileHash(fs.readFileSync(file, "utf8"));
     configSync(douBaoConfig, defaultConfig);
     fs.writeFileSync(file, YAML.stringify(douBaoConfig));
-    
+
     chokidar.watch(file).on("change", () => {
-        douBaoConfig = YAML.parse(fs.readFileSync(file, "utf8"));
+        const content = fs.readFileSync(file, "utf8");
+        const hash = getFileHash(content);
+        if (hash === lastHash) return;
+        douBaoConfig = YAML.parse(content);
+        lastHash = hash;
         logger.info(`[JUHKFF-PLUGIN]同步豆包配置`);
     }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]豆包同步配置异常`, err) })
 })();

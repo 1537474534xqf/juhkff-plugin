@@ -433,4 +433,3 @@ export const douBaoSchema = () => [
         }
     },
 ];
-//# sourceMappingURL=index.js.map

@@ -28,4 +28,3 @@ export function updateConfig(data) {
     saveConfigToFile(data.helpGen, "helpGen.yaml");
     saveConfigToFile(data.douBao, "ai", "douBao.yaml");
 }
-//# sourceMappingURL=index.js.map

@@ -542,4 +542,3 @@ async function processMessage(e) {
     result.texts = textPart.trim();
     return result;
 }
-//# sourceMappingURL=douBao.js.map

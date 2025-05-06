@@ -342,4 +342,3 @@ export async function emotionGenerateVisual() {
     logger.info(`[handleVisual]情感生成: ${emotion}`);
     return emotion;
 }
-//# sourceMappingURL=handleVisual.js.map

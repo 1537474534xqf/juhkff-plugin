@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import YAML from "yaml";
+import crypto from "crypto";
 import { PLUGIN_CONFIG_DIR } from "../model/path.js";
 import { ConfigType } from "./index.js";
 
@@ -70,3 +71,7 @@ export function configSync(config: Record<string, any>, defaultConfig: Record<st
         delete defaultConfig[key];
     }
 }
+
+export function getFileHash(content: string): string {
+    return crypto.createHash("sha1").update(content).digest("hex");
+};

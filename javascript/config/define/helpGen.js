@@ -3,7 +3,7 @@ import fs from "fs";
 import YAML from "yaml";
 import chokidar from "chokidar";
 import { PLUGIN_CONFIG_DIR, PLUGIN_DEFAULT_CONFIG_DIR } from "../../model/path.js";
-import { configFolderCheck, configSync } from "../common.js";
+import { configFolderCheck, configSync, getFileHash } from "../common.js";
 export let helpGenConfig = null;
 export function setHelpGenConfig(config) {
     helpGenConfig = config;
@@ -15,11 +15,16 @@ export function setHelpGenConfig(config) {
         logger.info(`[JUHKFF-PLUGIN]创建帮助生成配置`);
     helpGenConfig = YAML.parse(fs.readFileSync(file, "utf8"));
     const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8"));
+    let lastHash = getFileHash(fs.readFileSync(file, "utf8"));
     configSync(helpGenConfig, defaultConfig);
     fs.writeFileSync(file, YAML.stringify(helpGenConfig));
     chokidar.watch(file).on("change", () => {
-        helpGenConfig = YAML.parse(fs.readFileSync(file, "utf8"));
+        const content = fs.readFileSync(file, "utf8");
+        const hash = getFileHash(content);
+        if (hash === lastHash)
+            return;
+        helpGenConfig = YAML.parse(content);
+        lastHash = hash;
         logger.info(`[JUHKFF-PLUGIN]同步帮助生成配置`);
     }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]帮助生成同步配置异常`, err); });
 })();
-//# sourceMappingURL=helpGen.js.map

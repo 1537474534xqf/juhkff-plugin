@@ -55,4 +55,3 @@ export async function fetchDouBao(host, accessKeyId, secretAccessKey, method, bo
     const rr = await fetchApi(body, { Action: action, timeout: 10000 });
     return rr;
 }
-//# sourceMappingURL=api.js.map

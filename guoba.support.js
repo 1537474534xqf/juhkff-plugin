@@ -64,10 +64,12 @@ export function supportGuoba() {
                 //将 data 变成递归嵌套而非两层嵌套
                 data = transformDataToType(data);
                 // 更新前校验和处理
-                if (beforeUpdate(data).code != 0) return Result.error(beforeResult.code, null, beforeResult.message);
+                var beforeResult = beforeUpdate(data);
+                if (beforeResult.code != 0) return Result.error(beforeResult.code, null, beforeResult.message);
                 updateConfig(data);
                 // 更新后校验和处理
-                if (afterUpdate(previous).code != 0) return Result.error(afterResult.code, null, afterResult.message);
+                var afterResult = afterUpdate(previous);
+                if (afterResult.code != 0) return Result.error(afterResult.code, null, afterResult.message);
                 return Result.ok({}, "保存成功~");
             },
         },

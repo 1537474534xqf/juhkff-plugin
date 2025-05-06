@@ -38,6 +38,18 @@ export const transformDataToType = (data: [string, any][]) => {
  * @returns 
  */
 export function beforeUpdate(data: Config) {
+    if (data.autoReply.useAutoReply) {
+        if (Objects.isNull(data.autoReply.chatApi))
+            return { code: -1, message: "请选择有效的群聊AI接口" };
+        if (Objects.isNull(data.autoReply.chatApiKey))
+            return { code: -1, message: "请输入有效的群聊AI ApiKey" };
+    }
+    if (data.autoReply.useVisual) {
+        if (Objects.isNull(data.autoReply.visualApi))
+            return { code: -1, message: "请选择有效的视觉AI接口" };
+        if (Objects.isNull(data.autoReply.visualApiKey))
+            return { code: -1, message: "请输入有效的视觉AI ApiKey" };
+    }
     if (data.helpGen.manualList.some((item) =>
         Objects.isNull(item?.name?.trim()) && Objects.isNull(item?.command?.trim()) && Objects.isNull(item?.dsc?.trim()))
     ) {

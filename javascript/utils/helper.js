@@ -36,4 +36,3 @@ export async function analyseImage(image, input) {
     var result = await agent.visual.toolRequest(model, { img: [image], text: [input] });
     return result;
 }
-//# sourceMappingURL=helper.js.map
