@@ -1,4 +1,5 @@
 import { sleep } from "../bgProcess/timer.js";
+import { ChatApiType } from "../config/define/autoReply.js";
 import { config } from "../config/index.js";
 import { formatDateDetail } from "../utils/date.js";
 import { generateAnswer, parseImage, parseJson, parseSourceMessage, parseUrl, saveContext } from "../utils/handle.js";
@@ -46,7 +47,7 @@ export class autoReply extends plugin {
             return false;
         if (e.message_type != "group")
             return false;
-        if (config.autoReply.useVisual && config.autoReply.visualReplaceChat) {
+        if (config.autoReply.useVisual && config.autoReply.chatApiType.includes(ChatApiType.VISUAL)) {
             await this.visualProcess(e);
         }
         else {
@@ -206,3 +207,4 @@ export class autoReply extends plugin {
         await e.reply(answer);
     }
 }
+//# sourceMappingURL=autoReply.js.map

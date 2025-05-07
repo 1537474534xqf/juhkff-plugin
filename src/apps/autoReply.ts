@@ -1,4 +1,5 @@
 import { sleep } from "../bgProcess/timer.js";
+import { ChatApiType } from "../config/define/autoReply.js";
 import { config } from "../config/index.js";
 import { formatDateDetail } from "../utils/date.js";
 import { generateAnswer, parseImage, parseJson, parseSourceMessage, parseUrl, saveContext } from "../utils/handle.js";
@@ -50,7 +51,7 @@ export class autoReply extends plugin {
     async autoReply(e: any) {
         if (!config.autoReply.useAutoReply) return false;
         if (e.message_type != "group") return false;
-        if (config.autoReply.useVisual && config.autoReply.visualReplaceChat) {
+        if (config.autoReply.useVisual && config.autoReply.chatApiType.includes(ChatApiType.VISUAL)) {
             await this.visualProcess(e);
         } else {
             await this.commonProcess(e);
@@ -66,7 +67,7 @@ export class autoReply extends plugin {
         // 避免重复保存上下文
         // 借助siliconflow-plugin保存群聊上下文
         var time = Date.now();
-        let chatDate = await formatDateDetail(time);
+        let chatDate = formatDateDetail(time);
         await parseImage(e);
         // 处理引用消息，获取图片和文本
         await parseSourceMessage(e);
@@ -138,7 +139,7 @@ export class autoReply extends plugin {
         // 避免重复保存上下文
         // 借助siliconflow-plugin保存群聊上下文
         var time = Date.now();
-        let chatDate = await formatDateDetail(time);
+        let chatDate = formatDateDetail(time);
         await parseImageVisual(e);
         // 处理引用消息，获取图片和文本
         await parseSourceMessageVisual(e);

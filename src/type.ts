@@ -14,12 +14,22 @@ export type Request = {
     options: RequestOptions;
 };
 
+
+export type SimpleJMsg = {
+    id?: number,
+    text?: string,
+    data?: string,
+    type: string,
+} & Record<string, any>;
+
+export type Role = "user" | "assistant" | "system";
+
 export type ComplexJMsg = {
-    sourceImg: string[],
-    sourceText: string,
-    img: string[],
-    text: string,
-    notProcessed: any[],
+    sourceImg?: string[],
+    sourceText?: string,
+    img?: string[],
+    text?: string,
+    notProcessed?: (SimpleJMsg & { url?: string })[],
 }
 
 export type RequestMsg = {

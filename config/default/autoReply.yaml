@@ -47,9 +47,6 @@ groupChatRate: []
 # 是否使用视觉AI
 useVisual: false
 
-# 是否使用视觉AI替换原AI
-visualReplaceChat: false
-
 # 视觉AI接口选择
 visualApi: ""
 

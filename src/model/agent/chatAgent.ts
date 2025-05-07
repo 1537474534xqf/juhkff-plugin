@@ -3,6 +3,7 @@
  * @fileoverview 聊天接口定义和公用函数
  * @author juhkff
  */
+import { ComplexJMsg, Role } from "../../type.js";
 import { Objects } from "../../utils/kits.js";
 import { EMOTION_KEY } from "../../utils/redis.js";
 
@@ -34,10 +35,10 @@ export abstract class ChatAgent implements ChatInterface, VisualInterface {
 
     public static hasVisual = (): boolean => { throw new Error("Method not implemented."); }
 
-    abstract chatRequest(model: string, input: string, historyMessages?: any[], useSystemRole?: boolean): Promise<any>;
+    abstract chatRequest(model: string, input: string, historyMessages?: { role: Role, content: string }[], useSystemRole?: boolean): Promise<any>;
     abstract chatModels(): Promise<Record<string, Function> | undefined>;
-    abstract visualRequest(model: string, nickName: string, j_msg: any, historyMessages?: any[], useSystemRole?: boolean): Promise<any>;
-    abstract toolRequest(model: string, j_msg: any): Promise<any>;
+    abstract visualRequest(model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: any[], useSystemRole?: boolean): Promise<any>;
+    abstract toolRequest(model: string, j_msg: { img?: string[], text: string[] }): Promise<any>;
     abstract visualModels(): Promise<Record<string, { chat: Function, tool: Function }> | undefined>;
 
     /**

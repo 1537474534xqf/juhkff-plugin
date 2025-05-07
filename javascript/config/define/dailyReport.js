@@ -28,3 +28,4 @@ export function setDailyReportConfig(config) {
         logger.info(`[JUHKFF-PLUGIN]同步日报配置`);
     }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]日报同步配置异常`, err); });
 })();
+//# sourceMappingURL=dailyReport.js.map

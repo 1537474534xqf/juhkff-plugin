@@ -98,7 +98,7 @@ export class Siliconflow extends ChatAgent {
         return response;
     }
 
-    public async toolRequest(model: string, j_msg: any): Promise<any> {
+    public async toolRequest(model: string, j_msg: { img: string[], text: string[] }): Promise<any> {
         if (!this.modelsVisual[model]) {
             logger.error(`[sf]不支持的视觉模型: ${model}`);
             return `[sf]不支持的视觉模型: ${model}`;

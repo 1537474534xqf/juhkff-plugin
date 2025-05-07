@@ -176,3 +176,4 @@ export class dailyReport extends plugin {
         return `星期${this.week[dayIndex]}`;
     }
 }
+//# sourceMappingURL=dailyReport.js.map

@@ -116,3 +116,4 @@ export function appendIfShouldInputSelfVisual() {
     }
     return schemas;
 }
+//# sourceMappingURL=handler.js.map

@@ -6,6 +6,12 @@ import { PLUGIN_CONFIG_DIR, PLUGIN_DEFAULT_CONFIG_DIR } from "../../model/path.j
 import { CronExpression } from "../../type.js";
 import { configFolderCheck, configSync, getFileHash } from "../common.js";
 
+export enum ChatApiType {
+    TEXT = "text",
+    VISUAL = "visual",
+    SOUND = "sound",
+}
+
 export type AutoReply = {
     useAutoReply: boolean;
     attachUrlAnalysis: boolean;
@@ -13,13 +19,13 @@ export type AutoReply = {
     maxHistoryLength: number;
     chatApi: string;
     chatApiKey: string
+    chatApiType: ChatApiType[]
     chatModel: string
     apiCustomUrl: string
     defaultChatRate: number
     defaultReplyAtBot: boolean
     groupChatRate: { groupList: number[], chatRate: number, replyAtBot: boolean }[];
     useVisual: boolean;
-    visualReplaceChat: boolean;
     visualApi: string;
     visualApiKey: string;
     visualModel: string;

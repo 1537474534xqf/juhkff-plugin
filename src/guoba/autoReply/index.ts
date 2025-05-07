@@ -163,6 +163,27 @@ export const autoReplySchema = () => [
             "填写AI接口和ApiKey、确保主动群聊开关开启后，务必先保存并刷新页面，否则模型无法选择！",
         component: "InputPassword",
     },
+    {
+        field: "autoReply.chatApiType",
+        label: "群聊AI接口类型",
+        bottomHelpMessage:
+            "勾选视觉可支持图片识别，在勾选前请确保所选择的接口和模型支持相关功能",
+        component: "CheckboxGroup",
+        componentProps: {
+            options: [
+                {
+                    label: "文本",
+                    value: "text",
+                    disabled: true,
+                },
+                {
+                    label: "视觉",
+                    value: "visual",
+                },
+            ],
+        },
+        defaultValue: ["text"],
+    },
     ...appendIfShouldInputSelf(),
     {
         component: "Divider",
@@ -182,13 +203,6 @@ export const autoReplySchema = () => [
         field: "autoReply.useVisual",
         label: "是否使用视觉AI接口",
         bottomHelpMessage: "开启此选项可对图片进行识别并应用于上下文记忆",
-        component: "Switch",
-    },
-    {
-        field: "autoReply.visualReplaceChat",
-        label: "视觉AI替代群聊AI",
-        bottomHelpMessage:
-            "开启此选项，视觉AI将替代群聊AI，常规接口配置将失效；关闭此选项（并开启视觉AI接口），视觉AI仅会将图片转文本存入上下文。群聊AI准确度高于视觉AI时可关闭该项。切换此选项会清空已经记录的上下文",
         component: "Switch",
     },
     {

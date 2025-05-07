@@ -117,3 +117,4 @@ export class emojiSave extends plugin {
         return false;
     }
 }
+//# sourceMappingURL=emojiSave.js.map

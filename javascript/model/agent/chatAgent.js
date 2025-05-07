@@ -1,8 +1,3 @@
-/**
- * @file chatApi.ts
- * @fileoverview 聊天接口定义和公用函数
- * @author juhkff
- */
 import { Objects } from "../../utils/kits.js";
 import { EMOTION_KEY } from "../../utils/redis.js";
 export class ChatAgent {
@@ -55,3 +50,4 @@ export class ChatAgent {
         };
     }
 }
+//# sourceMappingURL=chatAgent.js.map

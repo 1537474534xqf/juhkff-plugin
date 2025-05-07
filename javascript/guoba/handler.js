@@ -1,6 +1,7 @@
 /**
  * @fileoverview: 锅巴配置更新生命周期
  */
+import { ChatApiType } from "../config/define/autoReply.js";
 import { config } from "../config/index.js";
 import { reloadInstance } from "../model/map.js";
 import { Objects } from "../utils/kits.js";
@@ -43,6 +44,9 @@ export function beforeUpdate(data) {
         if (Objects.isNull(data.autoReply.visualApiKey))
             return { code: -1, message: "请输入有效的视觉AI ApiKey" };
     }
+    if (data.autoReply.chatApiType.includes(ChatApiType.VISUAL) && data.autoReply.useVisual) {
+        return { code: -1, message: "如要替换视觉AI接口，请先关闭常规接口的视觉类型" };
+    }
     if (data.helpGen.manualList.some((item) => Objects.isNull(item?.name?.trim()) && Objects.isNull(item?.command?.trim()) && Objects.isNull(item?.dsc?.trim()))) {
         return { code: -1, message: "功能名称、调用格式和功能描述至少填写一项！" };
     }
@@ -83,9 +87,10 @@ export function afterUpdate(previous) {
         config.autoReply.chatModel = "";
     }
     // 因为实现逻辑和结构体不同，所以切换时删除之前的redis存储
-    if (previous.autoReply.visualReplaceChat != config.autoReply.visualReplaceChat) {
+    if (previous.autoReply.chatApiType.includes(ChatApiType.VISUAL) != config.autoReply.chatApiType.includes(ChatApiType.VISUAL)) {
         removeSubKeys("juhkff:auto_reply", [EMOTION_KEY]).then(() => { });
     }
     reloadInstance();
     return { code: 0, message: "校验成功" };
 }
+//# sourceMappingURL=handler.js.map

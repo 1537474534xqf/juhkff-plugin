@@ -5,6 +5,7 @@
 
 import { config } from "../config/index.js";
 import { agent } from "../model/map.js";
+import { Role, SimpleJMsg } from "../type.js";
 import { formatDateDetail } from "./date.js";
 import { analyseImage, extractUrlContent } from "./helper.js";
 import { Objects } from "./kits.js";
@@ -14,7 +15,7 @@ import { EMOTION_KEY, getSourceMessage } from "./redis.js";
  * 由于会生成插件专属消息处理列表j_msg，该方法必须作为消息处理的第一个函数
  * @param {} e
  */
-export async function parseImage(e: { j_msg: any[]; message: string | any[]; }) {
+export async function parseImage(e: { j_msg: SimpleJMsg[]; message: ({ type: string } & Record<string, any>)[]; }) {
     if (!e.j_msg) e.j_msg = [];
     for (let i = 0; i < e.message.length; i++) {
         if (e.message[i].type == "image") {
@@ -44,7 +45,7 @@ export async function parseImage(e: { j_msg: any[]; message: string | any[]; }) 
  * @param {*} e
  * @returns
  */
-export async function parseSourceMessage(e: { j_msg: any[]; group_id: string | number; getReply: (arg0: any) => any; }) {
+export async function parseSourceMessage(e: { j_msg: SimpleJMsg[]; group_id: string | number; getReply: (arg0: any) => any; }) {
     if (!e.j_msg) return;
     for (let i = 0; i < e.j_msg.length; i++) {
         if (e.j_msg[i].type === "reply") {
@@ -111,7 +112,7 @@ export async function parseSourceMessage(e: { j_msg: any[]; group_id: string | n
  * @param {} e
  * @returns
  */
-export async function parseJson(e: { j_msg: any[]; }) {
+export async function parseJson(e: { j_msg: SimpleJMsg[]; }) {
     if (!e.j_msg) return;
     for (let i = 0; i < e.j_msg.length; i++) {
         if (e.j_msg[i].type === "json") {
@@ -143,7 +144,7 @@ function analyseJsonMessage(message: string) {
  * @param {*} e
  * @returns
  */
-export async function parseUrl(e: { j_msg: any[]; }) {
+export async function parseUrl(e: { j_msg: SimpleJMsg[]; }) {
     if (!e.j_msg) return;
     // 更新正则表达式以匹配包含中文和空格的URL
     const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/gi;
@@ -235,7 +236,7 @@ function isSkippedUrl(url: string) {
  * @param {*} currentImages 正文图片数组
  * @returns answer 回复内容
  */
-export async function generateAnswer(e: { group_id: any; sender: { card: string; }; }, msg: string) {
+export async function generateAnswer(e: { group_id: number | string; sender: { card: string; }; }, msg: string) {
     let apiKey = config.autoReply.chatApiKey;
     let model = config.autoReply.chatModel;
     if (!apiKey || apiKey == "") {
@@ -248,7 +249,7 @@ export async function generateAnswer(e: { group_id: any; sender: { card: string;
     }
 
     // 获取历史对话
-    let historyMessages: string[] = [];
+    let historyMessages: { role: Role, content: string }[] = [];
     if (config.autoReply.useContext) {
         historyMessages = await loadContext(e.group_id);
         logger.info(`[handle]加载历史对话: ${historyMessages.length} 条`);
@@ -278,7 +279,7 @@ export async function generateAnswer(e: { group_id: any; sender: { card: string;
  * @param useSystemRole 是否使用system预设
  * @returns 
  */
-async function sendChatRequest(input: string, model = "", historyMessages: string[] = [], useSystemRole = true) {
+async function sendChatRequest(input: string, model = "", historyMessages: { role: Role, content: string }[] = [], useSystemRole = true) {
     if (!agent.chat) return "[handle]请设置有效的AI接口";
     var result = await agent.chat.chatRequest(model, input, historyMessages, useSystemRole);
     return result;

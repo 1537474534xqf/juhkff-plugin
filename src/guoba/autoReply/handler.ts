@@ -52,38 +52,16 @@ export function listAllVisualApi() {
 }
 
 export function appendIfShouldInputSelf() {
-    type ChatModelInput = {
-        field: string;
-        label: string;
-        bottomHelpMessage: string;
-        component: string;
-    };
-    type ChatApiCustomUrl = {
-        field: string;
-        label: string;
-        bottomHelpMessage: string;
-        component: string;
-    };
-    type ChatModelSelect = {
-        field: string;
-        label: string;
-        bottomHelpMessage: string;
-        component: string;
-        componentProps: {
-            options: { label: string; value: string }[];
-        };
-    }
-
-    let schemas: [ChatModelInput, ChatApiCustomUrl] | [ChatModelSelect] | [] = [];
+    let schemas = [];
     if (!agent.chat) return schemas;
     if (Objects.isNull(agent.chat.apiUrl)) {
-        const chatModelInput: ChatModelInput = {
+        const chatModelInput = {
             field: "autoReply.chatModel",
             label: "群聊AI模型",
             bottomHelpMessage: "确保开关开启，保存并刷新页面后，再选择或填写该项！",
             component: "Input",
         };
-        const chatApiCustomUrl: ChatApiCustomUrl = {
+        const chatApiCustomUrl = {
             field: "autoReply.apiCustomUrl",
             label: "模型请求URL",
             bottomHelpMessage: "格式一般以http(s)开头，以/chat/completions结尾",
