@@ -32,7 +32,7 @@ export const dailyReportSchema = () => [
         field: "dailyReport.dailyReportTime",
         label: "定时发送日报时间",
         bottomHelpMessage:
-            "秒[0,59] 分钟[0,59] 小时[0,23] 日期[1,31] 月份[1,12] 星期[0,7/SUN,SAT]",
+            "秒[0,59] 分钟[0,59] 小时[0,23] 日期[1,31] 月份[1,12] 星期[0,7/SUN,SAT]，调整时间后需重启BOT",
         component: "EasyCron",
         componentProps: {
             placeholder: "*表示任意，?表示不指定（月日和星期互斥）",
