@@ -286,7 +286,7 @@ async function sendChatRequest(input: string, model = "", historyMessages: { rol
 }
 
 // 保存对话上下文
-export async function saveContext(time: number | string, groupId: number | string, message_id = 0, role: "user" | "assistant", message: string) {
+export async function saveContext(time: number | string, groupId: number | string, message_id: number | string, role: Role, message: string) {
     try {
         const maxHistory = config.autoReply.maxHistoryLength;
         const key = `juhkff:auto_reply:${groupId}:${time}`;

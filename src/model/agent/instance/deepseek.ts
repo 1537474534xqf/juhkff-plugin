@@ -1,5 +1,5 @@
 import { config } from "../../../config/index.js";
-import { Request, RequestBody } from "../../../type.js";
+import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg, Request, RequestBody } from "../../../type.js";
 import { ChatAgent } from "../chatAgent.js";
 
 export class DeepSeek extends ChatAgent {
@@ -12,7 +12,7 @@ export class DeepSeek extends ChatAgent {
             "deepseek-reasoner": this.deepseek_reasoner.bind(this),
         };
     }
-    public async chatRequest(model: string, input: string, historyMessages?: any[], useSystemRole?: boolean): Promise<any> {
+    async chatRequest(model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any> {
         if (!this.modelsChat![model]) {
             logger.error("[ds]不支持的模型：" + model);
             return "[ds]不支持的模型：" + model;
@@ -116,10 +116,10 @@ export class DeepSeek extends ChatAgent {
         }
     }
 
-    visualRequest(model: string, nickName: string, j_msg: any, historyMessages?: any[], useSystemRole?: boolean): Promise<any> {
+    visualRequest(model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any> {
         return undefined;
     }
-    toolRequest(model: string, j_msg: any): Promise<any> {
+    toolRequest(model: string, j_msg: { img?: string[], text: string[] }): Promise<any> {
         return undefined;
     }
     visualModels(): Promise<Record<string, any> | undefined> {
