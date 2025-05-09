@@ -36,7 +36,7 @@ export class ArkEngine extends ChatAgent {
     }
     async visualRequest(model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any> {
         let request: Request = {
-            url: config.autoReply.visualApiCustomUrl,
+            url: config.autoReply.apiCustomUrl,
             options: {
                 method: "POST",
                 headers: {

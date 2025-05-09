@@ -32,7 +32,7 @@ export class ArkEngine extends ChatAgent {
     }
     async visualRequest(model, nickName, j_msg, historyMessages, useSystemRole) {
         let request = {
-            url: config.autoReply.visualApiCustomUrl,
+            url: config.autoReply.apiCustomUrl,
             options: {
                 method: "POST",
                 headers: {
