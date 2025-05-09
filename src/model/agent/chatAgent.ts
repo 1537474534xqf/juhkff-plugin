@@ -92,7 +92,8 @@ export abstract class ChatAgent implements ChatInterface, VisualInterface {
             });
         }
         (request.options.body as RequestBody).messages.push({ role: "user", content: input });
-        logger.info(`[autoReply]对话模型 ${(request.options.body as RequestBody).model} API调用，请求内容：${JSON.stringify(request, null, 2)}`);
+        if (config.autoReply.debugMode)
+            logger.info(`[autoReply]对话模型 ${(request.options.body as RequestBody).model} API调用，请求内容：${JSON.stringify(request, null, 2)}`);
         try {
             request.options.body = JSON.stringify(request.options.body);
             let response = await fetch(request.url, request.options as RequestInit);
@@ -192,24 +193,25 @@ export abstract class ChatAgent implements ChatInterface, VisualInterface {
         }
 
         (request.options.body as RequestBody).messages.push({ role: "user", content: content });
-
-        // 创建打印用副本
-        var logRequest = JSON.parse(JSON.stringify(request));
-        logRequest.options.body.messages.forEach((message: any) => {
-            var content = message.content;
-            content.forEach((item: any) => {
-                if (item.type == "image_url") {
-                    // 截断前40位
-                    item.image_url.url = item.image_url.url.substring(0, 40) + "...";
-                }
-                if (item.type == "text" && item.text.length > 40) {
-                    item.text = item.text.substring(0, 40) + "...";
-                }
+        if (config.autoReply.debugMode) {
+            // 创建打印用副本
+            var logRequest = JSON.parse(JSON.stringify(request));
+            logRequest.options.body.messages.forEach((message: any) => {
+                var content = message.content;
+                content.forEach((item: any) => {
+                    if (item.type == "image_url") {
+                        // 截断前40位
+                        item.image_url.url = item.image_url.url.substring(0, 40) + "...";
+                    }
+                    if (item.type == "text" && item.text.length > 40) {
+                        item.text = item.text.substring(0, 40) + "...";
+                    }
+                });
             });
-        });
 
-        logger.info(`[autoReply]视觉模型 ${logRequest.options.body.model} API调用，请求内容：${JSON.stringify(logRequest, null, 2)}`);
-        var response;
+            logger.info(`[autoReply]视觉模型 ${logRequest.options.body.model} API调用，请求内容：${JSON.stringify(logRequest, null, 2)}`);
+        }
+        var response: Response;
         try {
             request.options.body = JSON.stringify(request.options.body);
             response = await fetch(request.url, request.options as RequestInit);
@@ -247,24 +249,25 @@ export abstract class ChatAgent implements ChatInterface, VisualInterface {
             });
         }
         (request.options.body as RequestBody).messages.push({ role: "user", content: content });
-
-        // 创建打印用副本
-        var logRequest: Request = JSON.parse(JSON.stringify(request));
-        (logRequest.options.body as RequestBody).messages.forEach((message: any) => {
-            var content = message.content;
-            content.forEach((item: any) => {
-                if (item.type == "image_url") {
-                    // 截断前40位
-                    item.image_url.url = item.image_url.url.substring(0, 40) + "...";
-                }
-                if (item.type == "text" && item.text.length > 40) {
-                    item.text = item.text.substring(0, 40) + "...";
-                }
+        
+        if (config.autoReply.debugMode) {
+            // 创建打印用副本
+            var logRequest: Request = JSON.parse(JSON.stringify(request));
+            (logRequest.options.body as RequestBody).messages.forEach((message: any) => {
+                var content = message.content;
+                content.forEach((item: any) => {
+                    if (item.type == "image_url") {
+                        // 截断前40位
+                        item.image_url.url = item.image_url.url.substring(0, 40) + "...";
+                    }
+                    if (item.type == "text" && item.text.length > 40) {
+                        item.text = item.text.substring(0, 40) + "...";
+                    }
+                });
             });
-        });
-
-        logger.info(`[autoReply]视觉模型 ${(logRequest.options.body as RequestBody).model} API工具请求调用，请求内容：${JSON.stringify(logRequest, null, 2)}`);
-        var response;
+            logger.info(`[autoReply]视觉模型 ${(logRequest.options.body as RequestBody).model} API工具请求调用，请求内容：${JSON.stringify(logRequest, null, 2)}`);
+        }
+        var response: Response;
         try {
             request.options.body = JSON.stringify(request.options.body);
             response = await fetch(request.url, request.options as RequestInit);

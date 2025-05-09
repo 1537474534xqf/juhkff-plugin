@@ -36,6 +36,7 @@ export type AutoReply = {
     useEmotion: boolean;
     emotionGenerateTime: CronExpression;
     emotionGeneratePrompt: string;
+    debugMode: boolean;
 }
 
 export let autoReplyConfig: AutoReply = null;

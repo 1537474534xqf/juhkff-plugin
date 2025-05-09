@@ -127,6 +127,12 @@ export const autoReplySchema = () => [
         },
     },
     {
+        field: "autoReply.debugMode",
+        label: "调试模式",
+        component: "Switch",
+        bottomHelpMessage: "开启后，会输出请求内容日志，用于调试",
+    },
+    {
         component: "Divider",
         label: "常规接口配置",
         componentProps: {
