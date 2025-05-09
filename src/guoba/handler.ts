@@ -4,7 +4,7 @@
 
 import { ChatApiType } from "../config/define/autoReply.js";
 import { config, Config } from "../config/index.js";
-import { reloadInstance } from "../model/map.js";
+import { agentMap, reloadInstance } from "../model/map.js";
 import { Objects } from "../utils/kits.js";
 import { EMOTION_KEY, removeSubKeys } from "../utils/redis.js";
 
@@ -51,8 +51,9 @@ export function beforeUpdate(data: Config) {
         if (Objects.isNull(data.autoReply.visualApiKey))
             return { code: -1, message: "请输入有效的视觉AI ApiKey" };
     }
-    if (data.autoReply.chatApiType.includes(ChatApiType.VISUAL) && data.autoReply.useVisual) {
-        return { code: -1, message: "如要替换视觉AI接口，请先关闭常规接口的视觉类型" };
+    if (data.autoReply.chatApiType.includes(ChatApiType.VISUAL)) {
+        if (!agentMap[data.autoReply.chatApi].hasVisual()) return { code: -1, message: `${data.autoReply.chatApi}不支持视觉模型` }
+        if (data.autoReply.useVisual) return { code: -1, message: "如要使用视觉AI接口，请先关闭常规接口的视觉类型" };
     }
     if (data.helpGen.manualList.some((item) =>
         Objects.isNull(item?.name?.trim()) && Objects.isNull(item?.command?.trim()) && Objects.isNull(item?.dsc?.trim()))
