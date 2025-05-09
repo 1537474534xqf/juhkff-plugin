@@ -159,7 +159,7 @@ export const autoReplySchema = () => [
     {
         field: "autoReply.chatApiType",
         label: "群聊AI接口类型",
-        bottomHelpMessage: "勾选视觉可支持图片识别，在勾选前请确保所选择的接口和模型支持相关功能",
+        bottomHelpMessage: "勾选视觉可支持图片识别。在勾选前请确保所选择的接口和模型支持相关功能",
         component: "CheckboxGroup",
         componentProps: {
             options: [
@@ -192,15 +192,28 @@ export const autoReplySchema = () => [
         },
     },
     {
+        label: "说明",
+        component: "InputTextArea",
+        componentProps: {
+            defaultValue: "如果群聊接口不支持视觉功能，或视觉功能让你不太满意，想用其它的视觉AI辅助处理时，可以开启该项\n" +
+                "费用比较：\n" +
+                "\t开启该视觉接口时，处理逻辑是识别聊天中的每个图片（先判断是否为表情包，若为否再判断图片内容），将解析的图片内容作为文字保存\n" +
+                "\t如果主动群聊调用频繁且开启上下文条数较大 —— 关闭该接口时，群聊中的一张图片会被原聊天接口（支持视觉）多次携带进行请求；启用该接口时，群聊中的一张图片仅会进行一次解析，之后就作为文字内容保存在上下文和进行调用接口\n" +
+                "\t如果主动群聊调用概率较低 —— 关闭该接口时，群聊中的一张图片仅会在进行请求时携带发送；启用该接口时，群聊中的每张图片都会被该视觉接口进行两次调用（表情包判断+内容判断），即使其可能之后不会用到，这样会消耗更多费用\n" +
+                "\t综上，请根据实际使用情景进行选择。个人感觉除非原接口不支持视觉处理，从省钱的角度考虑大多情况下还是关闭该项比较好",
+            readonly: true,
+            rows: 10,
+        }
+    },
+    {
         field: "autoReply.useVisual",
         label: "是否使用视觉AI接口",
-        bottomHelpMessage: "开启此选项可对图片进行识别并应用于上下文记忆",
+        bottomHelpMessage: "开启此选项可对图片进行识别并应用于上下文记忆，开启时请将原视觉接口视为纯文本接口",
         component: "Switch",
     },
     {
         field: "autoReply.visualApi",
         label: "视觉AI接口选择",
-        bottomHelpMessage: "可选项：siliconflow",
         component: "Select",
         componentProps: {
             options: listAllVisualApi(),
@@ -214,4 +227,3 @@ export const autoReplySchema = () => [
     },
     ...appendIfShouldInputSelfVisual(),
 ];
-//# sourceMappingURL=index.js.map

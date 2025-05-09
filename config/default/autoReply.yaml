@@ -16,6 +16,10 @@ chatApi: ""
 # 群聊ApiKey
 chatApiKey: ""
 
+# 群聊模型类型
+chatApiType:
+  - text
+
 # 模型选择
 chatModel: ""
 

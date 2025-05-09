@@ -231,7 +231,7 @@ export abstract class ChatAgent implements ChatInterface, VisualInterface {
      * @param {*} request
      * @param {*} j_msg:{img:[],text:[]}
      */
-    protected async commonRequestTool(request: Request, j_msg: { img: [], text: [] }) {
+    protected async commonRequestTool(request: Request, j_msg: { img: string[], text: string[] }) {
         var content: any[] = [];
         if (!Objects.isNull(j_msg.img)) {
             j_msg.img.forEach((base64) => {

@@ -252,10 +252,10 @@ function isSkippedUrl(url: string): boolean {
  * @returns 回复内容
  */
 export async function generateAnswerVisual(e: { group_id: number | string; j_msg: ComplexJMsg; sender: { card: string }; }) {
-    let model = config.autoReply.visualModel;
+    let model = config.autoReply.chatModel;
     if (!model || model == "") {
-        logger.error("[handleVisual]请先设置visualModel");
-        return "[handleVisual]请先设置visualModel";
+        logger.error("[handleVisual]请先设置model");
+        return "[handleVisual]请先设置model";
     }
 
     // 获取历史对话
@@ -288,8 +288,8 @@ export async function generateAnswerVisual(e: { group_id: number | string; j_msg
  * @returns 
  */
 async function sendChatRequestVisual(j_msg: ComplexJMsg, nickName: string, model: string = "", historyMessages: any[] = [], useSystemRole: boolean = true): Promise<any> {
-    if (!agent.visual) return "[handleVisual]请设置有效的AI接口";
-    var result = await agent.visual.visualRequest(model, nickName, j_msg, historyMessages, useSystemRole);
+    if (!agent.chat) return "[handleVisual]请设置有效的AI接口";
+    var result = await agent.chat.visualRequest(model, nickName, j_msg, historyMessages, useSystemRole);
     return result;
 }
 

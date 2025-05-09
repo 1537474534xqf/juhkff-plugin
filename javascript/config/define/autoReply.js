@@ -38,4 +38,3 @@ export function setAutoReplyConfig(config) {
         logger.info(`[JUHKFF-PLUGIN]同步主动群聊配置`);
     }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]主动群聊同步配置异常`, err); });
 })();
-//# sourceMappingURL=autoReply.js.map

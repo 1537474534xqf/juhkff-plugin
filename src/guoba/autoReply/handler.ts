@@ -119,6 +119,7 @@ export function appendIfShouldInputSelfVisual() {
             {
                 field: "autoReply.visualApiCustomUrl",
                 label: "视觉模型请求URL",
+                bottomHelpMessage: "格式一般以http(s)开头，以/chat/completions结尾",
                 component: "Input",
             },
         ];

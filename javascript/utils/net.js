@@ -8,6 +8,7 @@ import path from "path";
 import axios from "axios";
 import { DOMParser } from "xmldom";
 import fastImageSize from "fast-image-size";
+import { Base64 } from "./kits.js";
 /**
  * 下载文件
  * @param url 文件下载链接
@@ -64,8 +65,9 @@ export async function url2Base64(url, isReturnBuffer = false) {
         // 返回 Buffer
         if (isReturnBuffer)
             return Buffer.from(response.data, "binary");
-        // TODO 目前统一当jpeg处理好像没问题，不过最好改成根据图片类型来处理，暂时先搁置
-        return `data:image/jpeg;base64,${Buffer.from(response.data, "binary").toString("base64")}`;
+        // 根据图片类型来处理
+        var base64 = Buffer.from(response.data, "binary").toString("base64");
+        return `${Base64.getBase64ImageType(base64)}${base64}`;
     }
     catch (error) {
         throw new Error(`[net]下载图片${url}失败: ${error}`);
@@ -132,4 +134,3 @@ export async function getImageDimensions(url) {
         return { width: 0, height: 0 }; // 返回默认值或抛出错误
     }
 }
-//# sourceMappingURL=net.js.map

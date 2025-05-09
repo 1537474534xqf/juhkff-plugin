@@ -237,10 +237,10 @@ function isSkippedUrl(url) {
  * @returns 回复内容
  */
 export async function generateAnswerVisual(e) {
-    let model = config.autoReply.visualModel;
+    let model = config.autoReply.chatModel;
     if (!model || model == "") {
-        logger.error("[handleVisual]请先设置visualModel");
-        return "[handleVisual]请先设置visualModel";
+        logger.error("[handleVisual]请先设置model");
+        return "[handleVisual]请先设置model";
     }
     // 获取历史对话
     let historyMessages = [];
@@ -269,9 +269,9 @@ export async function generateAnswerVisual(e) {
  * @returns
  */
 async function sendChatRequestVisual(j_msg, nickName, model = "", historyMessages = [], useSystemRole = true) {
-    if (!agent.visual)
+    if (!agent.chat)
         return "[handleVisual]请设置有效的AI接口";
-    var result = await agent.visual.visualRequest(model, nickName, j_msg, historyMessages, useSystemRole);
+    var result = await agent.chat.visualRequest(model, nickName, j_msg, historyMessages, useSystemRole);
     return result;
 }
 // 保存对话上下文
@@ -342,4 +342,3 @@ export async function emotionGenerateVisual() {
     logger.info(`[handleVisual]情感生成: ${emotion}`);
     return emotion;
 }
-//# sourceMappingURL=handleVisual.js.map

@@ -267,7 +267,7 @@ async function sendChatRequest(input, model = "", historyMessages = [], useSyste
     return result;
 }
 // 保存对话上下文
-export async function saveContext(time, groupId, message_id = 0, role, message) {
+export async function saveContext(time, groupId, message_id, role, message) {
     try {
         const maxHistory = config.autoReply.maxHistoryLength;
         const key = `juhkff:auto_reply:${groupId}:${time}`;
@@ -344,4 +344,3 @@ export async function getImageUniqueId(e) {
         return image[0].url;
     return "";
 }
-//# sourceMappingURL=handle.js.map

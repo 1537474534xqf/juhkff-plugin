@@ -11,7 +11,7 @@ export class ArkEngine extends ChatAgent {
     async chatRequest(model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any> {
         // 构造请求体
         let request: Request = {
-            url: config.autoReply.apiCustomUrl as string,
+            url: config.autoReply.apiCustomUrl,
             options: {
                 method: "POST",
                 headers: {
@@ -36,7 +36,7 @@ export class ArkEngine extends ChatAgent {
     }
     async visualRequest(model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any> {
         let request: Request = {
-            url: `${this.apiUrl}/chat/completions`,
+            url: config.autoReply.visualApiCustomUrl,
             options: {
                 method: "POST",
                 headers: {
@@ -53,9 +53,9 @@ export class ArkEngine extends ChatAgent {
         let response = await super.commonRequestVisual(JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
         return response;
     }
-    async toolRequest(model: string, j_msg: { img?: string[], text: string[] }): Promise<any> {
+    async toolRequest(model: string, j_msg: { img: string[], text: string[] }): Promise<any> {
         var request: Request = {
-            url: `${this.apiUrl}/chat/completions`,
+            url: config.autoReply.visualApiCustomUrl,
             options: {
                 method: "POST",
                 headers: {

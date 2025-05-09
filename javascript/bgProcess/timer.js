@@ -48,4 +48,3 @@ process.on("exit", () => {
     clearInterval(cleanVideoTask);
 });
 export const cleanVideoTask = cleanVideoCache();
-//# sourceMappingURL=timer.js.map

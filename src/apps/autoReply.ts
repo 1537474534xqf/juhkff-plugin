@@ -51,7 +51,7 @@ export class autoReply extends plugin {
     async autoReply(e: any) {
         if (!config.autoReply.useAutoReply) return false;
         if (e.message_type != "group") return false;
-        if (config.autoReply.useVisual && config.autoReply.chatApiType.includes(ChatApiType.VISUAL)) {
+        if (config.autoReply.chatApiType.includes(ChatApiType.VISUAL)) {
             await this.visualProcess(e);
         } else {
             await this.commonProcess(e);
