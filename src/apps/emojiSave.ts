@@ -3,6 +3,8 @@ import path from "path";
 import { PLUGIN_DATA_DIR } from "../model/path.js";
 import { downloadFile } from "../utils/net.js";
 import { config } from "../config/index.js";
+import { emojiGallery } from "../model/resource/gallery.js";
+import { sleep } from "../bgProcess/timer.js";
 
 export const help = () => {
     return {
@@ -116,6 +118,14 @@ export class emojiSave extends plugin {
                     let randomIndex = Math.floor(Math.random() * list.length);
                     var emojiUrl = path.join(emojiSaveDir, list[randomIndex]);
                     logger.info(`[emojiSave]发送表情: ${emojiUrl}`);
+                    await sleep(Math.random() * 5000);
+                    await e.reply([segment.image(emojiUrl)]);
+                } else if (emojiGallery.length > 0) {
+                    // 随机发送图库中的表情
+                    let randomIndex = Math.floor(Math.random() * emojiGallery.length);
+                    var emojiUrl = emojiGallery[randomIndex];
+                    logger.info(`[emojiSave]发送图库表情: ${emojiUrl}`);
+                    await sleep(Math.random() * 5000);
                     await e.reply([segment.image(emojiUrl)]);
                 }
             } catch (error) {

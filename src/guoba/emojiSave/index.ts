@@ -25,7 +25,7 @@ export const emojiSaveSchema = () => [
     {
         field: "emojiSave.defaultEmojiRate",
         label: "默认发送偷图概率",
-        bottomHelpMessage: "目前未实现本地图库，必发偷的图，该配置暂时无意义",
+        bottomHelpMessage: "低于此概率发送偷图配置，高于此概率发送本地图库（若其中一种为空则固定发送另一种）。只发送本地图库可置为0，只发送偷图可置为1",
         component: "InputNumber",
         componentProps: {
             min: 0,
@@ -33,6 +33,15 @@ export const emojiSaveSchema = () => [
             step: 0.01,
         },
         required: true,
+    },
+    {
+        field: "emojiSave.emojiGalleryPath",
+        label: "本地图库路径",
+        bottomHelpMessage: "相对 juhkff-plugin 目录的路径，支持 / 和 \\\\ 分隔符；请确保其为专用于图库的目录路径，且目录下仅包含图片文件",
+        component: "Input",
+        componentProps: {
+            placeholder: "./data/emojiGallery",
+        },
     },
     {
         field: "emojiSave.expireTimeInSeconds",
@@ -81,7 +90,7 @@ export const emojiSaveSchema = () => [
                         max: 1,
                         step: 0.01,
                     },
-                    required: false,
+                    required: true,
                 },
             ],
         },

@@ -33,7 +33,7 @@ export function getRandomUrl(imageUrls) {
  * @param imageFiles 图片路径数组引用
  * @returns 入参中的图片路径数组
  */
-function getAllImageFiles(dirPath, imageFiles = []) {
+export function getAllImageFiles(dirPath, imageFiles = []) {
     let files = fs.readdirSync(dirPath);
     for (let i = 0; i < files.length; i++) {
         let filePath = path.join(dirPath, files[i]);

@@ -38,7 +38,7 @@ export function getRandomUrl(imageUrls: string | string[]) {
  * @param imageFiles 图片路径数组引用
  * @returns 入参中的图片路径数组
  */
-function getAllImageFiles(dirPath: string, imageFiles: string[] = []): string[] {
+export function getAllImageFiles(dirPath: string, imageFiles: string[] = []): string[] {
     let files = fs.readdirSync(dirPath);
 
     for (let i = 0; i < files.length; i++) {

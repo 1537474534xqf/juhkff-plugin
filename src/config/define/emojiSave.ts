@@ -4,6 +4,7 @@ import YAML from "yaml";
 import chokidar from "chokidar";
 import { PLUGIN_CONFIG_DIR, PLUGIN_DEFAULT_CONFIG_DIR } from "../../model/path.js";
 import { configFolderCheck, configSync, getFileHash } from "../common.js";
+import { loadEmojiGallery } from "../../model/resource/gallery.js";
 
 type GroupRate = {
     groupList: number[];
@@ -17,11 +18,23 @@ export type EmojiSave = {
     defaultReplyRate: number;
     defaultEmojiRate: number;
     expireTimeInSeconds: number;
+    emojiGalleryPath: string;
 }
 
 export let emojiSaveConfig: EmojiSave = null;
+let watcher = null;
+
 export function setEmojiSaveConfig(config: EmojiSave) {
+    const { emojiGalleryPath } = emojiSaveConfig;
+
     emojiSaveConfig = config;
+
+    const { emojiGalleryPath: newEmojiGalleryPath } = config;
+
+    if (emojiGalleryPath !== newEmojiGalleryPath) {
+        if (watcher) watcher.close();
+        watcher = loadEmojiGallery(newEmojiGalleryPath);
+    }
 }
 
 (() => {
@@ -36,7 +49,8 @@ export function setEmojiSaveConfig(config: EmojiSave) {
     configSync(emojiSaveConfig, defaultConfig);
     fs.writeFileSync(file, YAML.stringify(emojiSaveConfig));
 
-
+    watcher = loadEmojiGallery(emojiSaveConfig.emojiGalleryPath);
+    
     chokidar.watch(file).on("change", () => {
         const content = fs.readFileSync(file, "utf8");
         const hash = getFileHash(content);
