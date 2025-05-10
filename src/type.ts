@@ -5,9 +5,9 @@ export type RequestBody = Record<string, any>;
 
 export type RequestOptions = {
     method: "POST" | "GET" | "PUT" | "DELETE";
-    headers: Record<string, string>;
-    body: RequestBody | string;
-}
+    headers?: Record<string, string>;
+    body?: RequestBody | string;
+} & Record<string, any>;
 
 export type Request = {
     url: string;

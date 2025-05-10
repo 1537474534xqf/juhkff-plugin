@@ -104,7 +104,7 @@ export class autoReply extends plugin {
         // 如果@了bot，就直接回复
         if ((e.atBot && replyAtBot) || Math.random() < Number(chatRate)) {
             answer = await generateAnswer(e, msg);
-            if (!e.atBot && (!answer || answer.startsWith("[autoReply]"))) {
+            if (!e.atBot && (Objects.isNull(answer))) {
                 // 如果自主发言失败不提示
             }
             else {
@@ -166,7 +166,7 @@ export class autoReply extends plugin {
         // 如果@了bot，就直接回复
         if ((e.atBot && replyAtBot) || Math.random() < Number(chatRate)) {
             answer = await generateAnswerVisual(e);
-            if (!e.atBot && (!answer || answer.startsWith("[autoReply]"))) {
+            if (!e.atBot && (Objects.isNull(answer))) {
                 // 如果自主发言失败不提示
             }
             else {

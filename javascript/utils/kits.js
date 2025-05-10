@@ -65,4 +65,21 @@ export class Base64 {
                 return null;
         }
     }
+    static getImageTypeFromBase64(base64) {
+        if (base64.startsWith("data:image/")) {
+            return base64.split(";")[0].substring(5);
+        }
+        const base64Type = Base64.getBase64ImageType(base64);
+        if (base64Type) {
+            return "image/" + base64Type.split("/")[1].split(";")[0];
+        }
+        return null;
+    }
+    static getImageContentFromBase64(base64) {
+        if (base64.startsWith("data:image/"))
+            return base64.split(";base64,")[1];
+        if (Objects.isNull(base64))
+            return base64;
+        return null;
+    }
 }

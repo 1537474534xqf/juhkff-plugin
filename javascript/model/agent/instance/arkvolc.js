@@ -24,11 +24,19 @@ export class ArkEngine extends ChatAgent {
         response = response.replace(/^\n+|\n+$/g, "");
         return response;
     }
-    chatModels() {
-        return undefined;
+    async chatModels() {
+        return {
+            "doubao-1-5-pro-32k-250115": null,
+            "doubao-1-5-thinking-pro-250415": null,
+            "deepseek-r1-250120": null,
+            "输入其它或自定义模型（请勿选择该项）": null
+        };
     }
-    visualModels() {
-        return undefined;
+    async visualModels() {
+        return {
+            "doubao-1.5-vision-pro-250328": null,
+            "输入其它或自定义模型（请勿选择该项）": null
+        };
     }
     async visualRequest(model, nickName, j_msg, historyMessages, useSystemRole) {
         let request = {

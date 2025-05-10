@@ -225,6 +225,7 @@ export const autoReplySchema = () => [
         componentProps: {
             options: listAllVisualApi(),
         },
+        bottomHelpMessage: "由于可能会调用频繁，此处不建议使用 Gemini 等速率较慢或调用次数受限的接口，若要使用 Gemini 等，推荐采用在上面的 群聊AI接口类型 中添加视觉类型的形式"
     },
     {
         field: "autoReply.visualApiKey",

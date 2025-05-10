@@ -30,6 +30,7 @@ export class Siliconflow extends ChatAgent {
                 chat: super.commonRequestVisual.bind(this),
                 tool: super.commonRequestTool.bind(this),
             },
+            "输入其它模型（请勿选择该项）": null
         };
     }
     async chatModels() {
@@ -44,6 +45,7 @@ export class Siliconflow extends ChatAgent {
         for (const model of models) {
             modelMap[model.id] = super.commonRequestChat.bind(this);
         }
+        modelMap["输入其它模型（请勿选择该项）"] = null;
         return modelMap;
     }
     async chatRequest(model, input, historyMessages, useSystemRole) {
@@ -64,14 +66,22 @@ export class Siliconflow extends ChatAgent {
                 },
             },
         };
-        let response = await this.modelsChat[model](request, input, historyMessages, useSystemRole);
-        return response;
+        if (!this.modelsChat.hasOwnProperty(model) || this.modelsChat[model] === null) {
+            let response = await super.commonRequestChat(request, input, historyMessages, useSystemRole);
+            return response;
+        }
+        else {
+            let response = await this.modelsChat[model](request, input, historyMessages, useSystemRole);
+            return response;
+        }
     }
     async visualRequest(model, nickName, j_msg, historyMessages, useSystemRole) {
+        /*
         if (!this.modelsVisual[model]) {
             logger.error("[autoReply]不支持的视觉模型：" + model);
             return "[autoReply]不支持的视觉模型：" + model;
         }
+        */
         let request = {
             url: `${this.apiUrl}/chat/completions`,
             options: {
@@ -87,14 +97,22 @@ export class Siliconflow extends ChatAgent {
                 },
             },
         };
-        let response = await this.modelsVisual[model].chat(JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
-        return response;
+        if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
+            let response = await super.commonRequestVisual(JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
+            return response;
+        }
+        else {
+            let response = await this.modelsVisual[model].chat(JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
+            return response;
+        }
     }
     async toolRequest(model, j_msg) {
+        /*
         if (!this.modelsVisual[model]) {
             logger.error(`[sf]不支持的视觉模型: ${model}`);
             return `[sf]不支持的视觉模型: ${model}`;
         }
+        */
         var request = {
             url: `${this.apiUrl}/chat/completions`,
             options: {

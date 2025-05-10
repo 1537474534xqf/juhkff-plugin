@@ -57,7 +57,10 @@ export function appendIfShouldInputSelf() {
             field: "autoReply.chatModel",
             label: "群聊AI模型",
             bottomHelpMessage: "确保开关开启，保存并刷新页面后，再选择或填写该项！",
-            component: "Input",
+            component: "AutoComplete",
+            componentProps: {
+                options: getChatModels(),
+            },
         };
         const chatApiCustomUrl = {
             field: "autoReply.apiCustomUrl",
@@ -72,7 +75,7 @@ export function appendIfShouldInputSelf() {
             field: "autoReply.chatModel",
             label: "群聊AI模型",
             bottomHelpMessage: "确保开关开启，保存并刷新页面后，再选择或填写该项！",
-            component: "Select",
+            component: "AutoComplete",
             componentProps: {
                 options: getChatModels(),
             },
@@ -92,7 +95,10 @@ export function appendIfShouldInputSelfVisual() {
                 field: "autoReply.visualModel",
                 label: "视觉AI模型",
                 bottomHelpMessage: "确保开关开启，保存并刷新页面后，再选择或填写该项！",
-                component: "Input",
+                component: "AutoComplete",
+                componentProps: {
+                    options: getVisualModels(),
+                },
             },
             {
                 field: "autoReply.visualApiCustomUrl",
@@ -108,7 +114,7 @@ export function appendIfShouldInputSelfVisual() {
                 field: "autoReply.visualModel",
                 label: "视觉AI模型",
                 bottomHelpMessage: "确保开关开启，保存并刷新页面后，再选择或填写该项！",
-                component: "Select",
+                component: "AutoComplete",
                 componentProps: {
                     options: getVisualModels(),
                 },

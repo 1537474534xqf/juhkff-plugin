@@ -69,4 +69,21 @@ export class Base64 {
                 return null;
         }
     }
+
+    static getImageTypeFromBase64(base64: string): "image/png" | "image/jpeg" | "image/gif" | "image/bmp" | "image/webp" | "image/tiff" | null {
+        if (base64.startsWith("data:image/")) {
+            return base64.split(";")[0].substring(5) as "image/png" | "image/jpeg" | "image/gif" | "image/bmp" | "image/webp" | "image/tiff" | null;
+        }
+        const base64Type = Base64.getBase64ImageType(base64);
+        if (base64Type) {
+            return "image/" + base64Type.split("/")[1].split(";")[0] as "image/png" | "image/jpeg" | "image/gif" | "image/bmp" | "image/webp" | "image/tiff";
+        }
+        return null;
+    }
+
+    static getImageContentFromBase64(base64: string): string | null {
+        if (base64.startsWith("data:image/")) return base64.split(";base64,")[1];
+        if (Objects.isNull(base64)) return base64;
+        return null;
+    }
 }

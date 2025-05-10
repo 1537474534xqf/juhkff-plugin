@@ -24,10 +24,10 @@ export abstract class ChatAgent implements ChatInterface, VisualInterface {
     public apiUrl: undefined | string = undefined;
     public modelsChat: Record<string, Function>;
     public modelsVisual: Record<string, { chat: Function, tool: Function }>;
-    constructor(apiKey: string, apiBaseUrl: string | null = null) {
+    constructor(apiKey: string, apiUrl: string | null = null) {
         this.apiKey = apiKey;
-        if (apiBaseUrl)
-            this.apiUrl = apiBaseUrl;
+        if (apiUrl)
+            this.apiUrl = apiUrl;
         (async () => {
             this.modelsChat = await this.chatModels();
             this.modelsVisual = await this.visualModels();
@@ -36,11 +36,11 @@ export abstract class ChatAgent implements ChatInterface, VisualInterface {
 
     public static hasVisual = (): boolean => { throw new Error("Method not implemented."); }
 
-    abstract chatRequest(model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any>;
     abstract chatModels(): Promise<Record<string, Function> | undefined>;
+    abstract chatRequest(model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any>;
+    abstract visualModels(): Promise<Record<string, { chat: Function, tool: Function }> | undefined>;
     abstract visualRequest(model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any>;
     abstract toolRequest(model: string, j_msg: { img?: string[], text: string[] }): Promise<any>;
-    abstract visualModels(): Promise<Record<string, { chat: Function, tool: Function }> | undefined>;
 
     /**
      * 生成 role = system 的内容
@@ -48,21 +48,21 @@ export abstract class ChatAgent implements ChatInterface, VisualInterface {
      * @param chatPrompt 聊天预设
      * @returns `{role: 'system', content: 'xxx'}`
      */
-    protected async generateSystemContent(useEmotion: boolean, chatPrompt: null | undefined | string): Promise<{ role: "system", content: string }> {
+    protected async generateSystemContent(useEmotion: boolean, chatPrompt: null | undefined | string): Promise<{ role?: "system", content?: string } & Record<string, any>> {
         if (Objects.isNull(chatPrompt))
             chatPrompt =
                 "You are a helpful assistant, you must speak Chinese. Now you are in a chat group, and the following is chat history";
         var emotionPrompt = await redis.get(EMOTION_KEY);
         return {
             role: "system",
-            // todo 按deepseek-r1的模板修正格式，之后有问题再说
+            // 按deepseek-r1的模板修正格式
             content: (useEmotion ?
                 `${chatPrompt} \n 你的情感倾向——${emotionPrompt.replace(/\n/g, "").replace(/\s+/g, "")}`
                 : chatPrompt) as string
         };
     }
 
-    protected async generateSystemContentVisual(useEmotion: boolean, chatPrompt: null | undefined | string): Promise<{ role: "system", content: { type: "text", text: string }[] }> {
+    protected async generateSystemContentVisual(useEmotion: boolean, chatPrompt: null | undefined | string): Promise<{ role?: "system", content: ({ type?: "text", text?: string } & Record<string, any>)[] }> {
         if (Objects.isNull(chatPrompt))
             chatPrompt =
                 "You are a helpful assistant, you must speak Chinese. Now you are in a chat group, and the following is chat history";
@@ -233,7 +233,7 @@ export abstract class ChatAgent implements ChatInterface, VisualInterface {
      * @param {*} request
      * @param {*} j_msg:{img:[],text:[]}
      */
-    protected async commonRequestTool(request: Request, j_msg: { img: string[], text: string[] }) {
+    protected async commonRequestTool(request: Request, j_msg: { img?: string[], text: string[] }) {
         var content: any[] = [];
         if (!Objects.isNull(j_msg.img)) {
             j_msg.img.forEach((base64) => {
@@ -249,7 +249,7 @@ export abstract class ChatAgent implements ChatInterface, VisualInterface {
             });
         }
         (request.options.body as RequestBody).messages.push({ role: "user", content: content });
-        
+
         if (config.autoReply.debugMode) {
             // 创建打印用副本
             var logRequest: Request = JSON.parse(JSON.stringify(request));

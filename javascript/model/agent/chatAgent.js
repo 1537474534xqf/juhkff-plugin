@@ -11,10 +11,10 @@ export class ChatAgent {
     apiUrl = undefined;
     modelsChat;
     modelsVisual;
-    constructor(apiKey, apiBaseUrl = null) {
+    constructor(apiKey, apiUrl = null) {
         this.apiKey = apiKey;
-        if (apiBaseUrl)
-            this.apiUrl = apiBaseUrl;
+        if (apiUrl)
+            this.apiUrl = apiUrl;
         (async () => {
             this.modelsChat = await this.chatModels();
             this.modelsVisual = await this.visualModels();
@@ -34,7 +34,7 @@ export class ChatAgent {
         var emotionPrompt = await redis.get(EMOTION_KEY);
         return {
             role: "system",
-            // todo 按deepseek-r1的模板修正格式，之后有问题再说
+            // 按deepseek-r1的模板修正格式
             content: (useEmotion ?
                 `${chatPrompt} \n 你的情感倾向——${emotionPrompt.replace(/\n/g, "").replace(/\s+/g, "")}`
                 : chatPrompt)

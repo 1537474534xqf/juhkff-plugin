@@ -9,6 +9,7 @@ import { DeepSeek } from "./agent/instance/deepseek.js";
 import { Siliconflow } from "./agent/instance/siliconflow.js";
 import { ChatAgent } from "./agent/chatAgent.js";
 import { config } from "../config/index.js";
+import { Gemini } from "./agent/instance/gemini.js";
 
 /**
  * 模型列表，新增的都加里面
@@ -16,7 +17,8 @@ import { config } from "../config/index.js";
 const agentMap: Record<string, { new(...args: any[]): ChatAgent; hasVisual: () => boolean }> = {
     siliconflow: Siliconflow,
     deepseek: DeepSeek,
-    火山方舟: ArkEngine
+    火山方舟: ArkEngine,
+    Gemini: Gemini
 };
 
 let chatInstance: ChatAgent | null = null;

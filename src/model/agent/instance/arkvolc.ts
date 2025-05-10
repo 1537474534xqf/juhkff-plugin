@@ -28,11 +28,19 @@ export class ArkEngine extends ChatAgent {
         return response;
     }
 
-    chatModels(): Promise<Record<string, Function> | undefined> {
-        return undefined;
+    async chatModels(): Promise<Record<string, Function> | undefined> {
+        return {
+            "doubao-1-5-pro-32k-250115": null,
+            "doubao-1-5-thinking-pro-250415": null,
+            "deepseek-r1-250120": null,
+            "输入其它或自定义模型（请勿选择该项）": null
+        };
     }
-    visualModels(): Promise<Record<string, { chat: Function; tool: Function; }> | undefined> {
-        return undefined;
+    async visualModels(): Promise<Record<string, { chat: Function; tool: Function; }> | undefined> {
+        return {
+            "doubao-1.5-vision-pro-250328": null,
+            "输入其它或自定义模型（请勿选择该项）": null
+        }
     }
     async visualRequest(model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any> {
         let request: Request = {

@@ -180,9 +180,9 @@ export async function parseUrlVisual(e) {
                     if (!Objects.isNull(extractResult)) {
                         logger.info(`[URL处理]成功提取URL内容`);
                         // 借助chatApi对提取的内容进行总结
-                        var model = config.autoReply.visualModel;
+                        var model = config.autoReply.chatModel;
                         // var result = await chatInstance[VisualInterface.toolRequest]({
-                        let result = await agent.visual.toolRequest(model, { text: [extractResult.content, "根据从URL抓取的信息，以自然语言简练地总结URL中的主要内容，其中无关信息可以过滤掉"] });
+                        let result = await agent.chat.toolRequest(model, { text: [extractResult.content, "根据从URL抓取的信息，以自然语言简练地总结URL中的主要内容，其中无关信息可以过滤掉"] });
                         e.j_msg.notProcessed[i].text = e.j_msg.notProcessed[i].text.replace(url, `<分享URL，URL内容的分析结果——${result}>`);
                         e.j_msg.notProcessed[i].type = "url2text";
                     }
@@ -335,10 +335,10 @@ export async function loadContextVisual(groupId) {
  * @returns
  */
 export async function emotionGenerateVisual() {
-    if (!agent.visual)
+    if (!agent.chat)
         return null;
-    let model = config.autoReply.visualModel;
-    var emotion = await agent.visual.toolRequest(model, { text: [config.autoReply.emotionGeneratePrompt] });
+    let model = config.autoReply.chatModel;
+    var emotion = await agent.chat.toolRequest(model, { text: [config.autoReply.emotionGeneratePrompt] });
     logger.info(`[handleVisual]情感生成: ${emotion}`);
     return emotion;
 }

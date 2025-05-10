@@ -7,13 +7,15 @@ import { ArkEngine } from "./agent/instance/arkvolc.js";
 import { DeepSeek } from "./agent/instance/deepseek.js";
 import { Siliconflow } from "./agent/instance/siliconflow.js";
 import { config } from "../config/index.js";
+import { Gemini } from "./agent/instance/gemini.js";
 /**
  * 模型列表，新增的都加里面
  */
 const agentMap = {
     siliconflow: Siliconflow,
     deepseek: DeepSeek,
-    火山方舟: ArkEngine
+    火山方舟: ArkEngine,
+    Gemini: Gemini
 };
 let chatInstance = null;
 let visualInstance = null;

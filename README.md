@@ -52,6 +52,7 @@ pnpm install --filter=juhkff-plugin
 - SiliconFlow 官网申请 ApiKey: https://cloud.siliconflow.cn/account/ak
 - DeepSeek 官网申请 ApiKey: https://platform.deepseek.com/
 - 火山方舟 官网申请 ApiKey 和创建应用: https://console.volcengine.com/ark/
+- Gemini 官网申请 ApiKey: https://aistudio.google.com/apikey
 
 ### 一点使用经验
 
@@ -65,13 +66,18 @@ pnpm install --filter=juhkff-plugin
 
 ## 功能列表
 
-- [x] 主动群聊：支持 DeepSeek API， SiliconFlow 视觉 API，火山方舟自建应用 API（能够联网搜索）
+- [x] 主动群聊
   - [x] 支持上下文
   - [x] 视觉模型开启时，会对图片提取关键内容加入上下文
   - [x] 视觉模型可以代替聊天模型完全接管主动群聊
   - [x] 可以提取分享的 URL 内容并加入上下文
   - [x] 一定程度上支持对分享链接的解析并加入上下文
   - [x] 添加情感生成，会加入 API 接口调用中辅助生成群聊内容（神必功能，谨慎开启
+  - [x] 支持的 API 列表：
+    - [x] DeepSeek
+    - [x] SiliconFlow
+    - [x] 火山方舟
+    - [x] **Gemini（最新支持）**  
 - [x] 生成和推送日报
   - [x] 借鉴 [真寻日报](https://github.com/HibiKier/nonebot-plugin-zxreport) 的样式和代码生成日报
 - [x] 表情偷取
@@ -80,9 +86,9 @@ pnpm install --filter=juhkff-plugin
 - [ ] AI 功能接入中
   - [x] 豆包 AI 部分接入
   - TODO: 其它 AI 接入...
-- [x] **调用指令可发送帮助图片**
-  - [x] **参考 [Miao-Plugin](https://github.com/yoimiya-kokomi/miao-plugin) 和 [TRSS-Yunzai](https://github.com/TimeRainStarSky/Yunzai) 的思路和代码实现**
-  - [x] **支持手动添加其它命令，如其它插件的命令**
+- [x] 调用指令可发送帮助图片
+  - [x] 参考 [Miao-Plugin](https://github.com/yoimiya-kokomi/miao-plugin) 和 [TRSS-Yunzai](https://github.com/TimeRainStarSky/Yunzai) 的思路和代码实现
+  - [x] 支持手动添加其它命令，如其它插件的命令
   <details>
     <summary>图片效果预览</summary>
     <img src="./resources/images/help-screenshot.png"/>
