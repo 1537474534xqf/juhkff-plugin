@@ -10,7 +10,7 @@ import { Base64, Objects } from "../../utils/kits.js";
 import { RequestBody } from "../../type.js";
 import { downloadFile, url2Base64 } from "../../utils/net.js";
 import { config } from "../../config/index.js";
-import { processMessage } from "./common.js";
+import { processMessage } from "../../common.js";
 
 export class douBao extends plugin {
     constructor() {

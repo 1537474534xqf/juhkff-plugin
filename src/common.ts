@@ -1,4 +1,4 @@
-import { RequestMsg } from "../../type.js";
+import { RequestMsg } from "./type.js";
 
 /**
  * 处理消息
@@ -43,3 +43,9 @@ export async function processMessage(e: { message: { type: string, text?: string
     result.texts = textPart.trim();
     return result;
 }
+
+
+// 定义 sleep 函数，用于异步延迟
+export const sleep = (ms: number): Promise<void> => {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+};

@@ -6,14 +6,16 @@ import { configFolderCheck, configSync, getFileHash } from "../../common.js";
 import { PLUGIN_CONFIG_DIR, PLUGIN_DEFAULT_CONFIG_DIR } from "../../../model/path.js";
 
 export type SF = {
-    useSF: boolean;
-    sfApiKey: string;
-    useVideoGenerate: boolean;
-    videoGenerateUrl: string;
-    videoGenerateModel: string;
-    useVoiceGenerate: boolean;
-    voiceGenerateUrl: string;
-    voiceGenerateModel: string;
+    useSF: boolean
+    sfApiKey: string
+    useVideoGenerate: boolean
+    videoGenerateUrl: string
+    videoGenerateRequestUrl: string
+    videoGenerateModel: string
+    useVoiceGenerate: boolean
+    voiceGenerateUrl: string
+    voiceGenerateModel: string
+    voiceGenerateCharacter: string
 }
 
 export let sfConfig: SF = null;

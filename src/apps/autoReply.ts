@@ -1,4 +1,4 @@
-import { sleep } from "../bgProcess/timer.js";
+import { sleep } from "../common.js";
 import { ChatApiType } from "../config/define/autoReply.js";
 import { config } from "../config/index.js";
 import { formatDateDetail } from "../utils/date.js";

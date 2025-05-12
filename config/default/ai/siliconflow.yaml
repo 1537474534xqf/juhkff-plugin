@@ -2,7 +2,9 @@ useSF: false
 sfApiKey: ""
 useVideoGenerate: false
 videoGenerateUrl: https://api.siliconflow.cn/v1/video/submit
+videoGenerateRequestUrl: https://api.siliconflow.cn/v1/video/status
 videoGenerateModel: ""
 useVoiceGenerate: false
 voiceGenerateUrl: https://api.siliconflow.cn/v1/audio/speech
 voiceGenerateModel: ""
+voiceGenerateCharacter: ""
