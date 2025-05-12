@@ -54,6 +54,14 @@ export type RequestMsg = {
 export type HelpType = {
     name?: string,
     type: "active" | "passive" | "group" | "sub",
+    command?: string,
     dsc?: string,
     enable?: boolean,
+    subMenu?: {
+        name?: string,
+        type: "sub",
+        command?: string,
+        dsc?: string,
+        enable?: boolean,
+    }[]
 }

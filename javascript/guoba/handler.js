@@ -96,3 +96,4 @@ export function afterUpdate(previous) {
     reloadInstance();
     return { code: 0, message: "校验成功" };
 }
+//# sourceMappingURL=handler.js.map

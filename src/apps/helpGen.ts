@@ -5,6 +5,7 @@ import { renderPage } from "../utils/page.js"
 import { PLUGIN_APP_DIR, PLUGIN_RESOURCES_DIR } from "../model/path.js";
 import { Objects, StringUtils } from "../utils/kits.js";
 import { config } from "../config/index.js";
+import { HelpType } from "../type.js";
 
 export class helpGen extends plugin {
     constructor() {
@@ -25,7 +26,7 @@ export class helpGen extends plugin {
 
     async helpGenerate(e: any) {
         if (!config.helpGen.useHelpGen) return false;
-        var helpList: any[] = []
+        var helpList: HelpType[] = []
         await this.loadPluginHelp(PLUGIN_APP_DIR, helpList, /*[`${path.join(pluginDir, "helpGen.js")}`]*/);
         this.addManualHelp(helpList);
         if (!config.helpGen.hd) {
@@ -71,7 +72,7 @@ export class helpGen extends plugin {
      * @param {*} helpList 最终的帮助列表，一般入口处传入空数组对象即可
      * @param {*} extract 排除列表，每一项为绝对路径
      */
-    async loadPluginHelp(dir: string, helpList: any[], extract: string[] = []) {
+    async loadPluginHelp(dir: string, helpList: HelpType[], extract: string[] = []) {
         var files = fs.readdirSync(dir);
         for (var file of files) {
             var filePath = path.join(dir, file);
@@ -102,7 +103,7 @@ export class helpGen extends plugin {
         }
     }
 
-    addManualHelp(helpList: any) {
+    addManualHelp(helpList: HelpType[]) {
         var manualHelpList = config.helpGen.manualList;
         if (Objects.isNull(manualHelpList)) return;
         var groupHelpList = manualHelpList.filter((item) => item?.type === "group");
@@ -141,7 +142,7 @@ export class helpGen extends plugin {
 
 
 function initExtraHelp() {
-    let extraHelp: Record<string, any> = {};
+    let extraHelp: Record<string, HelpType | (() => HelpType)> = {};
     extraHelp["douBao"] = douBaoHelp;
     extraHelp["helpGen"] = helpDesc;
     return extraHelp;
@@ -155,7 +156,7 @@ function isAppFile(filePath: string) {
 /* --------------------------------------------------------单独导入-------------------------------------------------------- */
 
 // 自己不能生成自己，要写在这里
-var helpDesc = () => {
+var helpDesc = (): HelpType => {
     return {
         name: "帮助",
         type: "active",
@@ -166,7 +167,7 @@ var helpDesc = () => {
 }
 
 // 配置过长的插件单独导入插件帮助
-var douBaoHelp = () => {
+var douBaoHelp = (): HelpType => {
     return {
         name: "豆包",
         type: "group",
@@ -175,28 +176,31 @@ var douBaoHelp = () => {
         subMenu: [
             {
                 name: "视频生成",
-                type: "active",
+                type: "sub",
                 command: "#视频生成 文本|图片 [宽高比] [5|10](视频秒数)",
                 enable: config.douBao.useVideoGenerate,
             },
             {
                 name: "图片生成",
-                type: "active",
+                type: "sub",
                 command: "#图片生成 文本 图片1|图片...(同宽高) [-w 宽] [-h 高]",
                 enable: config.douBao.useImageGenerate,
             },
             {
                 name: "图片模仿",
+                type:"sub",
                 command: "#图片模仿 文本 图片",
                 enable: config.douBao.useImageImitate,
             },
             {
                 name: "图片风格化",
+                type:"sub",
                 command: "#图片风格化 类型前缀 图片",
                 enable: config.douBao.useImageStyle,
             },
             {
                 name: "图片风格化",
+                type:"sub",
                 command: "#图片风格化 类型列表",
                 enable: config.douBao.useImageStyle,
             }

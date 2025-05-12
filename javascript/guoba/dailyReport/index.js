@@ -44,3 +44,4 @@ export const dailyReportSchema = () => [
         component: "GSelectGroup",
     },
 ];
+//# sourceMappingURL=index.js.map

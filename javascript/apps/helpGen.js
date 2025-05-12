@@ -170,31 +170,35 @@ var douBaoHelp = () => {
         subMenu: [
             {
                 name: "视频生成",
-                type: "active",
+                type: "sub",
                 command: "#视频生成 文本|图片 [宽高比] [5|10](视频秒数)",
                 enable: config.douBao.useVideoGenerate,
             },
             {
                 name: "图片生成",
-                type: "active",
+                type: "sub",
                 command: "#图片生成 文本 图片1|图片...(同宽高) [-w 宽] [-h 高]",
                 enable: config.douBao.useImageGenerate,
             },
             {
                 name: "图片模仿",
+                type: "sub",
                 command: "#图片模仿 文本 图片",
                 enable: config.douBao.useImageImitate,
             },
             {
                 name: "图片风格化",
+                type: "sub",
                 command: "#图片风格化 类型前缀 图片",
                 enable: config.douBao.useImageStyle,
             },
             {
                 name: "图片风格化",
+                type: "sub",
                 command: "#图片风格化 类型列表",
                 enable: config.douBao.useImageStyle,
             }
         ]
     };
 };
+//# sourceMappingURL=helpGen.js.map
