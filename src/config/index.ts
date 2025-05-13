@@ -4,13 +4,13 @@
  */
 import { saveConfigToFile } from "./common.js"
 import { DouBao, douBaoConfig, setDouBaoConfig } from "./define/ai/douBao.js"
-import { setSiliconflowConfig, SF, sfConfig } from "./define/ai/siliconflow.js"
+import { setSiliconflowConfig, SiliconFlow, sfConfig } from "./define/ai/siliconflow.js"
 import { AutoReply, autoReplyConfig, setAutoReplyConfig } from "./define/autoReply.js"
 import { DailyReport, dailyReportConfig, setDailyReportConfig } from "./define/dailyReport.js"
 import { EmojiSave, emojiSaveConfig, setEmojiSaveConfig } from "./define/emojiSave.js"
 import { HelpGen, helpGenConfig, setHelpGenConfig } from "./define/helpGen.js"
 
-export type ConfigType = AutoReply | DailyReport | EmojiSave | HelpGen | DouBao | SF
+export type ConfigType = AutoReply | DailyReport | EmojiSave | HelpGen | DouBao | SiliconFlow
 
 export type Config = {
     autoReply: AutoReply
@@ -18,7 +18,7 @@ export type Config = {
     emojiSave: EmojiSave
     helpGen: HelpGen
     douBao: DouBao
-    sf: SF
+    siliconflow: SiliconFlow
 }
 
 // ! 一切配置项使用此处的值，切勿直接使用子目录下的xxxConfig!
@@ -28,7 +28,7 @@ export const config = {
     get emojiSave() { return emojiSaveConfig },
     get helpGen() { return helpGenConfig },
     get douBao() { return douBaoConfig },
-    get sf() { return sfConfig }
+    get siliconflow() { return sfConfig }
 };
 
 export function updateConfig(data: Config) {
@@ -37,12 +37,12 @@ export function updateConfig(data: Config) {
     setEmojiSaveConfig(data.emojiSave);
     setHelpGenConfig(data.helpGen);
     setDouBaoConfig(data.douBao);
-    setSiliconflowConfig(data.sf);
+    setSiliconflowConfig(data.siliconflow);
 
     saveConfigToFile(data.autoReply, "autoReply.yaml");
     saveConfigToFile(data.dailyReport, "dailyReport.yaml");
     saveConfigToFile(data.emojiSave, "emojiSave.yaml");
     saveConfigToFile(data.helpGen, "helpGen.yaml");
     saveConfigToFile(data.douBao, "ai", "douBao.yaml");
-    saveConfigToFile(data.sf, "ai", "siliconflow.yaml");
+    saveConfigToFile(data.siliconflow, "ai", "siliconflow.yaml");
 }

@@ -1,10 +1,24 @@
+# 总开关
 useSF: false
+# API KEY
 sfApiKey: ""
+# 视频生成开关
 useVideoGenerate: false
+# 视频生成URL
 videoGenerateUrl: https://api.siliconflow.cn/v1/video/submit
+# 视频生成状态URL
 videoGenerateRequestUrl: https://api.siliconflow.cn/v1/video/status
+# 视频生成模型
 videoGenerateModel: ""
+# 语音生成开关
 useVoiceGenerate: false
+# 将语音生成用于聊天回复文本转换，和语音开关独立
+chatTransVoiceResponse: false
+# 回复文本转换为语音的概率
+chatTransVoiceRate: 0.1
+# 语音生成URL
 voiceGenerateUrl: https://api.siliconflow.cn/v1/audio/speech
+# 语音生成模型
 voiceGenerateModel: ""
+# 语音生成音色
 voiceGenerateCharacter: ""

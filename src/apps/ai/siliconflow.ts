@@ -6,6 +6,7 @@ import { Objects } from "../../utils/kits.js";
 import { url2Base64 } from "../../utils/net.js";
 import { processMessage } from "../../common.js";
 import { PLUGIN_DATA_DIR } from "../../model/path.js";
+import { getVoiceGenerateCharacter } from "../../guoba/ai/siliconflow/handler.js";
 
 export class siliconflow extends plugin {
     constructor() {
@@ -32,11 +33,11 @@ export class siliconflow extends plugin {
     }
 
     async help(e: { reply: (arg0: string) => any; }) {
-        if (!config.sf.useSF) return false;
+        if (!config.siliconflow.useSF) return false;
         var helpMsg = `可用指令：[]中为可选项，()中为解释说明`;
-        if (config.sf.useVideoGenerate)
+        if (config.siliconflow.useVideoGenerate)
             helpMsg += `\n  #视频生成 文本|图片`;
-        if (config.sf.useVoiceGenerate) {
+        if (config.siliconflow.useVoiceGenerate) {
             helpMsg += `\n  #语音生成 文本`;
         }
         await e.reply(helpMsg);
@@ -44,7 +45,7 @@ export class siliconflow extends plugin {
     }
 
     async preCheck(e: { reply: (arg0: string) => any; }) {
-        if (Objects.hasNull(config.sf.sfApiKey)) {
+        if (Objects.hasNull(config.siliconflow.sfApiKey)) {
             await e.reply("请先设置SiliconFlow的ApiKey");
             return false;
         }
@@ -52,13 +53,13 @@ export class siliconflow extends plugin {
     }
 
     async voiceGenerate(e: any) {
-        if (!config.sf.useSF) return false;
-        if (!config.sf.useVoiceGenerate) return false;
-        if (Objects.isNull(config.sf.sfApiKey)) {
+        if (!config.siliconflow.useSF) return false;
+        if (!config.siliconflow.useVoiceGenerate) return false;
+        if (Objects.isNull(config.siliconflow.sfApiKey)) {
             await e.reply("请先设置apiKey");
             return true;
         }
-        if (Objects.isNull(config.sf.voiceGenerateModel)) {
+        if (Objects.isNull(config.siliconflow.voiceGenerateModel)) {
             await e.reply("请先设置要使用的模型");
             return true;
         }
@@ -69,26 +70,11 @@ export class siliconflow extends plugin {
             await e.reply("请添加文本");
             return true;
         }
-        var request: Request = {
-            url: config.sf.voiceGenerateUrl,
-            options: {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${config.sf.sfApiKey}`,
-                },
-                body: {
-                    model: config.sf.voiceGenerateModel,
-                    input: texts,
-                    voice: config.sf.voiceGenerateCharacter
-                },
-            }
-        };
-        request.options.body = JSON.stringify(request.options.body);
+        const request = generateVoiceRequest(texts);
         const response = await fetch(request.url, request.options as RequestInit);
         // 将response保存为mp3
         const arrayBuffer = await response.arrayBuffer();
-        const outputPath = path.join(PLUGIN_DATA_DIR, e.group_id || e.user_id, `${Date.now()}-siliconflow.mp3`);
+        const outputPath = path.join(PLUGIN_DATA_DIR, `${e.group_id}` || `${e.user_id}`, `audio`, `${Date.now()}-siliconflow.mp3`);
         // 确保目录存在
         const dir = path.dirname(outputPath);
         if (!fs.existsSync(dir)) {
@@ -97,17 +83,18 @@ export class siliconflow extends plugin {
         // 写入文件
         fs.writeFileSync(outputPath, Buffer.from(arrayBuffer));
         // 发送文件
-        await e.reply(segment.file(outputPath));
+        await e.reply(segment.record(outputPath));
+        return true;
     }
 
     async videoGenerate(e: any) {
-        if (!config.sf.useSF) return false;
-        if (!config.sf.useVideoGenerate) return false;
-        if (Objects.isNull(config.sf.sfApiKey)) {
+        if (!config.siliconflow.useSF) return false;
+        if (!config.siliconflow.useVideoGenerate) return false;
+        if (Objects.isNull(config.siliconflow.sfApiKey)) {
             await e.reply("请先设置apiKey");
             return true;
         }
-        if (Objects.isNull(config.sf.videoGenerateModel)) {
+        if (Objects.isNull(config.siliconflow.videoGenerateModel)) {
             await e.reply("请先设置要使用的模型");
             return true;
         }
@@ -119,15 +106,15 @@ export class siliconflow extends plugin {
             return true;
         }
         var request: Request = {
-            url: config.sf.videoGenerateUrl,
+            url: config.siliconflow.videoGenerateUrl,
             options: {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${config.sf.sfApiKey}`,
+                    Authorization: `Bearer ${config.siliconflow.sfApiKey}`,
                 },
                 body: {
-                    "model": config.sf.videoGenerateModel,
+                    "model": config.siliconflow.videoGenerateModel,
                     "prompt": texts
                 },
             }
@@ -146,14 +133,13 @@ export class siliconflow extends plugin {
         }
         logger.info(`[sf]视频生成任务创建成功，requestId：${id}`);
         // 创建线程
-        this.createTaskThread(e, id, this.handleCompleted, this.handleFailed);
-        await e.reply("视频生成中，请稍等...");
+        await e.reply("视频生成中，请稍等（siliconflow视频生成等待时间较长）...");
         const intervalId = setInterval(async () => {
-            let response = await fetch(config.sf.videoGenerateRequestUrl, {
+            let response = await fetch(config.siliconflow.videoGenerateRequestUrl, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${config.sf.sfApiKey}`,
+                    Authorization: `Bearer ${config.siliconflow.sfApiKey}`,
                 },
                 body: JSON.stringify({
                     requestId: id
@@ -172,4 +158,29 @@ export class siliconflow extends plugin {
         }, 5000);
         return true;
     }
+}
+
+export function generateVoiceRequest(texts: string): Request {
+    var request: Request = {
+        url: config.siliconflow.voiceGenerateUrl,
+        options: {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${config.siliconflow.sfApiKey}`,
+            },
+            body: {
+                model: config.siliconflow.voiceGenerateModel,
+                input: texts,
+                voice: config.siliconflow.voiceGenerateCharacter
+            },
+        }
+    };
+    if ((request.options.body as RequestBody).voice == "random") {
+        const voices = getVoiceGenerateCharacter();
+        const randomIndex = Math.floor(Math.random() * (voices.length - 1)); // 排除最后一项并随机选
+        (request.options.body as RequestBody).voice = voices[randomIndex].value;
+    }
+    request.options.body = JSON.stringify(request.options.body);
+    return request;
 }

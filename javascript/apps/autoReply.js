@@ -1,6 +1,7 @@
-import { sleep } from "../bgProcess/timer.js";
+import { sleep } from "../common.js";
 import { ChatApiType } from "../config/define/autoReply.js";
 import { config } from "../config/index.js";
+import { transformTextToVoice } from "../plugin/siliconflow.js";
 import { formatDateDetail } from "../utils/date.js";
 import { generateAnswer, parseImage, parseJson, parseSourceMessage, parseUrl, saveContext } from "../utils/handle.js";
 import { generateAnswerVisual, parseImageVisual, parseJsonVisual, parseSourceMessageVisual, parseTextVisual, parseUrlVisual, saveContextVisual } from "../utils/handleVisual.js";
@@ -181,9 +182,7 @@ export class autoReply extends plugin {
             // 保存AI回复
             if (answer && !answer.startsWith("[autoReply]")) {
                 await saveContextVisual(answer_time, answer_date, e.group_id, 0, "assistant", "群BOT", // TODO 机器人的nickName，以后可以添加自定义名称的功能，现在该项暂时没用
-                {
-                    text: answer,
-                });
+                { text: answer });
             }
         }
         return false;
@@ -194,6 +193,12 @@ export class autoReply extends plugin {
      * @param {*} answer
      */
     async handleReply(e, answer) {
+        // 插件功能联动相关
+        const mp3Path = await transformTextToVoice(e, answer);
+        if (Objects.isNull(mp3Path)) {
+            await e.reply(segment.record(mp3Path));
+            return;
+        }
         // 如果为连续短句，概率间隔发送，感觉这样更真实一点
         if (answer.split(" ").length > 1 && answer.split(" ").length < 4 && Math.random() < 0.5) {
             var answerList = answer.split(" ");

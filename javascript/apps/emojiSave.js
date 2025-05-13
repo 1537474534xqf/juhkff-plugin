@@ -4,7 +4,7 @@ import { PLUGIN_DATA_DIR } from "../model/path.js";
 import { downloadFile } from "../utils/net.js";
 import { config } from "../config/index.js";
 import { emojiGallery } from "../model/resource/gallery.js";
-import { sleep } from "../bgProcess/timer.js";
+import { sleep } from "../common.js";
 export const help = () => {
     return {
         name: "偷图",

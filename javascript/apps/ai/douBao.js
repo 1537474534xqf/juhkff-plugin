@@ -8,6 +8,7 @@ import { PLUGIN_DATA_DIR } from "../../model/path.js";
 import { Base64, Objects } from "../../utils/kits.js";
 import { downloadFile, url2Base64 } from "../../utils/net.js";
 import { config } from "../../config/index.js";
+import { processMessage } from "../../common.js";
 export class douBao extends plugin {
     constructor() {
         super({
@@ -98,7 +99,7 @@ export class douBao extends plugin {
         if (!config.douBao.useDouBao)
             return false;
         if (!config.douBao.useImageStyle)
-            return true;
+            return false;
         if (!this.preCheck(e))
             return true;
         let result = await processMessage(e);
@@ -175,7 +176,7 @@ export class douBao extends plugin {
         if (!config.douBao.useDouBao)
             return false;
         if (!config.douBao.useImageImitate)
-            return true;
+            return false;
         if (!this.preCheck(e))
             return true;
         var result = await processMessage(e);
@@ -237,7 +238,7 @@ export class douBao extends plugin {
         if (!config.douBao.useDouBao)
             return false;
         if (!config.douBao.useImageGenerate)
-            return true;
+            return false;
         if (!this.preCheck(e))
             return true;
         var result = await processMessage(e);
@@ -381,7 +382,7 @@ export class douBao extends plugin {
         if (!config.douBao.useDouBao)
             return false;
         if (!config.douBao.useVideoGenerate)
-            return true;
+            return false;
         if (Objects.isNull(this.VideoGenerateApiKey)) {
             await e.reply("请先设置apiKey");
             return true;
@@ -433,7 +434,7 @@ export class douBao extends plugin {
             await e.reply("视频生成失败，请稍后再试");
             return true;
         }
-        logger.mark(`[douBao]视频生成任务创建成功，id：${id}`);
+        logger.info(`[douBao]视频生成任务创建成功，id：${id}`);
         // 创建线程
         this.createTaskThread(e, id, this.handleCompleted, this.handleFailed);
         await e.reply("视频生成中，请稍等...");
@@ -495,51 +496,5 @@ export class douBao extends plugin {
             });
         }
     }
-}
-/**
- * 处理消息
- * @param {*} msgList
- * @returns result {texts: "", images: [], content: []}
- * texts: 文本部分
- * images: 图片部分
- * content: 按顺序排列的消息体
- */
-async function processMessage(e) {
-    var result = { texts: "", images: [], content: [] };
-    var msgList = e.message;
-    var texts = [];
-    for (var i = 0; i < msgList.length; i++) {
-        var msg = msgList[i];
-        if (msg.type == "text") {
-            result.content.push({
-                type: "text",
-                text: msg.text.replace(/\s+/g, " ").trim(),
-            });
-            texts.push(msg.text);
-        }
-        else if (msg.type == "image") {
-            result.content.push({ type: "image", url: msg.url });
-            result.images.push(msg.url);
-        }
-        else if (msg.type == "reply") {
-            var sourceImages = await e.getReply(msg.id);
-            sourceImages = sourceImages?.message.filter((each) => {
-                return each.type == "image";
-            });
-            sourceImages.forEach((each) => {
-                result.content.push({ type: "image", url: each.url });
-                result.images.push(each.url);
-            });
-        }
-        else if (msg.type != "at") {
-            //其它类型，保持原样加进result，虽然不知道有什么用
-            result.content.push(msg);
-        }
-    }
-    var textPart = texts.join(" ");
-    // 将空格固定为一个
-    textPart = textPart.replace(/\s+/g, " ");
-    result.texts = textPart.trim();
-    return result;
 }
 //# sourceMappingURL=douBao.js.map

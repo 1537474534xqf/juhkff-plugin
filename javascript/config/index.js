@@ -4,6 +4,7 @@
  */
 import { saveConfigToFile } from "./common.js";
 import { douBaoConfig, setDouBaoConfig } from "./define/ai/douBao.js";
+import { setSiliconflowConfig, sfConfig } from "./define/ai/siliconflow.js";
 import { autoReplyConfig, setAutoReplyConfig } from "./define/autoReply.js";
 import { dailyReportConfig, setDailyReportConfig } from "./define/dailyReport.js";
 import { emojiSaveConfig, setEmojiSaveConfig } from "./define/emojiSave.js";
@@ -14,7 +15,8 @@ export const config = {
     get dailyReport() { return dailyReportConfig; },
     get emojiSave() { return emojiSaveConfig; },
     get helpGen() { return helpGenConfig; },
-    get douBao() { return douBaoConfig; }
+    get douBao() { return douBaoConfig; },
+    get siliconflow() { return sfConfig; }
 };
 export function updateConfig(data) {
     setAutoReplyConfig(data.autoReply);
@@ -22,10 +24,12 @@ export function updateConfig(data) {
     setEmojiSaveConfig(data.emojiSave);
     setHelpGenConfig(data.helpGen);
     setDouBaoConfig(data.douBao);
+    setSiliconflowConfig(data.siliconflow);
     saveConfigToFile(data.autoReply, "autoReply.yaml");
     saveConfigToFile(data.dailyReport, "dailyReport.yaml");
     saveConfigToFile(data.emojiSave, "emojiSave.yaml");
     saveConfigToFile(data.helpGen, "helpGen.yaml");
     saveConfigToFile(data.douBao, "ai", "douBao.yaml");
+    saveConfigToFile(data.siliconflow, "ai", "siliconflow.yaml");
 }
 //# sourceMappingURL=index.js.map

@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs, { appendFile } from "fs";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from 'url';
 
@@ -27,9 +27,19 @@ async function getFiles(dir) {
     return Array.prototype.concat(...files);
 }
 
-const files = await getFiles(path.join(pluginRoot, "javascript", "apps")).then((files) =>
+const appFiles = await getFiles(path.join(pluginRoot, "javascript", "apps")).then((files) =>
     files.filter((file) => file.endsWith(".js"))
 );
+
+const bgProcessFiles = await getFiles(path.join(pluginRoot, "javascript", "bgProcess")).then((files) =>
+    files.filter((file) => file.endsWith(".js"))
+);
+
+const pluginFiles = await getFiles(path.join(pluginRoot, "javascript", "plugin")).then((files) =>
+    files.filter((file) => file.endsWith(".js"))
+);
+
+const files = [...appFiles, ...bgProcessFiles, ...pluginFiles];
 
 files.forEach((file) => {
     file = pathToFileURL(file).href;  // 支持 Windows 路径

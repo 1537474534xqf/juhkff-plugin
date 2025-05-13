@@ -5,7 +5,7 @@ import chokidar from "chokidar";
 import { configFolderCheck, configSync, getFileHash } from "../../common.js";
 import { PLUGIN_CONFIG_DIR, PLUGIN_DEFAULT_CONFIG_DIR } from "../../../model/path.js";
 
-export type SF = {
+export type SiliconFlow = {
     useSF: boolean
     sfApiKey: string
     useVideoGenerate: boolean
@@ -13,14 +13,16 @@ export type SF = {
     videoGenerateRequestUrl: string
     videoGenerateModel: string
     useVoiceGenerate: boolean
+    chatTransVoiceResponse: boolean
+    chatTransVoiceRate: number
     voiceGenerateUrl: string
     voiceGenerateModel: string
     voiceGenerateCharacter: string
 }
 
-export let sfConfig: SF = null;
+export let sfConfig: SiliconFlow = null;
 
-export function setSiliconflowConfig(config: SF) {
+export function setSiliconflowConfig(config: SiliconFlow) {
     sfConfig = config;
 }
 
@@ -29,8 +31,8 @@ export function setSiliconflowConfig(config: SF) {
     const defaultFile = path.join(PLUGIN_DEFAULT_CONFIG_DIR, "ai", `siliconflow.yaml`);
     if (configFolderCheck(file, defaultFile)) logger.info(`[JUHKFF-PLUGIN]创建SiliconFlow配置`);
 
-    sfConfig = YAML.parse(fs.readFileSync(file, "utf8")) as SF;
-    const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8")) as SF;
+    sfConfig = YAML.parse(fs.readFileSync(file, "utf8")) as SiliconFlow;
+    const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8")) as SiliconFlow;
 
     let lastHash: string = getFileHash(fs.readFileSync(file, "utf8"));
     configSync(sfConfig, defaultConfig);

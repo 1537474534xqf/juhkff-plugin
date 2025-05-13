@@ -10,7 +10,7 @@ const cleanVideoCache: () => NodeJS.Timeout = () => {
         if (!fs.existsSync(PLUGIN_DATA_DIR)) return;
         try {
             const now = Date.now();
-            const thirtyMinutesAgo = now - 30 * 60 * 1000;
+            const fifteenMinutesAgo = now - 15 * 60 * 1000;
             if (!fs.existsSync(PLUGIN_DATA_DIR)) return;
             fs.readdirSync(PLUGIN_DATA_DIR).forEach((dir) => {
                 const dirPath = path.join(PLUGIN_DATA_DIR, dir);
@@ -21,7 +21,7 @@ const cleanVideoCache: () => NodeJS.Timeout = () => {
                     fs.readdirSync(dirPath2).forEach((file) => {
                         const filePath = path.join(dirPath2, file);
                         const fileStat = fs.statSync(filePath);
-                        if (fileStat.isFile() && fileStat.birthtimeMs < thirtyMinutesAgo) {
+                        if (fileStat.isFile() && fileStat.birthtimeMs < fifteenMinutesAgo) {
                             fs.unlinkSync(filePath);
                             logger.info(`已删除旧文件: ${filePath}`);
                         }
@@ -35,7 +35,7 @@ const cleanVideoCache: () => NodeJS.Timeout = () => {
 
     // 程序启动时立即执行一次
     internalFunc();
-    return setInterval(internalFunc, 30 * 60 * 1000);
+    return setInterval(internalFunc, 15 * 60 * 1000);
 }
 
 export const cleanVideoTask = cleanVideoCache();
@@ -48,7 +48,7 @@ const cleanAudioCache: () => NodeJS.Timeout = () => {
         if (!fs.existsSync(PLUGIN_DATA_DIR)) return;
         try {
             const now = Date.now();
-            const thirtyMinutesAgo = now - 30 * 60 * 1000;
+            const fifteenMinutesAgo = now - 15 * 60 * 1000;
             if (!fs.existsSync(PLUGIN_DATA_DIR)) return;
             fs.readdirSync(PLUGIN_DATA_DIR).forEach((dir) => {
                 const dirPath = path.join(PLUGIN_DATA_DIR, dir);
@@ -59,7 +59,7 @@ const cleanAudioCache: () => NodeJS.Timeout = () => {
                     fs.readdirSync(dirPath2).forEach((file) => {
                         const filePath = path.join(dirPath2, file);
                         const fileStat = fs.statSync(filePath);
-                        if (fileStat.isFile() && fileStat.birthtimeMs < thirtyMinutesAgo) {
+                        if (fileStat.isFile() && fileStat.birthtimeMs < fifteenMinutesAgo) {
                             fs.unlinkSync(filePath);
                             logger.info(`已删除旧文件: ${filePath}`);
                         }
@@ -73,7 +73,7 @@ const cleanAudioCache: () => NodeJS.Timeout = () => {
 
     // 程序启动时立即执行一次
     internalFunc();
-    return setInterval(internalFunc, 30 * 60 * 1000);
+    return setInterval(internalFunc, 15 * 60 * 1000);
 }
 
 export const cleanAudioTask = cleanAudioCache();
