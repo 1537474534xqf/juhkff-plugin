@@ -195,7 +195,7 @@ export class autoReply extends plugin {
     async handleReply(e, answer) {
         // 插件功能联动相关
         const mp3Path = await transformTextToVoice(e, answer);
-        if (Objects.isNull(mp3Path)) {
+        if (!Objects.isNull(mp3Path)) {
             await e.reply(segment.record(mp3Path));
             return;
         }

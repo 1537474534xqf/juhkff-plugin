@@ -99,7 +99,6 @@ export const sfSchema = () => [
             max: 1,
             step: 0.01,
         },
-        required: true,
         bottomHelpMessage: "当群聊生成内容转语音为开启状态时，此选项才有效"
     },
     {

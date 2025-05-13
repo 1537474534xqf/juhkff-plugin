@@ -1,9 +1,9 @@
 import path from "path";
 import fs from "fs";
-import { generateVoiceRequest } from "../apps/ai/siliconflow.js";
 import { config } from "../config/index.js";
 import { PLUGIN_DATA_DIR } from "../model/path.js";
 import { Objects } from "../utils/kits.js";
+import { siliconflow } from "../apps/ai/siliconflow.js";
 export async function transformTextToVoice(e, responseText) {
     if (config.siliconflow.useSF && config.siliconflow.chatTransVoiceResponse) {
         // 使用sf语音生成
@@ -12,7 +12,7 @@ export async function transformTextToVoice(e, responseText) {
                 return null;
             if (Objects.isNull(config.siliconflow.voiceGenerateModel))
                 return null;
-            const request = generateVoiceRequest(responseText);
+            const request = siliconflow.generateVoiceRequest(responseText);
             const response = await fetch(request.url, request.options);
             // 将response保存为mp3
             const arrayBuffer = await response.arrayBuffer();
