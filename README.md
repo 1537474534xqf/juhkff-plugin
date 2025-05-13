@@ -73,18 +73,20 @@ pnpm install --filter=juhkff-plugin
   - [x] 可以提取分享的 URL 内容并加入上下文
   - [x] 一定程度上支持对分享链接的解析并加入上下文
   - [x] 添加情感生成，会加入 API 接口调用中辅助生成群聊内容（神必功能，谨慎开启
+  - [x] **支持通过 AI 功能实现文本转语音（latest update）（目前实现较简单）** 
   - [x] 支持的 API 列表：
     - [x] DeepSeek
     - [x] SiliconFlow
     - [x] 火山方舟
-    - [x] **Gemini（最新支持）**  
+    - [x] **Gemini（latest update）**  
 - [x] 生成和推送日报
   - [x] 借鉴 [真寻日报](https://github.com/HibiKier/nonebot-plugin-zxreport) 的样式和代码生成日报
 - [x] 表情偷取
   - [x] 借鉴 [鸢尾花插件](https://github.com/logier/logier-plugins) 的思路改进实现
   - [x] 同一图片在指定时间长度内被发送两次，则被视为表情并偷取
-- [ ] AI 功能接入中
+- [x] AI 功能接入中
   - [x] 豆包 AI 部分接入
+  - [x] **SiliconFlow AI 接入（latest update）**
   - TODO: 其它 AI 接入...
 - [x] 调用指令可发送帮助图片
   - [x] 参考 [Miao-Plugin](https://github.com/yoimiya-kokomi/miao-plugin) 和 [TRSS-Yunzai](https://github.com/TimeRainStarSky/Yunzai) 的思路和代码实现
