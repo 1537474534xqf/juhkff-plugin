@@ -1,3 +1,4 @@
+import path from "path";
 import { sleep } from "../common.js";
 import { ChatApiType } from "../config/define/autoReply.js";
 import { config } from "../config/index.js";
@@ -223,7 +224,7 @@ export class autoReply extends plugin {
         // 插件功能联动相关
         const mp3Path = await transformTextToVoice(e, answer);
         if (!Objects.isNull(mp3Path)) {
-            await e.reply(segment.record(mp3Path));
+            await e.reply({ type: "record", file: mp3Path, name: path.basename(mp3Path) });
             return;
         }
         // 如果为连续短句，概率间隔发送，感觉这样更真实一点
