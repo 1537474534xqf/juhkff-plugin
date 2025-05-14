@@ -1,10 +1,7 @@
-import path from "path";
-import fs from "fs";
 import { config } from "../../config/index.js";
 import { Objects } from "../../utils/kits.js";
 import { url2Base64 } from "../../utils/net.js";
 import { processMessage } from "../../common.js";
-import { PLUGIN_DATA_DIR } from "../../model/path.js";
 import { getVoiceGenerateCharacter } from "../../guoba/ai/siliconflow/handler.js";
 export const help = () => {
     return {
@@ -98,18 +95,9 @@ export class siliconflow extends plugin {
         }
         const request = siliconflow.generateVoiceRequest(texts);
         const response = await fetch(request.url, request.options);
-        // 将response保存为mp3
         const arrayBuffer = await response.arrayBuffer();
-        const outputPath = path.join(PLUGIN_DATA_DIR, `${e.group_id}` || `${e.user_id}`, `audio`, `${Date.now()}-siliconflow.mp3`);
-        // 确保目录存在
-        const dir = path.dirname(outputPath);
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-        }
-        // 写入文件
-        fs.writeFileSync(outputPath, Buffer.from(arrayBuffer));
-        // 发送文件
-        await e.reply(segment.record(outputPath));
+        const base64String = Buffer.from(arrayBuffer).toString("base64");
+        await e.reply(segment.record(`base64://${base64String}`));
         return true;
     }
     async videoGenerate(e) {
