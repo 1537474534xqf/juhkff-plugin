@@ -196,7 +196,7 @@ export class autoReply extends plugin {
         // 插件功能联动相关
         const voiceBase64 = await transformTextToVoice(e, answer);
         if (!Objects.isNull(voiceBase64)) {
-            logger.info("[autoReply]语音生成成功，文字内容:" + answer);
+            logger.info("[autoReply]语音生成成功，文字内容: " + answer);
             await e.reply(segment.record(`base64://${voiceBase64}`));
             return;
         }

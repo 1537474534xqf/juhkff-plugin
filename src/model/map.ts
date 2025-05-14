@@ -10,6 +10,7 @@ import { Siliconflow } from "./agent/instance/siliconflow.js";
 import { ChatAgent } from "./agent/chatAgent.js";
 import { config } from "../config/index.js";
 import { Gemini } from "./agent/instance/gemini.js";
+// import { GeminiOpenAPI } from "./agent/instance/gemini-openapi.js";
 
 /**
  * 模型列表，新增的都加里面
@@ -18,7 +19,8 @@ const agentMap: Record<string, { new(...args: any[]): ChatAgent; hasVisual: () =
     siliconflow: Siliconflow,
     deepseek: DeepSeek,
     火山方舟: ArkEngine,
-    Gemini: Gemini
+    Gemini: Gemini,
+    // "Gemini (OpenAPI)/适合国内使用": GeminiOpenAPI,
 };
 
 let chatInstance: ChatAgent | null = null;
