@@ -28,4 +28,3 @@ export function setSiliconflowConfig(config) {
         logger.info(`[JUHKFF-PLUGIN]同步SiliconFlow配置`);
     }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]SiliconFlow同步配置异常`, err); });
 })();
-//# sourceMappingURL=siliconflow.js.map

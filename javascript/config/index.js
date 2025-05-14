@@ -32,4 +32,3 @@ export function updateConfig(data) {
     saveConfigToFile(data.douBao, "ai", "douBao.yaml");
     saveConfigToFile(data.siliconflow, "ai", "siliconflow.yaml");
 }
-//# sourceMappingURL=index.js.map

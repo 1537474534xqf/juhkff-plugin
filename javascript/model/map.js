@@ -44,4 +44,3 @@ const reloadInstance = () => {
     }
 };
 export { agentMap, agent, reloadInstance };
-//# sourceMappingURL=map.js.map

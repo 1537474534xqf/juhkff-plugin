@@ -58,4 +58,3 @@ export function getVoiceGenerateCharacter() {
         }
     ];
 }
-//# sourceMappingURL=handler.js.map

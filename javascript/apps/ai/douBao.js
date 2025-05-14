@@ -497,4 +497,3 @@ export class douBao extends plugin {
         }
     }
 }
-//# sourceMappingURL=douBao.js.map

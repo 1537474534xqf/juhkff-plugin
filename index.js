@@ -35,11 +35,7 @@ const bgProcessFiles = await getFiles(path.join(pluginRoot, "javascript", "bgPro
     files.filter((file) => file.endsWith(".js"))
 );
 
-const pluginFiles = await getFiles(path.join(pluginRoot, "javascript", "plugin")).then((files) =>
-    files.filter((file) => file.endsWith(".js"))
-);
-
-const files = [...appFiles, ...bgProcessFiles, ...pluginFiles];
+const files = [...appFiles, ...bgProcessFiles];
 
 files.forEach((file) => {
     file = pathToFileURL(file).href;  // 支持 Windows 路径
@@ -51,13 +47,17 @@ ret = await Promise.allSettled(ret);
 let apps = {};
 for (let i in files) {
     let name = files[i].replace(".js", "");
+    const appName = path.basename(name);
 
     if (ret[i].status !== "fulfilled") {
         logger.error(`载入插件错误：${logger.red(name)}`);
         logger.error(ret[i].reason);
         continue;
     }
-    apps[name] = ret[i].value[Object.keys(ret[i].value)[0]];
+    // apps[name] = ret[i].value[Object.keys(ret[i].value)[0]];
+    const keys = Object.keys(ret[i].value);
+    const validKey = keys.find(key => key.toLowerCase() === appName.toLowerCase()) || keys[0]; // 如果没有同名的键，默认取第一个
+    apps[name] = ret[i].value[validKey];
 }
 
 logger.info(logger.green("- JUHKFF-PLUGIN 载入成功"));

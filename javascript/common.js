@@ -48,4 +48,3 @@ export async function processMessage(e) {
 export const sleep = (ms) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
-//# sourceMappingURL=common.js.map
