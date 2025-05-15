@@ -53,6 +53,16 @@ pnpm install --filter=juhkff-plugin
 - DeepSeek 官网申请 ApiKey: https://platform.deepseek.com/
 - 火山方舟 官网申请 ApiKey 和创建应用: https://console.volcengine.com/ark/
 - Gemini 官网申请 ApiKey: https://aistudio.google.com/apikey
+- Gemini-OpenAPI（国内中转）教程: https://github.com/PublicAffairs/openai-gemini
+  <details><summary>部署教程</summary>
+  （需有一个国内可访问的域名）<br>
+  1. 进入openai-gemini仓库<br>
+  2. 点击 'Deploy to Cloudflare'<br>
+  3. 按提示部署项目（会 fork private 仓库）<br>
+  4. 将域名迁移到 Cloudflare: Cloudflare 账户主页 -> 添加域 -> 添加自己的域名 -> 按提示在原DNS提供方官网上将DNS服务器替换为Cloudflare提供的两个服务器 -> 继续按提示完成操作<br>
+  5. Cloudflare 账户主页 -> 计算(Workers) -> 部署的openai-gemini -> 设置 -> 添加域和路由 -> 添加自己的域名<br>
+  6. 可通过 `https://自定义域名/v1/chat/completions` 访问自己的 openai-gemini 服务，实现国内调用 Gemini
+  </details>
 
 ### 一点使用经验
 
@@ -73,12 +83,12 @@ pnpm install --filter=juhkff-plugin
   - [x] 可以提取分享的 URL 内容并加入上下文
   - [x] 一定程度上支持对分享链接的解析并加入上下文
   - [x] 添加情感生成，会加入 API 接口调用中辅助生成群聊内容（神必功能，谨慎开启
-  - [x] **支持通过 AI 功能实现文本转语音（latest update）（目前实现较简单）** 
+  - [x] **支持通过 AI 功能实现文本转语音（latest update）（目前实现较简单）**
   - [x] 支持的 API 列表：
     - [x] DeepSeek
     - [x] SiliconFlow
     - [x] 火山方舟
-    - [x] **Gemini（latest update）**  
+    - [x] **Gemini（latest update）**
 - [x] 生成和推送日报
   - [x] 借鉴 [真寻日报](https://github.com/HibiKier/nonebot-plugin-zxreport) 的样式和代码生成日报
 - [x] 表情偷取
