@@ -127,17 +127,15 @@ export class ChatAgent {
                 if (!Objects.isNull(msg.text))
                     finalMsg += msg.text;
                 if (!Objects.isNull(finalMsg)) {
-                    if (history.role == "assistant") {
-                        // TODO 机器人的记录如果添加上时间戳和昵称，生成的结果容易也包含这些，看上去就很假
-                        content.push({ type: "text", text: finalMsg });
-                    }
-                    else {
-                        content.push({ type: "text", text: history.time + " - " + history.nickName + "：" + finalMsg });
-                    }
+                    // 如果只发图片会不记录发送人昵称，改为在最后额外发送一条json，指明发送人和时间
+                    content.push({ type: "text", text: finalMsg });
                     hasContent = true;
                 }
                 // TODO 如果content只有notProcessed部分有内容，例如发送默认表情(type==face)情况，就直接跳过不加
                 if (hasContent) {
+                    // 在content头部插入
+                    if (history.role != "assistant")
+                        content.unshift({ type: "text", text: `${history.time} - ${history.nickName} 发送消息如下：` });
                     request.options.body.messages.push({ role: history.role, content: content });
                 }
             });
@@ -171,8 +169,10 @@ export class ChatAgent {
         if (!Objects.isNull(finalMsg) && !Objects.isNull(j_msg.sourceText))
             finalMsg = j_msg.sourceText + finalMsg;
         if (!Objects.isNull(finalMsg)) {
-            content.push({ type: "text", text: nickeName + "：" + finalMsg });
+            content.push({ type: "text", text: finalMsg });
         }
+        if (content.length > 0)
+            content.unshift({ type: "text", text: `${nickeName} 发送消息如下：` });
         request.options.body.messages.push({ role: "user", content: content });
         if (config.autoReply.debugMode) {
             // 创建打印用副本
