@@ -1,5 +1,5 @@
 import { config } from "../../../config/index.js";
-import { Base64, Objects } from "../../../utils/kits.js";
+import { FileType, Objects } from "../../../utils/kits.js";
 import { EMOTION_KEY } from "../../../utils/redis.js";
 import { ChatAgent } from "../chatAgent.js";
 export class Gemini extends ChatAgent {
@@ -179,8 +179,8 @@ export class Gemini extends ChatAgent {
                     for (const img of msg.sourceImg) {
                         content.push({
                             inline_data: {
-                                mime_type: Base64.getImageTypeFromBase64(img),
-                                data: Base64.getImageContentFromBase64(img)
+                                mime_type: FileType.getImageTypeFromBase64(img),
+                                data: FileType.getImageContentFromBase64(img)
                             }
                         });
                     }
@@ -190,8 +190,8 @@ export class Gemini extends ChatAgent {
                     for (const img of msg.img) {
                         content.push({
                             inline_data: {
-                                mime_type: Base64.getImageTypeFromBase64(img),
-                                data: Base64.getImageContentFromBase64(img)
+                                mime_type: FileType.getImageTypeFromBase64(img),
+                                data: FileType.getImageContentFromBase64(img)
                             }
                         });
                     }
@@ -230,8 +230,8 @@ export class Gemini extends ChatAgent {
             for (const img of j_msg.sourceImg) {
                 content.push({
                     inline_data: {
-                        mime_type: Base64.getImageTypeFromBase64(img),
-                        data: Base64.getImageContentFromBase64(img)
+                        mime_type: FileType.getImageTypeFromBase64(img),
+                        data: FileType.getImageContentFromBase64(img)
                     }
                 });
             }
@@ -243,8 +243,8 @@ export class Gemini extends ChatAgent {
             for (const img of j_msg.img) {
                 content.push({
                     inline_data: {
-                        mime_type: Base64.getImageTypeFromBase64(img),
-                        data: Base64.getImageContentFromBase64(img)
+                        mime_type: FileType.getImageTypeFromBase64(img),
+                        data: FileType.getImageContentFromBase64(img)
                     }
                 });
             }
@@ -304,8 +304,8 @@ export class Gemini extends ChatAgent {
             j_msg.img.forEach((base64) => {
                 content.push({
                     inline_data: {
-                        mime_type: Base64.getImageTypeFromBase64(base64),
-                        data: Base64.getImageContentFromBase64(base64)
+                        mime_type: FileType.getImageTypeFromBase64(base64),
+                        data: FileType.getImageContentFromBase64(base64)
                     }
                 });
             });

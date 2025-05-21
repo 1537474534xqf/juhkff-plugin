@@ -13,6 +13,9 @@ export type DailyReport = {
     push: boolean;
     dailyReportTime: CronExpression;
     pushGroupList: string[];
+    preHandle: boolean;
+    preHandleTime: CronExpression;
+    preHandleRetryInterval: number;
 }
 
 export let dailyReportConfig: DailyReport = null;
@@ -32,7 +35,7 @@ export function setDailyReportConfig(config: DailyReport) {
     let lastHash: string = getFileHash(fs.readFileSync(file, "utf8"));
     configSync(dailyReportConfig, defaultConfig);
     fs.writeFileSync(file, YAML.stringify(dailyReportConfig));
-    
+
     chokidar.watch(file).on("change", () => {
         const content = fs.readFileSync(file, "utf8");
         const hash = getFileHash(content);

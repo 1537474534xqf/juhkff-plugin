@@ -14,7 +14,6 @@ let ret = [];
 
 logger.info(logger.yellow("- 正在载入 JUHKFF-PLUGIN"));
 logger.info("- [JUHKFF-PLUGIN] 如果插件更新后出现问题，可能是新的配置同步时出现错误，可以尝试删除并重装该插件");
-logger.info(logger.red("- [JUHKFF-PLUGIN] 近期更新中插件配置结构有所更改，请在锅巴页面重新配置相关配置（变动项：群聊配置-常规接口配置|视觉接口配置、偷图配置-发送偷图概率|本地图库路径）"));
 
 async function getFiles(dir) {
     const dirs = await fs.promises.readdir(dir, { withFileTypes: true });

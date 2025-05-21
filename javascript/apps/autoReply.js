@@ -3,7 +3,7 @@ import { ChatApiType } from "../config/define/autoReply.js";
 import { config } from "../config/index.js";
 import { transformTextToVoice } from "../plugin/siliconflow.js";
 import { formatDateDetail } from "../utils/date.js";
-import { generateAnswer, parseImage, parseJson, parseSourceMessage, parseUrl, saveContext } from "../utils/handle.js";
+import { emotionGenerate, generateAnswer, parseImage, parseJson, parseSourceMessage, parseUrl, saveContext } from "../utils/handle.js";
 import { generateAnswerVisual, parseImageVisual, parseJsonVisual, parseSourceMessageVisual, parseTextVisual, parseUrlVisual, saveContextVisual } from "../utils/handleVisual.js";
 import { Objects } from "../utils/kits.js";
 export const help = () => {
@@ -38,7 +38,7 @@ export class autoReply extends plugin {
             this.task = Object.defineProperties({}, {
                 cron: { value: config.autoReply.emotionGenerateTime, writable: false },
                 name: { value: "情感生成", writable: false },
-                fnc: { value: () => this.emotionGenerate(), writable: false },
+                fnc: { value: () => emotionGenerate(), writable: false },
                 log: { get: () => false },
             });
         }

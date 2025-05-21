@@ -1,16 +1,31 @@
 # 总开关
 useDouBao: false
+# 通用 apiKey
+apiKey: ""
 
 # 视频生成开关
 useVideoGenerate: false
-
 videoGenerate:
-  # 视频生成apiKey
-  apiKey: ""
   # 请求地址
   url: https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks
   # 模型名称
   model: doubao-seaweed-241128
+
+# 图片生成开关
+useImageGenerate: false
+imageGenerate:
+  # 请求地址
+  url: https://ark.cn-beijing.volces.com/api/v3/images/generations
+  # 模型
+  model: doubao-seedream
+  # 图片大小
+  size: 1280x720
+  # 随机数种子，取值范围为 [-1, 2147483647]。-1 为算法随机生成。如果希望生成内容保持一致，可以使用相同的 seed 参数值
+  seed: -1
+  # 值越大，模型自由度越小，与用户输入的提示词相关性越强。取值范围：[1.0, 10.0]
+  guidance_scale: 2.5
+  # 是否在生成的图片中添加“AI生成”字样的水印
+  watermark: false
 
 imageService:
   # 请求Host
@@ -27,54 +42,6 @@ imageService:
   action: CVProcess
   # Query参数：版本号
   version: 2022-08-31
-
-useImageGenerate: false
-imageGenerate:
-  # 请求Host
-  host: visual.volcengineapi.com
-  # accessKeyId
-  accessKeyId: ""
-  # secretAccessKey
-  secretAccessKey: ""
-  # 服务Region
-  region: cn-north-1
-  # 服务Service
-  service: cv
-  # Query参数：接口名
-  action: CVProcess
-  # Query参数：版本号
-  version: 2022-08-31
-  # 算法名称
-  reqKey: high_aes_general_v21_L
-  # 以下为空的配置会取默认值
-  # 模型版本名称
-  modelVersion: ""
-  # 生成模式：general_v20_9B_pe美感版（默认）——美感更好，出图多样性更多；general_v20_9B_rephraser标准版——图文匹配度更好，结构表现更好
-  reqScheduleConf: ""
-  # 开启文本扩写，会针对输入prompt进行扩写优化，如果输入prompt较短建议开启，如果输入prompt较长建议关闭
-  usePreLlm: true
-  # 内置的超分功能，开启后可将上述宽高均乘以2返回，此参数打开后延迟会有增加。如上述宽高均为512和512，此参数关闭出图 512*512 ，此参数打开出图1024 * 1024
-  useSr: true
-  # 输出是否只返回图片链接 （链接有效期为24小时）
-  returnUrl: false
-
-  # 图生图
-  # 算法名称
-  withImgReqKey: high_aes_scheduler_svr_controlnet_v2.0
-  # 模型版本名称
-  withImgModelVersion: ""
-  # 是否开启扩写。如果输入内容较短建议开启扩写，输入内容过长可根据情况进行关闭，否则可能会影响图文匹配程度。
-  withImgUseRephraser: true
-  # 输出是否只返回图片链接 （链接有效期为24小时）
-  withImgReturnUrl: false
-  # 类似controlnet配置
-  withImgControlnetArgs:
-    # 可参考输入图的canny（轮廓边缘）、depth（景深）、pose（人物姿态）进行出图
-    type: canny
-    # ControlNet强度
-    strength: 0.5
-    # Controlnet要处理的图片，取值为binary_data图片的下标
-    # binary_data_index: 0
 
 # 图片生成-角色特征保持
 useImageImitate: false
@@ -158,3 +125,41 @@ imageStyle:
       value: "img2img_3d_style_doll"
   # 输出是否只返回图片链接 （链接有效期为24小时）
   returnUrl: false
+
+songService:
+  # 请求Host
+  host: open.volcengineapi.com
+  # accessKeyId
+  accessKeyId: ""
+  # secretAccessKey
+  secretAccessKey: ""
+  # 服务Region
+  region: cn-beijing
+  # 服务Service
+  service: imagination
+
+useLyricsGenerate: false
+lyricsGenerate:
+  # Query参数：接口名
+  action: GenLyrics
+  # Query参数：版本号
+  version: 2024-08-12
+  genre: ""
+  mood: ""
+  gender: ""
+  modelVersion: "v4.0"
+
+useSongGenerate: false
+songGenerate:
+  # Query参数：接口名
+  action: GenSongForTime
+  # Query参数：版本号
+  version: 2024-08-12
+  genre: ""
+  mood: ""
+  gender: ""
+  timbre: ""
+  skipCopyCheck: false
+  queryAction: QuerySong
+  queryVersion: 2024-08-12
+  returnLyrics: false

@@ -13,13 +13,13 @@ export const help = () => {
             {
                 name: "视频生成",
                 type: "sub",
-                command: "#视频生成 文本|图片",
+                command: "#视频生成[SF] 文本|图片",
                 enable: config.siliconflow.useVideoGenerate,
             },
             {
                 name: "语音生成",
                 type: "sub",
-                command: "#语音生成 文本",
+                command: "#语音生成[SF] 文本",
                 enable: config.siliconflow.useVoiceGenerate,
             },
             {
@@ -48,7 +48,15 @@ export class siliconflow extends plugin {
                     fnc: "videoGenerate",
                 },
                 {
+                    reg: "^#视频生成SF.*",
+                    fnc: "videoGenerate",
+                },
+                {
                     reg: "^#语音生成.*",
+                    fnc: "voiceGenerate",
+                },
+                {
+                    reg: "^#语音生成SF.*",
                     fnc: "voiceGenerate",
                 }
             ]
@@ -59,9 +67,9 @@ export class siliconflow extends plugin {
             return false;
         var helpMsg = `可用指令：[]中为可选项，()中为解释说明`;
         if (config.siliconflow.useVideoGenerate)
-            helpMsg += `\n  #视频生成 文本|图片`;
+            helpMsg += `\n  #视频生成[SF] 文本|图片`;
         if (config.siliconflow.useVoiceGenerate) {
-            helpMsg += `\n  #语音生成 文本`;
+            helpMsg += `\n  #语音生成[SF] 文本`;
         }
         await e.reply(helpMsg);
         return true;

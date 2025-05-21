@@ -19,3 +19,12 @@ dailyReportTime: 0 0 12 * * ?
 # - xxxxxxxxx (群号2)
 # - xxxxxxxxx (群号...)
 pushGroupList: []
+
+# 启用预处理模式
+preHandle: false
+
+# 预处理时间cron表达式
+preHandleTime: 0 0 10 * * ?
+
+# 预处理失败重试间隔（秒）
+preHandleRetryInterval: 120

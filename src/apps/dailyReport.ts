@@ -1,8 +1,11 @@
+import path from "path";
+import fs from "fs";
 import { get, getXML } from "../utils/net.js";
 import { formatDate, getFestivalsDates } from "../utils/date.js";
 import { generateDailyReport } from "../utils/page.js";
 import { config } from "../config/index.js";
 import { Objects } from "../utils/kits.js";
+import { PLUGIN_DATA_DIR } from "../model/path.js";
 
 export const help = () => {
     return {
@@ -28,27 +31,15 @@ export class dailyReport extends plugin {
                 },
             ],
         });
-        if (config.dailyReport.useDailyReport && config.dailyReport.push) {
-            this.task = Object.defineProperties(
-                {},
-                {
-                    cron: { value: config.dailyReport.dailyReportTime, writable: false },
-                    name: { value: "推送日报", writable: false },
-                    fnc: { value: () => this.dailyReport(), writable: false },
-                    log: { get: () => false },
-                }
-            );
-        }
     }
-
-    hitokoto_url = "https://v1.hitokoto.cn/?c=a";
-    alapi_url = "https://v2.alapi.cn/api/zaobao";
-    six_url = "https://60s-api.viki.moe/v2/60s";
-    game_url = "https://www.4gamers.com.tw/rss/latest-news";
-    bili_url = "https://s.search.bilibili.com/main/hotword";
-    it_url = "https://www.ithome.com/rss/";
-    anime_url = "https://api.bgm.tv/calendar";
-    week: Record<number, string> = {
+    private static hitokoto_url = "https://v1.hitokoto.cn/?c=a";
+    private static alapi_url = "https://v2.alapi.cn/api/zaobao";
+    private static six_url = "https://60s-api.viki.moe/v2/60s";
+    // private static game_url = "https://www.4gamers.com.tw/rss/latest-news";
+    private static bili_url = "https://s.search.bilibili.com/main/hotword";
+    private static it_url = "https://www.ithome.com/rss/";
+    private static anime_url = "https://api.bgm.tv/calendar";
+    private static week: Record<number, string> = {
         0: "日",
         1: "一",
         2: "二",
@@ -58,30 +49,27 @@ export class dailyReport extends plugin {
         6: "六",
     };
 
-    async dailyReport(e?: any) {
-        if (!config.dailyReport.useDailyReport) return false;
-        if (e && e.message_type != "group") {
-            await e.reply("功能只对群聊开放");
-            return true;
-        }
-        if (!e) {
-            logger.info("推送日报");
-        }
-        var hitokotoResp = await get(this.hitokoto_url);
-        var hitokoto;
+    private static getCurrentWeekDay() {
+        const today = new Date();
+        const dayIndex = today.getDay();
+        return `星期${dailyReport.week[dayIndex]}`;
+    }
+
+
+    static async generateDailyReport(): Promise<Buffer<ArrayBuffer>> {
+        const hitokotoResp = await get(dailyReport.hitokoto_url);
+        const hitokoto = hitokotoResp.hitokoto;
         var sixResp, six;
-        var biliResp = await get(this.bili_url);
+        var biliResp = await get(dailyReport.bili_url);
         var bili = [];
-        var itResp = await getXML(this.it_url);
+        var itResp = await getXML(dailyReport.it_url);
         var it = [];
-        var animeResp = await get(this.anime_url);
+        var animeResp = await get(dailyReport.anime_url);
         var anime = [];
 
-        hitokoto = hitokotoResp.hitokoto;
-
-        if (Objects.isNull(config.dailyReport.alapiToken)) {
+        if (!Objects.isNull(config.dailyReport.alapiToken)) {
             // 使用 alapitoken 获取数据
-            let alapi = await get(`${this.alapi_url}?token=${config.dailyReport.alapiToken}`);
+            let alapi = await get(`${dailyReport.alapi_url}?token=${config.dailyReport.alapiToken}`);
             let news = alapi.data.news;
             // 删掉、
             news.forEach((item: string, index: number) => {
@@ -99,7 +87,7 @@ export class dailyReport extends plugin {
                 six = six.slice(0, 11);
             }
         } else {
-            sixResp = await get(this.six_url);
+            sixResp = await get(dailyReport.six_url);
             six = sixResp.data.news;
             if (six.length > 11) {
                 six = six.slice(0, 11);
@@ -121,7 +109,7 @@ export class dailyReport extends plugin {
             it.push(title);
             if (it.length >= 11) break;
         }
-        const currentDay = this.getCurrentWeekDay(); // 获取当前星期几
+        const currentDay = dailyReport.getCurrentWeekDay(); // 获取当前星期几
         for (var day of animeResp) {
             if (day.weekday.cn === currentDay) {
                 var i = 0;
@@ -149,7 +137,7 @@ export class dailyReport extends plugin {
             data_bili: bili,
             data_it: it,
             data_anime: anime,
-            week: this.week[new Date().getDay()],
+            week: dailyReport.week[new Date().getDay()],
             date: await formatDate(Date.now()),
             zh_date: await formatDate(Date.now(), "zh"),
             full_show: config.dailyReport.dailyReportFullShow,
@@ -159,26 +147,38 @@ export class dailyReport extends plugin {
         // 生成图片
         var image = await generateDailyReport(data);
         var imageBuffer = Buffer.from(image);
+        return imageBuffer;
+    }
 
-        if (e) {
-            e.reply([segment.image(imageBuffer)]);
+    static async generateAndSaveDailyReport() {
+        const imageBuffer = await dailyReport.generateDailyReport();
+        if (!fs.existsSync(path.dirname(DAILY_REPORT_SAVE_PATH))) fs.mkdirSync(path.dirname(DAILY_REPORT_SAVE_PATH));
+        fs.writeFileSync(DAILY_REPORT_SAVE_PATH, imageBuffer);
+    }
+
+    async dailyReport(e: any) {
+        if (!config.dailyReport.useDailyReport) return false;
+        if (e.message_type != "group") {
+            await e.reply("功能只对群聊开放");
             return true;
+        }
+        if (config.dailyReport.preHandle) {
+            if (!fs.existsSync(DAILY_REPORT_SAVE_PATH)) {
+                dailyReport.generateAndSaveDailyReport();
+            }
+            const imageBuffer = fs.readFileSync(DAILY_REPORT_SAVE_PATH);
+            if (imageBuffer) {
+                await e.reply([segment.image(imageBuffer)]);
+            }
         } else {
-            for (let i = 0; i < config.dailyReport.pushGroupList.length; i++) {
-                // 添加延迟以防止消息发送过快
-                setTimeout(async () => {
-                    const group = Bot.pickGroup(config.dailyReport.pushGroupList[i]);
-                    logger.info(`正在向群组 ${group} 推送新闻。`);
-                    await group.sendMsg([segment.image(imageBuffer)]);
-                }, i * 1000);
+            const imageBuffer = await dailyReport.generateDailyReport();
+            if (imageBuffer) {
+                await e.reply([segment.image(imageBuffer)]);
             }
         }
         return true;
     }
-
-    getCurrentWeekDay() {
-        const today = new Date();
-        const dayIndex = today.getDay();
-        return `星期${this.week[dayIndex]}`;
-    }
 }
+
+
+export const DAILY_REPORT_SAVE_PATH = path.join(PLUGIN_DATA_DIR, "dailyReport", "dailyReport.png");

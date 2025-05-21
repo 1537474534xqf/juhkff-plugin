@@ -62,7 +62,10 @@ export function supportGuoba() {
 
             // 设置配置的方法（前端点确定后调用的方法）
             setConfigData(data, { Result }) {
-                var previous = { autoReply: config.autoReply };
+                const previous = {
+                    autoReply: config.autoReply, dailyReport: config.dailyReport, emojiSave: config.emojiSave,
+                    douBao: config.douBao, siliconflow: config.siliconflow, helpGen: config.helpGen
+                };
                 //将 data 变成递归嵌套而非两层嵌套
                 data = transformDataToType(data);
                 // 更新前校验和处理

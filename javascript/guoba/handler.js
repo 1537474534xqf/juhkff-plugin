@@ -1,6 +1,7 @@
 /**
  * @fileoverview: 锅巴配置更新生命周期
  */
+import { autoSaveDailyReport, DAILY_REPORT_GENERATE, DAILY_REPORT_PUSH, deleteJob, pushDailyReport, upsertJobFromConfig } from "../bgProcess/jobs.js";
 import { ChatApiType } from "../config/define/autoReply.js";
 import { config } from "../config/index.js";
 import { agentMap, reloadInstance } from "../model/map.js";
@@ -94,5 +95,30 @@ export function afterUpdate(previous) {
         removeSubKeys("juhkff:auto_reply", [EMOTION_KEY]).then(() => { });
     }
     reloadInstance();
+    reloadDailyReportJobs(previous.dailyReport);
     return { code: 0, message: "校验成功" };
+}
+function reloadDailyReportJobs(previous) {
+    if (config.dailyReport.useDailyReport) {
+        if (config.dailyReport.push != previous.push || config.dailyReport.useDailyReport != previous.useDailyReport || config.dailyReport.dailyReportTime != previous.dailyReportTime) {
+            if (config.dailyReport.push) {
+                upsertJobFromConfig(DAILY_REPORT_PUSH, config.dailyReport.dailyReportTime, pushDailyReport);
+            }
+            else {
+                deleteJob(DAILY_REPORT_PUSH);
+            }
+        }
+        if (config.dailyReport.preHandle != previous.preHandle || config.dailyReport.useDailyReport != previous.useDailyReport || config.dailyReport.preHandleTime != previous.preHandleTime) {
+            if (config.dailyReport.preHandle) {
+                upsertJobFromConfig(DAILY_REPORT_GENERATE, config.dailyReport.preHandleTime, autoSaveDailyReport);
+            }
+            else {
+                deleteJob(DAILY_REPORT_GENERATE);
+            }
+        }
+    }
+    else {
+        deleteJob(DAILY_REPORT_PUSH);
+        deleteJob(DAILY_REPORT_GENERATE);
+    }
 }

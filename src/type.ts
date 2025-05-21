@@ -1,3 +1,4 @@
+import { Job } from "node-schedule";
 
 export type CronExpression = string;
 
@@ -65,3 +66,5 @@ export type HelpType = {
         enable?: boolean,
     }[]
 }
+
+export type JobDict = Record<string, Job>;

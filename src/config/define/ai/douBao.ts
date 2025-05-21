@@ -7,11 +7,20 @@ import { configFolderCheck, configSync, getFileHash } from "../../common.js";
 
 export type DouBao = {
     useDouBao: boolean;
+    apiKey: string;
     useVideoGenerate: boolean;
     videoGenerate: {
-        apiKey: string;
         url: string;
         model: string;
+    };
+    useImageGenerate: boolean;
+    imageGenerate: {
+        url: string;
+        model: string
+        size: string;
+        seed: number;
+        guidance_scale: number;
+        watermark: boolean;
     };
     imageService: {
         host: string;
@@ -21,30 +30,6 @@ export type DouBao = {
         service: string;
         action: string;
         version: string;
-    };
-    useImageGenerate: boolean;
-    imageGenerate: {
-        host: string;
-        accessKeyId: string;
-        secretAccessKey: string;
-        region: string;
-        service: string;
-        action: string;
-        version: string;
-        reqKey: string;
-        modelVersion: string;
-        reqScheduleConf: string;
-        usePreLlm: boolean;
-        useSr: boolean;
-        returnUrl: boolean;
-        withImgReqKey: boolean;
-        withImgModelVersion: "";
-        withImgUseRephraser: boolean;
-        withImgReturnUrl: boolean;
-        withImgControlnetArgs: {
-            type: string;
-            strength: number;
-        };
     };
     useImageImitate: boolean;
     imageImitate: {
@@ -57,6 +42,37 @@ export type DouBao = {
         reqKeyMap: Record<string, string>[];
         subReqKeyMap: Record<string, string>[];
         returnUrl: boolean;
+    };
+    songService: {
+        host: string;
+        accessKeyId: string;
+        secretAccessKey: string;
+        region: string;
+        service: string;
+    };
+    /*
+    useLyricsGenerate: boolean;
+    lyricsGenerate: {
+        action: string;
+        version: string;
+        genre: string;
+        mood: string;
+        gender: string;
+        modelVersion: string;
+    }
+    */
+    useSongGenerate: boolean;
+    songGenerate: {
+        action: string;
+        version: string;
+        genre: string;
+        mood: string;
+        gender: string;
+        timbre: string;
+        skipCopyCheck: boolean;
+        queryAction: string;
+        queryVersion: string;
+        returnLyrics: boolean;
     };
 }
 

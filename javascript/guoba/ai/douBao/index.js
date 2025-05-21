@@ -1,3 +1,4 @@
+import { douBao } from "../../../apps/ai/douBao.js";
 export const douBaoSchema = () => [
     {
         label: "豆包",
@@ -9,6 +10,26 @@ export const douBaoSchema = () => [
         label: "豆包开关",
         bottomHelpMessage: "启用豆包相关功能，可使用`#豆包`命令查询可用指令",
         component: "Switch",
+    },
+    {
+        component: "Divider",
+        label: "常规服务配置",
+        componentProps: {
+            type: "horizontal",
+            style: {
+                fontWeight: "bold",
+                color: "rgb(76, 113, 201)",
+                fontSize: "16px",
+            },
+            orientation: "left",
+            plain: true,
+        },
+    },
+    {
+        field: "douBao.apiKey",
+        label: "常规ApiKey",
+        bottomHelpMessage: "用于下面同色服务。官网: https://console.volcengine.com/ark/",
+        component: "InputPassword",
     },
     {
         component: "Divider",
@@ -43,12 +64,6 @@ export const douBaoSchema = () => [
             },
             schemas: [
                 {
-                    field: "apiKey",
-                    label: "ApiKey",
-                    bottomHelpMessage: "官网: https://console.volcengine.com/ark/",
-                    component: "Input",
-                },
-                {
                     field: "url",
                     label: "视频生成URL",
                     bottomHelpMessage: "视频生成请求URL，官方没有变动就不需要改默认值",
@@ -58,10 +73,130 @@ export const douBaoSchema = () => [
                     field: "model",
                     label: "视频生成模型",
                     bottomHelpMessage: "官网文档模型ID: https://www.volcengine.com/docs/82379/1330310",
-                    component: "Input",
+                    component: "Select",
+                    componentProps: {
+                        options: Object.keys(douBao.videoGenerateMap).map((key) => ({
+                            label: key,
+                            value: key
+                        })),
+                    },
                 },
             ]
         },
+    },
+    {
+        component: "Divider",
+        label: "图片生成",
+        componentProps: {
+            type: "horizontal",
+            style: {
+                fontWeight: "bold",
+                color: "rgb(76, 113, 201)",
+                fontSize: "16px",
+            },
+            orientation: "left",
+            plain: true,
+        },
+    },
+    {
+        field: "douBao.useImageGenerate",
+        label: "开关",
+        component: "Switch",
+    },
+    {
+        field: "douBao.imageGenerate",
+        label: "配置",
+        component: "GSubForm",
+        componentProps: {
+            modalProps: {
+                title: "图片生成配置"
+            },
+            style: {
+                maxHeight: '100px', // 设置最大高度
+                overflowY: 'auto' // 添加垂直滚动条
+            },
+            schemas: [
+                {
+                    field: "model",
+                    label: "图片生成模型",
+                    component: "Select",
+                    componentProps: {
+                        options: Object.keys(douBao.imageGenerateMap).map((key) => ({
+                            label: key,
+                            value: key
+                        })),
+                    }
+                },
+                {
+                    field: "size",
+                    label: "图片大小",
+                    component: "AutoComplete",
+                    componentProps: {
+                        options: [
+                            {
+                                label: "1024x1024",
+                                value: "1024x1024"
+                            },
+                            {
+                                label: "864x1152",
+                                value: "864x1152"
+                            },
+                            {
+                                label: "1152x864",
+                                value: "1152x864"
+                            },
+                            {
+                                label: "1280x720",
+                                value: "1280x720"
+                            },
+                            {
+                                label: "720x1280",
+                                value: "720x1280"
+                            },
+                            {
+                                label: "832x1248",
+                                value: "832x1248"
+                            },
+                            {
+                                label: "1248x832",
+                                value: "1248x832"
+                            },
+                            {
+                                label: "1512x648",
+                                value: "1512x648"
+                            },
+                        ],
+                    }
+                },
+                {
+                    field: "seed",
+                    label: "种子",
+                    bottomHelpMessage: "随机数种子，取值范围为 [-1, 2147483647]。-1 为算法随机生成。如果希望生成内容保持一致，可以使用相同的 seed 参数值",
+                    component: "InputNumber",
+                    componentProps: {
+                        min: -1,
+                        max: 2147483647,
+                    },
+                },
+                {
+                    field: "guidance_scale",
+                    label: " 一致程度",
+                    bottomHelpMessage: "值越大，模型自由度越小，与用户输入的提示词相关性越强。取值范围：[1.0, 10.0]",
+                    component: "InputNumber",
+                    componentProps: {
+                        min: 1,
+                        max: 10,
+                        step: 0.1,
+                    },
+                },
+                {
+                    field: "watermark",
+                    label: "水印",
+                    bottomHelpMessage: "是否添加水印",
+                    component: "Switch"
+                }
+            ],
+        }
     },
     {
         component: "Divider",
@@ -131,168 +266,6 @@ export const douBaoSchema = () => [
                     component: "Input",
                 },
             ]
-        }
-    },
-    {
-        component: "Divider",
-        label: "图片生成",
-        componentProps: {
-            type: "horizontal",
-            style: {
-                fontWeight: "bold",
-                color: "rgb(66, 162, 125)",
-                fontSize: "16px",
-            },
-            orientation: "left",
-            plain: true,
-        },
-    },
-    {
-        field: "douBao.useImageGenerate",
-        label: "开关",
-        component: "Switch",
-    },
-    {
-        field: "douBao.imageGenerate",
-        label: "配置",
-        component: "GSubForm",
-        componentProps: {
-            modalProps: {
-                title: "图片生成配置"
-            },
-            style: {
-                maxHeight: '100px', // 设置最大高度
-                overflowY: 'auto' // 添加垂直滚动条
-            },
-            schemas: [
-                {
-                    component: "Divider",
-                    label: "文生图",
-                    componentProps: {
-                        type: "horizontal",
-                        style: {
-                            fontWeight: "bold",
-                            color: "rgb(76, 113, 201)",
-                            fontSize: "16px",
-                        },
-                        orientation: "left",
-                        plain: true,
-                    },
-                },
-                {
-                    field: "reqKey",
-                    label: "文生图算法",
-                    bottomHelpMessage: "官方没有变动就不需要改默认值",
-                    component: "Input",
-                },
-                {
-                    field: "modelVersion",
-                    label: "模型名称",
-                    bottomHelpMessage: "官方没有变动就不需要改默认值（为空时会自动取默认值，下面同理）",
-                    component: "Input",
-                    componentProps: {
-                        placeholder: "默认置空即可",
-                    },
-                },
-                {
-                    field: "reqScheduleConf",
-                    label: "生成模式",
-                    bottomHelpMessage: "置空则默认为`general_v20_9B_pe`美感版——美感更好，出图多样性更多；`general_v20_9B_rephraser`标准版——图文匹配度更好，结构表现更好",
-                    component: "Input",
-                    componentProps: {
-                        placeholder: "默认置空即可",
-                    },
-                },
-                {
-                    field: "usePreLlm",
-                    label: "文本扩写",
-                    bottomHelpMessage: "会针对输入prompt进行扩写优化，如果输入prompt较短建议开启，如果输入prompt较长建议关闭",
-                    component: "Switch",
-                },
-                {
-                    field: "useSr",
-                    label: "超分",
-                    bottomHelpMessage: "开启后可将生图宽高均乘以2，此参数打开后延迟会有增加。如上述宽高均为512和512，此参数关闭出图 512*512 ，此参数打开出图1024 * 1024",
-                    component: "Switch",
-                },
-                {
-                    field: "returnUrl",
-                    label: "只返回链接",
-                    bottomHelpMessage: "是否只返回图片链接 （链接有效期为24小时）",
-                    component: "Switch",
-                },
-                {
-                    component: "Divider",
-                    label: "图生图",
-                    componentProps: {
-                        type: "horizontal",
-                        style: {
-                            fontWeight: "bold",
-                            color: "rgb(76, 113, 201)",
-                            fontSize: "16px",
-                        },
-                        orientation: "left",
-                        plain: true,
-                    },
-                },
-                {
-                    field: "withImgReqKey",
-                    label: "图生图算法",
-                    bottomHelpMessage: "官方没有变动就不需要改默认值",
-                    component: "Input",
-                },
-                {
-                    field: "withImgModelVersion",
-                    label: "模型名称",
-                    bottomHelpMessage: "官方没有变动就不需要改默认值（为空时会自动取默认值，下面同理）",
-                    component: "Input",
-                    componentProps: {
-                        placeholder: "默认置空即可",
-                    },
-                },
-                {
-                    field: "withImgUseRephraser",
-                    label: "文本扩写",
-                    bottomHelpMessage: "如果输入内容较短建议开启扩写，输入内容过长可根据情况进行关闭，否则可能会影响图文匹配程度",
-                    component: "Switch",
-                },
-                {
-                    field: "withImgReturnUrl",
-                    label: "只返回链接",
-                    bottomHelpMessage: "是否只返回图片链接 （链接有效期为24小时）",
-                    component: "Switch",
-                },
-                {
-                    field: "withImgControlnetArgs",
-                    label: "图生图配置",
-                    bottomHelpMessage: "参考模式和强度设置",
-                    component: "GSubForm",
-                    componentProps: {
-                        schemas: [
-                            {
-                                field: "type",
-                                label: "图生图参考模式",
-                                bottomHelpMessage: "可参考输入图的canny（轮廓边缘）、depth（景深）、pose（人物姿态）进行出图",
-                                component: "Input",
-                                componentProps: {
-                                    placeholder: "canny | depth | pose",
-                                }
-                            },
-                            {
-                                field: "strength",
-                                label: "图生图参考的强度",
-                                bottomHelpMessage: "数值范围(0.0, 1.0]，数值越大越接近参考图",
-                                component: "InputNumber",
-                                componentProps: {
-                                    min: 0,
-                                    max: 1,
-                                    step: 0.01,
-                                },
-                            }
-                        ]
-                    },
-                },
-            ],
         }
     },
     {
@@ -431,5 +404,245 @@ export const douBaoSchema = () => [
                 },
             ]
         }
+    },
+    {
+        component: "Divider",
+        label: "音频服务配置",
+        componentProps: {
+            type: "horizontal",
+            style: {
+                fontWeight: "bold",
+                color: "rgb(161, 84, 212)",
+                fontSize: "16px",
+            },
+            orientation: "left",
+            plain: true,
+        },
+    },
+    {
+        field: "douBao.songService",
+        label: "配置",
+        bottomHelpMessage: "用于下面同色服务",
+        component: "GSubForm",
+        componentProps: {
+            style: {
+                maxHeight: '100px', // 设置最大高度
+                overflowY: 'auto' // 添加垂直滚动条
+            },
+            schemas: [
+                {
+                    field: "accessKeyId",
+                    label: "AccessKeyId",
+                    bottomHelpMessage: "必填！官网密钥: https://console.volcengine.com/iam/keymanage",
+                    component: "InputPassword",
+                },
+                {
+                    field: "secretAccessKey",
+                    label: "SecretAccessKey",
+                    bottomHelpMessage: "必填！官网密钥: https://console.volcengine.com/iam/keymanage",
+                    component: "InputPassword",
+                },
+                {
+                    field: "host",
+                    label: "服务Host",
+                    bottomHelpMessage: "官方没有变动就不需要改默认值",
+                    component: "Input",
+                },
+                {
+                    field: "region",
+                    label: "服务Region",
+                    bottomHelpMessage: "官方没有变动就不需要改默认值",
+                    component: "Input",
+                },
+                {
+                    field: "service",
+                    label: "服务名称",
+                    bottomHelpMessage: "官方没有变动就不需要改默认值",
+                    component: "Input",
+                },
+            ]
+        }
+    },
+    /*
+    {
+        component: "Divider",
+        label: "歌词生成",
+        componentProps: {
+            type: "horizontal",
+            style: {
+                fontWeight: "bold",
+                color: "rgb(161, 84, 212)",
+                fontSize: "16px",
+            },
+            orientation: "left",
+            plain: true,
+        },
+    },
+    {
+        field: "douBao.useLyricsGenerate",
+        label: "歌词生成开关",
+        component: "Switch",
+    },
+    {
+        field: "douBao.lyricsGenerate",
+        label: "配置",
+        component: "GSubForm",
+        componentProps: {
+            modalProps: {
+                title: "歌词生成配置"
+            },
+            style: {
+                maxHeight: '100px', // 设置最大高度
+                overflowY: 'auto'   // 添加垂直滚动条
+            },
+            schemas: [
+                {
+                    field: "action",
+                    label: "服务Action",
+                    bottomHelpMessage:
+                        "官方没有变动就不需要改默认值",
+                    component: "Input",
+                },
+                {
+                    field: "version",
+                    label: "服务Version",
+                    bottomHelpMessage:
+                        "官方没有变动就不需要改默认值",
+                    component: "Input",
+                },
+                {
+                    field: "genre",
+                    label: "歌词曲风",
+                    bottomHelpMessage: "生成歌词的曲风，不传默认走预测",
+                    component: "AutoComplete",
+                    componentProps: {
+                        options: douBao.queryLyricsGenre().map((key) => ({
+                            label: key,
+                            value: key
+                        })),
+                    }
+                },
+                {
+                    field: "mood",
+                    label: "歌词风格",
+                    bottomHelpMessage: "生成歌词的风格，不传默认走预测",
+                    component: "AutoComplete",
+                    componentProps: {
+                        options: douBao.queryLyricsMood().map((key) => ({
+                            label: key,
+                            value: key
+                        })),
+                    }
+                },
+                {
+                    field: "modelVersion",
+                    label: "模型版本",
+                    bottomHelpMessage: "生成歌词使用版本，一般无需修改",
+                    component: "Input",
+                }
+            ]
+        },
+    },
+    */
+    {
+        component: "Divider",
+        label: "歌曲生成",
+        componentProps: {
+            type: "horizontal",
+            style: {
+                fontWeight: "bold",
+                color: "rgb(161, 84, 212)",
+                fontSize: "16px",
+            },
+            orientation: "left",
+            plain: true,
+        },
+    },
+    {
+        field: "douBao.useSongGenerate",
+        label: "歌曲生成开关",
+        component: "Switch",
+    },
+    {
+        field: "douBao.songGenerate",
+        label: "配置",
+        component: "GSubForm",
+        componentProps: {
+            modalProps: {
+                title: "歌曲生成配置"
+            },
+            style: {
+                maxHeight: '100px', // 设置最大高度
+                overflowY: 'auto' // 添加垂直滚动条
+            },
+            schemas: [
+                {
+                    field: "action",
+                    label: "服务Action",
+                    bottomHelpMessage: "官方没有变动就不需要改默认值",
+                    component: "Input",
+                },
+                {
+                    field: "version",
+                    label: "服务Version",
+                    bottomHelpMessage: "官方没有变动就不需要改默认值",
+                    component: "Input",
+                },
+                {
+                    field: "genre",
+                    label: "歌曲曲风",
+                    bottomHelpMessage: "生成歌曲的曲风，如果不传或者传入空字符串，服务会基于内容提取或预测",
+                    component: "AutoComplete",
+                    componentProps: {
+                        options: douBao.querySongGenre().map((key) => ({
+                            label: key,
+                            value: key
+                        })),
+                    }
+                },
+                {
+                    field: "mood",
+                    label: "歌曲风格",
+                    bottomHelpMessage: "生成歌曲的风格，如果不传或者传入空字符串，服务会基于内容提取或预测",
+                    component: "AutoComplete",
+                    componentProps: {
+                        options: douBao.querySongMood().map((key) => ({
+                            label: key,
+                            value: key
+                        })),
+                    }
+                },
+                {
+                    field: "timbre",
+                    label: "歌曲音色",
+                    bottomHelpMessage: "生成歌曲的音色，如果不传或者传入空字符串，服务会基于内容提取或预测",
+                    component: "AutoComplete",
+                    componentProps: {
+                        options: douBao.querySongTimbre().map((key) => ({
+                            label: key,
+                            value: key
+                        })),
+                    }
+                },
+                {
+                    field: "queryAction",
+                    label: "查询Action",
+                    bottomHelpMessage: "官方没有变动就不需要改默认值",
+                    component: "Input",
+                },
+                {
+                    field: "queryVersion",
+                    label: "查询Version",
+                    bottomHelpMessage: "官方没有变动就不需要改默认值",
+                    component: "Input",
+                },
+                {
+                    field: "returnLyrics",
+                    label: "返回歌词",
+                    component: "Switch",
+                    bottomHelpMessage: "发送歌曲的同时发送歌词文本",
+                }
+            ]
+        },
     },
 ];
