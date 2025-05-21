@@ -746,6 +746,7 @@ export class douBao extends plugin {
             else if (strList[i].startsWith("-m")) body.Mood = strList[i].replace("-m", "");
             else if (strList[i].startsWith("-s")) body.Gender = strList[i].replace("-s", "");
             else if (strList[i].startsWith("-t")) body.Timbre = strList[i].replace("-t", "");
+            else if (strList[i].startsWith("-d")) body.Duration = parseInt(strList[i].replace("-d", ""));
             else if (strList[i].startsWith("-p")) {
                 if (body.hasOwnProperty("Prompt")) {
                     await e.reply("提示词项重复");

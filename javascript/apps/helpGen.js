@@ -165,7 +165,7 @@ var douBaoHelp = () => {
     return {
         name: "豆包",
         type: "group",
-        dsc: "接入豆包",
+        dsc: "使用 `#豆包` 查看详细子命令列表",
         enable: config.douBao.useDouBao,
         subMenu: [
             {
@@ -197,6 +197,12 @@ var douBaoHelp = () => {
                 type: "sub",
                 command: "#图片风格化[豆包] 类型列表",
                 enable: config.douBao.useImageStyle,
+            },
+            {
+                name: "歌曲生成",
+                type: "sub",
+                command: "#歌曲生成[豆包] -p提示文本 [...]",
+                enable: config.douBao.useSongGenerate,
             }
         ]
     };
