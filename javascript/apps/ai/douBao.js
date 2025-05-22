@@ -123,9 +123,9 @@ export class douBao extends plugin {
         }
         */
         if (config.douBao.useSongGenerate) {
-            helpMsg += `\n  #歌曲生成[豆包] [-l歌词|-p提示词] [-g曲风] [-m歌词风格] [-sFemale|Male] [-t音色] [-d时长(30-240)]`;
+            helpMsg += `\n  #歌曲生成[豆包] [-l歌词|-p提示词] [-g曲风] [-m歌曲风格] [-sFemale|Male] [-t音色] [-d时长(30-240)]`;
             helpMsg += `\n  #歌曲生成[豆包] 曲风查询`;
-            helpMsg += `\n  #歌曲生成[豆包] 歌词风格查询`;
+            helpMsg += `\n  #歌曲生成[豆包] 歌曲风格查询`;
             helpMsg += `\n  #歌曲生成[豆包] 音色查询`;
         }
         await e.reply(helpMsg);
@@ -712,7 +712,7 @@ export class douBao extends plugin {
             await e.reply("可用歌曲风格列表：" + douBao.querySongMood().join(", "));
             return true;
         }
-        if (result.texts.startsWith("歌曲音色查询")) {
+        if (result.texts.startsWith("音色查询")) {
             await e.reply("可用歌曲音色列表：" + douBao.querySongTimbre().join(", "));
             return true;
         }
