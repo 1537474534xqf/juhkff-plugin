@@ -144,6 +144,11 @@ export class autoReply extends plugin {
         }
         // 通过自定义的e.j_msg拼接完整消息内容
         await parseTextVisual(e);
+        // 排除 notProcessed 内容如果均为空，则跳过
+        const content = { img: e.j_msg.img, sourceImg: e.j_msg.sourceImg, sourceText: e.j_msg.sourceText, text: e.j_msg.text };
+        if (Objects.isNull(content)) {
+            return false;
+        }
         var chatRate = config.autoReply.defaultChatRate; // 主动回复概率
         var replyAtBot = config.autoReply.defaultReplyAtBot; // 是否回复@机器人的消息
         // 如果 groupRate 配置存在且不为空

@@ -20,6 +20,9 @@ export class Objects {
         if (typeof obj === "string" || obj instanceof String) {
             return obj.trim() === "";
         }
+        if (typeof obj === "object") {
+            return Objects.allNull(...Object.values(obj));
+        }
         return false;
     }
     /**
@@ -29,6 +32,9 @@ export class Objects {
      */
     static hasNull(...objs) {
         return objs.some((obj) => Objects.isNull(obj));
+    }
+    static allNull(...objs) {
+        return objs.every((obj) => Objects.isNull(obj));
     }
 }
 /**
