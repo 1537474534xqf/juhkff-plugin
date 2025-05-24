@@ -11,7 +11,7 @@ export async function pushDailyReport() {
     let imageBuffer = null;
     if (config.dailyReport.preHandle) {
         if (!fs.existsSync(DAILY_REPORT_SAVE_PATH))
-            dailyReport.generateAndSaveDailyReport();
+            await dailyReport.generateAndSaveDailyReport();
         imageBuffer = fs.readFileSync(DAILY_REPORT_SAVE_PATH);
     }
     else {
@@ -21,7 +21,7 @@ export async function pushDailyReport() {
         // 添加延迟以防止消息发送过快
         setTimeout(async () => {
             const group = Bot.pickGroup(config.dailyReport.pushGroupList[i]);
-            logger.info(`正在向群组 ${group} 推送新闻。`);
+            logger.info(`正在向群组 ${group.group_id} 推送新闻。`);
             await group.sendMsg([segment.image(imageBuffer)]);
         }, i * 1000);
     }
@@ -67,6 +67,6 @@ export function deleteJob(taskName) {
     }
 }
 if (config.dailyReport.useDailyReport && config.dailyReport.push)
-    upsertJobFromConfig(DAILY_REPORT_PUSH, config.dailyReport.dailyReportTime, dailyReport.generateAndSaveDailyReport);
+    upsertJobFromConfig(DAILY_REPORT_PUSH, config.dailyReport.dailyReportTime, pushDailyReport);
 if (config.dailyReport.useDailyReport && config.dailyReport.preHandle)
     upsertJobFromConfig(DAILY_REPORT_GENERATE, config.dailyReport.preHandleTime, autoSaveDailyReport);
