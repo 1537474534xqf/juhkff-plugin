@@ -21,6 +21,7 @@ export type SimpleJMsg = {
     id?: number,
     text?: string,
     data?: string,
+    qq?: string,
     type: string,
 } & Record<string, any>;
 

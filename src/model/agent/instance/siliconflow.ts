@@ -52,7 +52,7 @@ export class Siliconflow extends ChatAgent {
         return modelMap;
     }
 
-    async chatRequest(model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any> {
+    async chatRequest(groupId: number, model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any> {
         // 构造请求体
         var request: Request = {
             url: `${this.apiUrl}/chat/completions`,
@@ -71,14 +71,14 @@ export class Siliconflow extends ChatAgent {
             },
         };
         if (!this.modelsChat.hasOwnProperty(model) || this.modelsChat[model] === null) {
-            let response = await super.commonRequestChat(request, input, historyMessages, useSystemRole);
+            let response = await super.commonRequestChat(groupId, request, input, historyMessages, useSystemRole);
             return response;
         } else {
-            let response = await this.modelsChat[model](request, input, historyMessages, useSystemRole)
+            let response = await this.modelsChat[model](groupId, request, input, historyMessages, useSystemRole)
             return response;
         }
     }
-    public async visualRequest(model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any> {
+    public async visualRequest(groupId: number, model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any> {
         /*
         if (!this.modelsVisual[model]) {
             logger.error("[autoReply]不支持的视觉模型：" + model);
@@ -101,7 +101,7 @@ export class Siliconflow extends ChatAgent {
             },
         };
         if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
-            let response = await super.commonRequestVisual(JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
+            let response = await super.commonRequestVisual(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
             return response;
         } else {
             let response = await this.modelsVisual[model].chat(JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);

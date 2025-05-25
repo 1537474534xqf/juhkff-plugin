@@ -1,6 +1,6 @@
 import { config } from "../../../config/index.js";
 import { HistorySimpleJMsg, ComplexJMsg, HistoryComplexJMsg, Request, RequestBody } from "../../../type.js";
-import { FileType, Objects } from "../../../utils/kits.js";
+import { ChatKits, FileType, Objects } from "../../../utils/kits.js";
 import { EMOTION_KEY } from "../../../utils/redis.js";
 import { ChatAgent } from "../chatAgent.js";
 
@@ -16,7 +16,7 @@ export class Gemini extends ChatAgent {
             "输入其它模型（请勿选择该项）": null
         };
     }
-    async chatRequest(model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any> {
+    async chatRequest(groupId: number, model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any> {
         // 构造请求体
         var request: Request = {
             url: `${this.apiUrl}/${model}:generateContent?key=${this.apiKey}`,
@@ -31,10 +31,10 @@ export class Gemini extends ChatAgent {
             },
         };
         if (!this.modelsChat.hasOwnProperty(model) || this.modelsChat[model] === null) {
-            let response = await this.commonRequestChat(request, input, historyMessages, useSystemRole);
+            let response = await this.commonRequestChat(groupId, request, input, historyMessages, useSystemRole);
             return response;
         } else {
-            let response = await this.modelsChat[model](request, input, historyMessages, useSystemRole)
+            let response = await this.modelsChat[model](groupId, request, input, historyMessages, useSystemRole)
             return response;
         }
     }
@@ -59,7 +59,7 @@ export class Gemini extends ChatAgent {
             "输入其它模型（请勿选择该项）": null
         };
     }
-    async visualRequest(model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any> {
+    async visualRequest(groupId: number, model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any> {
         /*
         if (!this.modelsVisual[model]) {
             logger.error("[Gemini]不支持的视觉模型：" + model);
@@ -79,10 +79,10 @@ export class Gemini extends ChatAgent {
             },
         };
         if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
-            let response = await this.commonRequestVisual(JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
+            let response = await this.commonRequestVisual(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
             return response;
         } else {
-            let response = await this.modelsVisual[model].chat(JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
+            let response = await this.modelsVisual[model].chat(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
             return response;
         }
     }
@@ -114,9 +114,9 @@ export class Gemini extends ChatAgent {
         }
     }
 
-    protected async commonRequestChat(request: Request, input: string, historyMessages: HistorySimpleJMsg[] = [], useSystemRole = true) {
+    protected async commonRequestChat(groupId: number, request: Request, input: string, historyMessages: HistorySimpleJMsg[] = [], useSystemRole = true) {
         if (useSystemRole) {
-            var systemContent = await this.generateSystemContent(config.autoReply.useEmotion, config.autoReply.chatPrompt);
+            var systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompt);
             request.options.body["system_instruction"] = systemContent;
         }
         // 添加历史对话
@@ -150,10 +150,11 @@ export class Gemini extends ChatAgent {
         }
     }
 
-    protected async generateSystemContent(useEmotion: boolean, chatPrompt: null | undefined | string): Promise<{ role?: "system", content?: string } & Record<string, any>> {
+    protected async generateSystemContent(groupId: number, useEmotion: boolean, chatPrompt: null | undefined | string): Promise<{ role?: "system", content?: string } & Record<string, any>> {
         if (Objects.isNull(chatPrompt))
             chatPrompt =
                 "You are a helpful assistant, you must speak Chinese. Now you are in a chat group, and the following is chat history";
+        chatPrompt = ChatKits.replaceWithBotNickName(chatPrompt, groupId);
         var emotionPrompt = await redis.get(EMOTION_KEY);
         return {
             parts: [{
@@ -164,9 +165,9 @@ export class Gemini extends ChatAgent {
         };
     }
 
-    protected async commonRequestVisual(request: Request, nickeName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole: boolean = true) {
+    protected async commonRequestVisual(groupId: number, request: Request, nickeName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole: boolean = true) {
         if (useSystemRole) {
-            var systemContent = await this.generateSystemContent(config.autoReply.useEmotion, config.autoReply.chatPrompt);
+            var systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompt);
             request.options.body["system_instruction"] = systemContent;
         }
         // 添加历史对话

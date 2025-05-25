@@ -48,7 +48,7 @@ export class Siliconflow extends ChatAgent {
         modelMap["输入其它模型（请勿选择该项）"] = null;
         return modelMap;
     }
-    async chatRequest(model, input, historyMessages, useSystemRole) {
+    async chatRequest(groupId, model, input, historyMessages, useSystemRole) {
         // 构造请求体
         var request = {
             url: `${this.apiUrl}/chat/completions`,
@@ -67,15 +67,15 @@ export class Siliconflow extends ChatAgent {
             },
         };
         if (!this.modelsChat.hasOwnProperty(model) || this.modelsChat[model] === null) {
-            let response = await super.commonRequestChat(request, input, historyMessages, useSystemRole);
+            let response = await super.commonRequestChat(groupId, request, input, historyMessages, useSystemRole);
             return response;
         }
         else {
-            let response = await this.modelsChat[model](request, input, historyMessages, useSystemRole);
+            let response = await this.modelsChat[model](groupId, request, input, historyMessages, useSystemRole);
             return response;
         }
     }
-    async visualRequest(model, nickName, j_msg, historyMessages, useSystemRole) {
+    async visualRequest(groupId, model, nickName, j_msg, historyMessages, useSystemRole) {
         /*
         if (!this.modelsVisual[model]) {
             logger.error("[autoReply]不支持的视觉模型：" + model);
@@ -98,7 +98,7 @@ export class Siliconflow extends ChatAgent {
             },
         };
         if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
-            let response = await super.commonRequestVisual(JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
+            let response = await super.commonRequestVisual(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
             return response;
         }
         else {

@@ -25,7 +25,7 @@ export class GeminiOpenAPI extends ChatAgent {
         };
     }
 
-    async chatRequest(model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any> {
+    async chatRequest(groupId: number, model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any> {
         // 构造请求体
         let request: Request = {
             url: config.autoReply.apiCustomUrl,
@@ -39,12 +39,12 @@ export class GeminiOpenAPI extends ChatAgent {
             },
         };
         // var response = await this.ModelMap[model](
-        let response = await super.commonRequestChat(request, input, historyMessages, useSystemRole);
+        let response = await super.commonRequestChat(groupId, request, input, historyMessages, useSystemRole);
         // 调用返回结果的头尾容易有换行符，进行处理
         response = response.replace(/^\n+|\n+$/g, "");
         return response;
     }
-    public async visualRequest(model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any> {
+    public async visualRequest(groupId: number, model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any> {
         let request: Request = {
             url: config.autoReply.apiCustomUrl,
             options: {
@@ -60,7 +60,7 @@ export class GeminiOpenAPI extends ChatAgent {
                 },
             },
         };
-        let response = await super.commonRequestVisual(JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
+        let response = await super.commonRequestVisual(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
         return response;
     }
 

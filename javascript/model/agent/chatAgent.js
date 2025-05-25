@@ -4,7 +4,7 @@
  * @author juhkff
  */
 import { config } from "../../config/index.js";
-import { Objects } from "../../utils/kits.js";
+import { ChatKits, Objects } from "../../utils/kits.js";
 import { EMOTION_KEY } from "../../utils/redis.js";
 export class ChatAgent {
     apiKey;
@@ -27,11 +27,13 @@ export class ChatAgent {
      * @param chatPrompt 聊天预设
      * @returns `{role: 'system', content: 'xxx'}`
      */
-    async generateSystemContent(useEmotion, chatPrompt) {
+    async generateSystemContent(groupId, useEmotion, chatPrompt) {
         if (Objects.isNull(chatPrompt))
             chatPrompt =
                 "You are a helpful assistant, you must speak Chinese. Now you are in a chat group, and the following is chat history";
         var emotionPrompt = await redis.get(EMOTION_KEY);
+        // 传入机器人在群中的昵称
+        chatPrompt = ChatKits.replaceWithBotNickName(chatPrompt, groupId);
         return {
             role: "system",
             // 按deepseek-r1的模板修正格式
@@ -40,11 +42,12 @@ export class ChatAgent {
                 : chatPrompt)
         };
     }
-    async generateSystemContentVisual(useEmotion, chatPrompt) {
+    async generateSystemContentVisual(groupId, useEmotion, chatPrompt) {
         if (Objects.isNull(chatPrompt))
             chatPrompt =
                 "You are a helpful assistant, you must speak Chinese. Now you are in a chat group, and the following is chat history";
         var emotionPrompt = await redis.get(EMOTION_KEY);
+        chatPrompt = ChatKits.replaceWithBotNickName(chatPrompt, groupId);
         return {
             role: "system",
             content: [{
@@ -55,9 +58,9 @@ export class ChatAgent {
                 }],
         };
     }
-    async commonRequestChat(request, input, historyMessages = [], useSystemRole = true) {
+    async commonRequestChat(groupId, request, input, historyMessages = [], useSystemRole = true) {
         if (useSystemRole) {
-            var systemContent = await this.generateSystemContent(config.autoReply.useEmotion, config.autoReply.chatPrompt);
+            var systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompt);
             request.options.body.messages.push(systemContent);
         }
         // 添加历史对话
@@ -89,9 +92,9 @@ export class ChatAgent {
             return `[autoReply]对话模型调用失败，详情请查阅控制台。`;
         }
     }
-    async commonRequestVisual(request, nickeName, j_msg, historyMessages, useSystemRole = true) {
+    async commonRequestVisual(groupId, request, nickeName, j_msg, historyMessages, useSystemRole = true) {
         if (useSystemRole) {
-            var systemContent = await this.generateSystemContentVisual(config.autoReply.useEmotion, config.autoReply.chatPrompt);
+            var systemContent = await this.generateSystemContentVisual(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompt);
             request.options.body.messages.push(systemContent);
         }
         // 添加历史对话

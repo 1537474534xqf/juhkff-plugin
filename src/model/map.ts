@@ -12,6 +12,9 @@ import { config } from "../config/index.js";
 import { Gemini } from "./agent/instance/gemini.js";
 import { GeminiOpenAPI } from "./agent/instance/gemini-openapi.js";
 
+// {属性名:{群号:值}}
+export const groupDict: Record<string, Record<string, string>> = {};
+
 /**
  * 模型列表，新增的都加里面
  */

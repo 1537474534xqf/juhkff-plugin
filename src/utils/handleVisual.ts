@@ -195,15 +195,29 @@ export async function parseUrlVisual(e: { j_msg: ComplexJMsg | null }) {
     }
 }
 
-export async function parseTextVisual(e: { j_msg: ComplexJMsg }) {
+export async function parseTextVisual(e: { bot: any, group_id: number, j_msg: ComplexJMsg }) {
     let msg = "";
     // notProcessed 中的文本提取成一个 text
     if (e.j_msg.notProcessed && e.j_msg.notProcessed.length > 0) {
         for (let i = 0; i < e.j_msg.notProcessed.length; i++) {
             if (e.j_msg.notProcessed[i].hasOwnProperty("text")) {
-                msg += e.j_msg.notProcessed[i].text + " ";
+                msg += e.j_msg.notProcessed[i].text.trim() + " ";
                 e.j_msg.notProcessed.splice(i, 1);
                 i--;
+            }
+            else if (e.j_msg.notProcessed[i].type == "at") {
+                // 处理@消息
+                if (e.j_msg.notProcessed[i].qq == "all") {
+                    msg += "@全体成员 ";
+                } else {
+                    const qq = e.j_msg.notProcessed[i].qq;
+                    const groupMember = e.bot.pickMember(e.group_id, qq);
+                    const memberInfo = await groupMember.getInfo();
+                    const memberName = memberInfo?.card || memberInfo?.nickname;
+                    msg += `@${memberName} `;
+                    e.j_msg.notProcessed.splice(i, 1);
+                    i--;
+                }
             }
         }
         msg = msg.trim();
@@ -251,7 +265,7 @@ function isSkippedUrl(url: string): boolean {
  * @param e 
  * @returns 回复内容
  */
-export async function generateAnswerVisual(e: { group_id: number | string; j_msg: ComplexJMsg; sender: { card: string }; }) {
+export async function generateAnswerVisual(e: { group_id: number; j_msg: ComplexJMsg; sender: { card: string }; }) {
     let model = config.autoReply.chatModel;
     if (!model || model == "") {
         logger.error("[handleVisual]请先设置model");
@@ -270,7 +284,7 @@ export async function generateAnswerVisual(e: { group_id: number | string; j_msg
         redis.set(EMOTION_KEY, await emotionGenerateVisual(), { EX: 24 * 60 * 60 });
     }
 
-    let answer = await sendChatRequestVisual(e.j_msg, e.sender.card, model, historyMessages);
+    let answer = await sendChatRequestVisual(e.group_id, e.j_msg, e.sender.card, model, historyMessages);
     // 将多个空格合并
     answer = answer.replace(/\s+/g, " ");
     // 使用正则表达式去掉字符串 answer 头尾的换行符
@@ -287,9 +301,9 @@ export async function generateAnswerVisual(e: { group_id: number | string; j_msg
  * @param useSystemRole 是否使用system预设
  * @returns 
  */
-async function sendChatRequestVisual(j_msg: ComplexJMsg, nickName: string, model: string = "", historyMessages: any[] = [], useSystemRole: boolean = true): Promise<any> {
+async function sendChatRequestVisual(groupId: number, j_msg: ComplexJMsg, nickName: string, model: string = "", historyMessages: any[] = [], useSystemRole: boolean = true): Promise<any> {
     if (!agent.chat) return "[handleVisual]请设置有效的AI接口";
-    var result = await agent.chat.visualRequest(model, nickName, j_msg, historyMessages, useSystemRole);
+    var result = await agent.chat.visualRequest(groupId, model, nickName, j_msg, historyMessages, useSystemRole);
     return result;
 }
 

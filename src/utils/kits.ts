@@ -2,6 +2,7 @@ import * as fileType from "file-type";
 import ffmpeg from "fluent-ffmpeg";
 import NodeID3 from "node-id3";
 import path from "path";
+import { groupDict } from "../model/map.js";
 
 /**
  * @description: 对象工具类
@@ -310,5 +311,21 @@ export class AudioParse {
             logger.info('✅ 歌词已写入 MP3 文件');
         }
         return true;
+    }
+}
+
+export class ChatKits {
+    static replaceWithBotNickName(chatPrompt: string, group_id: number) {
+        const botName = groupDict[group_id].botName;
+        chatPrompt = chatPrompt.replace(/{{botName}}/g, `'${botName}'`);
+        return chatPrompt;
+    }
+
+    static async saveGroupDict(e: any) {
+        const groupMember = e.bot.pickMember(e.group_id, e.self_id);
+        const botInfo = await groupMember.getInfo();
+        const botName = botInfo?.card || botInfo?.nickname;
+        const dict = { botName: botName };
+        groupDict[e.group_id] = dict;
     }
 }

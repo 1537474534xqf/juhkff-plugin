@@ -124,6 +124,25 @@ export async function parseJson(e: { j_msg: SimpleJMsg[]; }) {
     }
 }
 
+export async function parseAt(e: { bot: any, group_id: number, j_msg: SimpleJMsg[] }) {
+    if (!e.j_msg) return;
+    for (let i = 0; i < e.j_msg.length; i++) {
+        if (e.j_msg[i].type === "at") {
+            // 处理@信息
+            if (e.j_msg[i].qq == "all") {
+                const memberName = "全体成员";
+                e.j_msg[i] = { text: `@${memberName}`, type: "at2text" }
+            } else {
+                const qq = e.j_msg[i].qq;
+                const groupMember = e.bot.pickMember(e.group_id, qq);
+                const memberInfo = await groupMember.getInfo();
+                const memberName = memberInfo?.card || memberInfo?.nickname;
+                e.j_msg[i] = { text: `@${memberName}`, type: "at2text" }
+            }
+        }
+    }
+}
+
 function analyseJsonMessage(message: string) {
     try {
         let data = JSON.parse(message);
@@ -144,7 +163,7 @@ function analyseJsonMessage(message: string) {
  * @param {*} e
  * @returns
  */
-export async function parseUrl(e: { j_msg: SimpleJMsg[]; }) {
+export async function parseUrl(e: { group_id: number, j_msg: SimpleJMsg[]; }) {
     if (!e.j_msg) return;
     // 更新正则表达式以匹配包含中文和空格的URL
     const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/gi;
@@ -180,6 +199,7 @@ export async function parseUrl(e: { j_msg: SimpleJMsg[]; }) {
                         // 借助chatApi对提取的内容进行总结
                         var model = config.autoReply.chatModel;
                         var result = await agent.chat!.chatRequest(
+                            e.group_id,
                             model,
                             "根据从URL抓取的信息，以自然语言简练地总结URL中的主要内容，其中无关信息可以过滤掉",
                             [{ role: "user", content: extractResult.content }],
@@ -236,7 +256,7 @@ function isSkippedUrl(url: string) {
  * @param {*} currentImages 正文图片数组
  * @returns answer 回复内容
  */
-export async function generateAnswer(e: { group_id: number | string; sender: { card: string; }; }, msg: string) {
+export async function generateAnswer(e: { group_id: number; sender: { card: string; }; }, msg: string) {
     let apiKey = config.autoReply.chatApiKey;
     let model = config.autoReply.chatModel;
     if (!apiKey || apiKey == "") {
@@ -261,6 +281,7 @@ export async function generateAnswer(e: { group_id: number | string; sender: { c
     }
 
     let answer = await sendChatRequest(
+        e.group_id,
         e.sender.card + "：" + msg,
         model,
         historyMessages
@@ -279,9 +300,9 @@ export async function generateAnswer(e: { group_id: number | string; sender: { c
  * @param useSystemRole 是否使用system预设
  * @returns 
  */
-async function sendChatRequest(input: string, model = "", historyMessages: { role: Role, content: string }[] = [], useSystemRole = true) {
+async function sendChatRequest(groupId: number, input: string, model = "", historyMessages: { role: Role, content: string }[] = [], useSystemRole = true) {
     if (!agent.chat) return "[handle]请设置有效的AI接口";
-    var result = await agent.chat.chatRequest(model, input, historyMessages, useSystemRole);
+    var result = await agent.chat.chatRequest(groupId, model, input, historyMessages, useSystemRole);
     return result;
 }
 
@@ -361,7 +382,7 @@ export async function loadContext(groupId: number | string) {
  */
 export async function emotionGenerate(): Promise<string> {
     let model = config.autoReply.chatModel;
-    var emotion = await sendChatRequest(config.autoReply.emotionGeneratePrompt, model, [], false);
+    var emotion = await sendChatRequest(null, config.autoReply.emotionGeneratePrompt, model, [], false);
     logger.info(`[handle]情感生成: ${emotion}`);
     return emotion;
 }

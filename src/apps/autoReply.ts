@@ -3,9 +3,9 @@ import { ChatApiType } from "../config/define/autoReply.js";
 import { config } from "../config/index.js";
 import { transformTextToVoice } from "../plugin/siliconflow.js";
 import { formatDateDetail } from "../utils/date.js";
-import { emotionGenerate, generateAnswer, parseImage, parseJson, parseSourceMessage, parseUrl, saveContext } from "../utils/handle.js";
+import { emotionGenerate, generateAnswer, parseAt, parseImage, parseJson, parseSourceMessage, parseUrl, saveContext } from "../utils/handle.js";
 import { generateAnswerVisual, parseImageVisual, parseJsonVisual, parseSourceMessageVisual, parseTextVisual, parseUrlVisual, saveContextVisual } from "../utils/handleVisual.js";
-import { Objects } from "../utils/kits.js";
+import { ChatKits, Objects } from "../utils/kits.js";
 
 export const help = () => {
     return {
@@ -52,6 +52,7 @@ export class autoReply extends plugin {
     async autoReply(e: any) {
         if (!config.autoReply.useAutoReply) return false;
         if (e.message_type != "group") return false;
+        await ChatKits.saveGroupDict(e);
         if (config.autoReply.chatApiType.includes(ChatApiType.VISUAL)) {
             await this.visualProcess(e);
         } else {
@@ -74,12 +75,14 @@ export class autoReply extends plugin {
         await parseSourceMessage(e);
         // 处理分享链接
         await parseJson(e);
+        // 处理@信息
+        await parseAt(e);
         if (config.autoReply.attachUrlAnalysis) {
             // 处理URL
             await parseUrl(e);
         }
         // 通过自定义的e.j_msg拼接完整消息内容
-        var msg = e.j_msg.map((msg: { text: string }) => msg.text).join(" ");
+        var msg = e.j_msg.map((msg: { text: string }) => msg.text.trim()).join(" ");
         logger.debug(`[autoReply]解析后的消息内容: ${msg}`);
 
         if (msg) msg = msg.trim();

@@ -5,7 +5,7 @@ export class ArkEngine extends ChatAgent {
         super(apiKey);
     }
     static hasVisual = () => true;
-    async chatRequest(model, input, historyMessages, useSystemRole) {
+    async chatRequest(groupId, model, input, historyMessages, useSystemRole) {
         // 构造请求体
         let request = {
             url: config.autoReply.apiCustomUrl,
@@ -19,7 +19,7 @@ export class ArkEngine extends ChatAgent {
             },
         };
         // var response = await this.ModelMap[model](
-        let response = await super.commonRequestChat(request, input, historyMessages, useSystemRole);
+        let response = await super.commonRequestChat(groupId, request, input, historyMessages, useSystemRole);
         // 调用返回结果的头尾容易有换行符，进行处理
         response = response.replace(/^\n+|\n+$/g, "");
         return response;
@@ -38,7 +38,7 @@ export class ArkEngine extends ChatAgent {
             "输入其它或自定义模型（请勿选择该项）": null
         };
     }
-    async visualRequest(model, nickName, j_msg, historyMessages, useSystemRole) {
+    async visualRequest(groupId, model, nickName, j_msg, historyMessages, useSystemRole) {
         let request = {
             url: config.autoReply.apiCustomUrl,
             options: {
@@ -54,7 +54,7 @@ export class ArkEngine extends ChatAgent {
                 },
             },
         };
-        let response = await super.commonRequestVisual(JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
+        let response = await super.commonRequestVisual(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
         return response;
     }
     async toolRequest(model, j_msg) {

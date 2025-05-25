@@ -12,7 +12,7 @@ export class DeepSeek extends ChatAgent {
             "deepseek-reasoner": this.deepseek_reasoner.bind(this),
         };
     }
-    async chatRequest(model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any> {
+    async chatRequest(groupId: number, model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any> {
         if (!this.modelsChat![model]) {
             logger.error("[ds]不支持的模型：" + model);
             return "[ds]不支持的模型：" + model;
@@ -34,20 +34,20 @@ export class DeepSeek extends ChatAgent {
             },
         };
 
-        let response = await this.modelsChat![model](request, input, historyMessages, useSystemRole);
+        let response = await this.modelsChat![model](groupId, request, input, historyMessages, useSystemRole);
         // 如果 DeepSeek-R1 失败，尝试使用 DeepSeek-V3
 
         if (typeof response === "string" && response.startsWith("[ds]DeepSeek-R1调用失败")) {
             (request.options.body as RequestBody).model = "deepseek-chat";
-            response = await this.deepseek_chat(JSON.parse(JSON.stringify(request)), input, historyMessages, useSystemRole);
+            response = await this.deepseek_chat(groupId, JSON.parse(JSON.stringify(request)), input, historyMessages, useSystemRole);
         }
         return response;
     }
 
-    private async deepseek_chat(request: Request, input: string, historyMessages: any[] = [], useSystemRole = true) {
+    private async deepseek_chat(groupId: number, request: Request, input: string, historyMessages: any[] = [], useSystemRole = true) {
         // 添加消息内容
         if (useSystemRole) {
-            let systemContent = await this.generateSystemContent(config.autoReply.useEmotion, config.autoReply.chatPrompt);
+            let systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompt);
             (request.options.body as RequestBody).messages.push(systemContent);
         }
         // 添加历史对话
@@ -80,10 +80,10 @@ export class DeepSeek extends ChatAgent {
         }
     }
 
-    private async deepseek_reasoner(request: Request, input: string, historyMessages: any[] = [], useSystemRole = true) {
+    private async deepseek_reasoner(groupId: number, request: Request, input: string, historyMessages: any[] = [], useSystemRole = true) {
         // 添加消息内容
         if (useSystemRole) {
-            let systemContent = await this.generateSystemContent(config.autoReply.useEmotion, config.autoReply.chatPrompt);
+            let systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompt);
             (request.options.body as RequestBody).messages.push(systemContent);
         }
         // 添加历史对话
@@ -116,7 +116,7 @@ export class DeepSeek extends ChatAgent {
         }
     }
 
-    visualRequest(model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any> {
+    visualRequest(groupId: number, model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any> {
         return undefined;
     }
     toolRequest(model: string, j_msg: { img?: string[], text: string[] }): Promise<any> {

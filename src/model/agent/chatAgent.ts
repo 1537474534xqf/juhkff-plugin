@@ -5,16 +5,16 @@
  */
 import { config } from "../../config/index.js";
 import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg, Request, RequestBody } from "../../type.js";
-import { Objects } from "../../utils/kits.js";
+import { ChatKits, Objects } from "../../utils/kits.js";
 import { EMOTION_KEY } from "../../utils/redis.js";
 
 export interface ChatInterface {
-    chatRequest(model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any>;
+    chatRequest(groupId: number, model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any>;
     chatModels(): Promise<Record<string, Function> | undefined>;
 }
 
 export interface VisualInterface {
-    visualRequest(model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any>;
+    visualRequest(groupId: number, model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any>;
     toolRequest(model: string, j_msg: { img?: string[], text: string[] }): Promise<any>;
     visualModels(): Promise<Record<string, { chat: Function, tool: Function }> | undefined>;
 }
@@ -37,9 +37,9 @@ export abstract class ChatAgent implements ChatInterface, VisualInterface {
     public static hasVisual = (): boolean => { throw new Error("Method not implemented."); }
 
     abstract chatModels(): Promise<Record<string, Function> | undefined>;
-    abstract chatRequest(model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any>;
+    abstract chatRequest(groupId: number, model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any>;
     abstract visualModels(): Promise<Record<string, { chat: Function, tool: Function }> | undefined>;
-    abstract visualRequest(model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any>;
+    abstract visualRequest(groupId: number, model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any>;
     abstract toolRequest(model: string, j_msg: { img?: string[], text: string[] }): Promise<any>;
 
     /**
@@ -48,11 +48,13 @@ export abstract class ChatAgent implements ChatInterface, VisualInterface {
      * @param chatPrompt 聊天预设
      * @returns `{role: 'system', content: 'xxx'}`
      */
-    protected async generateSystemContent(useEmotion: boolean, chatPrompt: null | undefined | string): Promise<{ role?: "system", content?: string } & Record<string, any>> {
+    protected async generateSystemContent(groupId: number, useEmotion: boolean, chatPrompt: null | undefined | string): Promise<{ role?: "system", content?: string } & Record<string, any>> {
         if (Objects.isNull(chatPrompt))
             chatPrompt =
                 "You are a helpful assistant, you must speak Chinese. Now you are in a chat group, and the following is chat history";
         var emotionPrompt = await redis.get(EMOTION_KEY);
+        // 传入机器人在群中的昵称
+        chatPrompt = ChatKits.replaceWithBotNickName(chatPrompt, groupId);
         return {
             role: "system",
             // 按deepseek-r1的模板修正格式
@@ -62,11 +64,12 @@ export abstract class ChatAgent implements ChatInterface, VisualInterface {
         };
     }
 
-    protected async generateSystemContentVisual(useEmotion: boolean, chatPrompt: null | undefined | string): Promise<{ role?: "system", content: ({ type?: "text", text?: string } & Record<string, any>)[] }> {
+    protected async generateSystemContentVisual(groupId: number, useEmotion: boolean, chatPrompt: null | undefined | string): Promise<{ role?: "system", content: ({ type?: "text", text?: string } & Record<string, any>)[] }> {
         if (Objects.isNull(chatPrompt))
             chatPrompt =
                 "You are a helpful assistant, you must speak Chinese. Now you are in a chat group, and the following is chat history";
         var emotionPrompt = await redis.get(EMOTION_KEY);
+        chatPrompt = ChatKits.replaceWithBotNickName(chatPrompt, groupId);
         return {
             role: "system",
             content: [{
@@ -77,9 +80,9 @@ export abstract class ChatAgent implements ChatInterface, VisualInterface {
             }],
         };
     }
-    protected async commonRequestChat(request: Request, input: string, historyMessages: HistorySimpleJMsg[] = [], useSystemRole = true) {
+    protected async commonRequestChat(groupId: number, request: Request, input: string, historyMessages: HistorySimpleJMsg[] = [], useSystemRole = true) {
         if (useSystemRole) {
-            var systemContent = await this.generateSystemContent(config.autoReply.useEmotion, config.autoReply.chatPrompt);
+            var systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompt);
             (request.options.body as RequestBody).messages.push(systemContent);
         }
         // 添加历史对话
@@ -110,9 +113,9 @@ export abstract class ChatAgent implements ChatInterface, VisualInterface {
         }
     }
 
-    protected async commonRequestVisual(request: Request, nickeName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole: boolean = true) {
+    protected async commonRequestVisual(groupId: number, request: Request, nickeName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole: boolean = true) {
         if (useSystemRole) {
-            var systemContent = await this.generateSystemContentVisual(config.autoReply.useEmotion, config.autoReply.chatPrompt);
+            var systemContent = await this.generateSystemContentVisual(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompt);
             (request.options.body as RequestBody).messages.push(systemContent);
         }
         // 添加历史对话
