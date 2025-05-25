@@ -2,6 +2,7 @@
  * @file handle.js
  * @description: 原始消息处理相关
  */
+import { emotionGenerate } from "../bgProcess/jobs.js";
 import { config } from "../config/index.js";
 import { agent } from "../model/map.js";
 import { formatDateDetail } from "./date.js";
@@ -265,7 +266,7 @@ export async function generateAnswerVisual(e) {
     }
     // 如果启用了情感，并且redis中不存在情感，则进行情感生成
     if (config.autoReply.useEmotion && Objects.isNull(await redis.get(EMOTION_KEY))) {
-        redis.set(EMOTION_KEY, await emotionGenerateVisual(), { EX: 24 * 60 * 60 });
+        redis.set(EMOTION_KEY, await emotionGenerate(), { EX: 24 * 60 * 60 });
     }
     let answer = await sendChatRequestVisual(e.group_id, e.j_msg, e.sender.card, model, historyMessages);
     // 将多个空格合并
@@ -344,16 +345,4 @@ export async function loadContextVisual(groupId) {
         logger.error("[handleVisual]加载上下文失败:", error);
         return [];
     }
-}
-/**
- * 情感生成
- * @returns
- */
-export async function emotionGenerateVisual() {
-    if (!agent.chat)
-        return null;
-    let model = config.autoReply.chatModel;
-    var emotion = await agent.chat.toolRequest(model, { text: [config.autoReply.emotionGeneratePrompt] });
-    logger.info(`[handleVisual]情感生成: ${emotion}`);
-    return emotion;
 }

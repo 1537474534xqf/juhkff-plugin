@@ -4,9 +4,12 @@ import { config } from "../config/index.js";
 import { DAILY_REPORT_SAVE_PATH, dailyReport } from "../apps/dailyReport.js";
 import { sleep } from "../common.js";
 import { CronExpression, JobDict } from "../type.js";
+import { sendChatRequest } from "../utils/handle.js";
+import { EMOTION_KEY } from "../utils/redis.js";
 
 export const DAILY_REPORT_GENERATE = "dailyReportGenerateJob";
 export const DAILY_REPORT_PUSH = "dailyReportPushJob";
+export const EMOTION_GENERATE = "emotionGenerateJob";
 const jobDict: JobDict = {};
 
 export async function pushDailyReport() {
@@ -48,6 +51,19 @@ export async function autoSaveDailyReport() {
     logger.info("[JUHKFF-PLUGIN] 预处理 -> 生成日报成功")
 }
 
+export async function emotionGenerate() {
+    let model = config.autoReply.chatModel;
+    var emotion = await sendChatRequest(null, config.autoReply.emotionGeneratePrompt, model, [], false);
+    logger.info(`[JUHKFF-PLUGIN] 情感生成: ${emotion}`);
+    return emotion;
+}
+
+export async function autoSaveEmotion() {
+    const emotion = await emotionGenerate();
+    redis.set(EMOTION_KEY, emotion, { EX: 24 * 60 * 60 });
+}
+
+
 /**
  * 创建或更新定时任务
  * @param taskName 枚举值
@@ -57,7 +73,7 @@ export function upsertJobFromConfig(taskName: string, taskCron: CronExpression, 
     if (jobDict[taskName] && jobDict[taskName].reschedule(taskCron)) logger.info(`[JUHKFF-PLUGIN] 已修改定时任务 ${taskName}: ${taskCron}`);
     else {
         jobDict[taskName] = scheduleJob(taskName, taskCron, taskFunc);
-        logger.info(`[JUHKFF-PLUGIN] 已设置定时任务 ${taskName}: ${taskCron}`);
+        logger.info(`- [JUHKFF-PLUGIN] 已设置定时任务 ${taskName}: ${taskCron}`);
     }
 }
 
@@ -73,3 +89,5 @@ if (config.dailyReport.useDailyReport && config.dailyReport.push)
     upsertJobFromConfig(DAILY_REPORT_PUSH, config.dailyReport.dailyReportTime, pushDailyReport);
 if (config.dailyReport.useDailyReport && config.dailyReport.preHandle)
     upsertJobFromConfig(DAILY_REPORT_GENERATE, config.dailyReport.preHandleTime, autoSaveDailyReport);
+if (config.autoReply.useAutoReply && config.autoReply.useEmotion)
+    upsertJobFromConfig(EMOTION_GENERATE, config.autoReply.emotionGenerateTime, autoSaveEmotion);

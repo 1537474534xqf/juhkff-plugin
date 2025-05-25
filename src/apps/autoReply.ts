@@ -3,7 +3,7 @@ import { ChatApiType } from "../config/define/autoReply.js";
 import { config } from "../config/index.js";
 import { transformTextToVoice } from "../plugin/siliconflow.js";
 import { formatDateDetail } from "../utils/date.js";
-import { emotionGenerate, generateAnswer, parseAt, parseImage, parseJson, parseSourceMessage, parseUrl, saveContext } from "../utils/handle.js";
+import { generateAnswer, parseAt, parseImage, parseJson, parseSourceMessage, parseUrl, saveContext } from "../utils/handle.js";
 import { generateAnswerVisual, parseImageVisual, parseJsonVisual, parseSourceMessageVisual, parseTextVisual, parseUrlVisual, saveContextVisual } from "../utils/handleVisual.js";
 import { ChatKits, Objects } from "../utils/kits.js";
 
@@ -36,17 +36,6 @@ export class autoReply extends plugin {
                 },
             ],
         });
-        if (config.autoReply.useEmotion) {
-            this.task = Object.defineProperties(
-                {},
-                {
-                    cron: { value: config.autoReply.emotionGenerateTime, writable: false },
-                    name: { value: "情感生成", writable: false },
-                    fnc: { value: () => emotionGenerate(), writable: false },
-                    log: { get: () => false },
-                }
-            );
-        }
     }
 
     async autoReply(e: any) {

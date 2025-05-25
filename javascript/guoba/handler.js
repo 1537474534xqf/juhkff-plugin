@@ -1,7 +1,7 @@
 /**
  * @fileoverview: 锅巴配置更新生命周期
  */
-import { autoSaveDailyReport, DAILY_REPORT_GENERATE, DAILY_REPORT_PUSH, deleteJob, pushDailyReport, upsertJobFromConfig } from "../bgProcess/jobs.js";
+import { autoSaveDailyReport, autoSaveEmotion, DAILY_REPORT_GENERATE, DAILY_REPORT_PUSH, deleteJob, EMOTION_GENERATE, pushDailyReport, upsertJobFromConfig } from "../bgProcess/jobs.js";
 import { ChatApiType } from "../config/define/autoReply.js";
 import { config } from "../config/index.js";
 import { agentMap, reloadInstance } from "../model/map.js";
@@ -96,8 +96,10 @@ export function afterUpdate(previous) {
     }
     reloadInstance();
     reloadDailyReportJobs(previous.dailyReport);
+    reloadEmotionGenerateJobs(previous.autoReply);
     return { code: 0, message: "校验成功" };
 }
+// ----------------------------------------------------- 定时任务-----------------------------------------------------
 function reloadDailyReportJobs(previous) {
     if (config.dailyReport.useDailyReport) {
         if (config.dailyReport.push != previous.push || config.dailyReport.useDailyReport != previous.useDailyReport || config.dailyReport.dailyReportTime != previous.dailyReportTime) {
@@ -120,5 +122,20 @@ function reloadDailyReportJobs(previous) {
     else {
         deleteJob(DAILY_REPORT_PUSH);
         deleteJob(DAILY_REPORT_GENERATE);
+    }
+}
+function reloadEmotionGenerateJobs(previous) {
+    if (config.autoReply.useAutoReply) {
+        if (config.autoReply.useEmotion != previous.useEmotion || config.autoReply.useAutoReply != previous.useAutoReply || config.autoReply.emotionGenerateTime != previous.emotionGenerateTime) {
+            if (config.autoReply.useEmotion) {
+                upsertJobFromConfig(EMOTION_GENERATE, config.autoReply.emotionGenerateTime, autoSaveEmotion);
+            }
+            else {
+                deleteJob(EMOTION_GENERATE);
+            }
+        }
+    }
+    else {
+        deleteJob(EMOTION_GENERATE);
     }
 }

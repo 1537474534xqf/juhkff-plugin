@@ -2,6 +2,7 @@
  * @file handle.js
  * @description: 原始消息处理相关
  */
+import { emotionGenerate } from "../bgProcess/jobs.js";
 import { config } from "../config/index.js";
 import { agent } from "../model/map.js";
 import { formatDateDetail } from "./date.js";
@@ -280,7 +281,7 @@ export async function generateAnswer(e, msg) {
  * @param useSystemRole 是否使用system预设
  * @returns
  */
-async function sendChatRequest(groupId, input, model = "", historyMessages = [], useSystemRole = true) {
+export async function sendChatRequest(groupId, input, model = "", historyMessages = [], useSystemRole = true) {
     if (!agent.chat)
         return "[handle]请设置有效的AI接口";
     var result = await agent.chat.chatRequest(groupId, model, input, historyMessages, useSystemRole);
@@ -345,18 +346,6 @@ export async function loadContext(groupId) {
         logger.error("[handle]加载上下文失败:", error);
         return [];
     }
-}
-/**
- * @description: 情感生成
- * @param {*}
- * @return {*}
- * @author: JUHKFF
- */
-export async function emotionGenerate() {
-    let model = config.autoReply.chatModel;
-    var emotion = await sendChatRequest(null, config.autoReply.emotionGeneratePrompt, model, [], false);
-    logger.info(`[handle]情感生成: ${emotion}`);
-    return emotion;
 }
 export async function getImageUniqueId(e) {
     let image = e.message.filter((item) => item.type === "image");

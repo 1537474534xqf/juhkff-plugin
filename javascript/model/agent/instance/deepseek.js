@@ -52,9 +52,9 @@ export class DeepSeek extends ChatAgent {
                     request.options.body.messages.push({ role: msg.role, content: msg.content });
                 }
             });
-            // 添加当前对话
-            request.options.body.messages.push({ role: "user", content: input });
         }
+        // 添加当前对话
+        request.options.body.messages.push({ role: "user", content: input });
         logger.info(`[ds]DeepSeek-V3 API调用，请求内容：${JSON.stringify(request, null, 2)}`);
         try {
             request.options.body = JSON.stringify(request.options.body);

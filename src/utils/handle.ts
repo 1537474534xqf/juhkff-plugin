@@ -3,6 +3,7 @@
  * @description: 原始消息处理相关
  */
 
+import { emotionGenerate } from "../bgProcess/jobs.js";
 import { config } from "../config/index.js";
 import { agent } from "../model/map.js";
 import { Role, SimpleJMsg } from "../type.js";
@@ -300,7 +301,7 @@ export async function generateAnswer(e: { group_id: number; sender: { card: stri
  * @param useSystemRole 是否使用system预设
  * @returns 
  */
-async function sendChatRequest(groupId: number, input: string, model = "", historyMessages: { role: Role, content: string }[] = [], useSystemRole = true) {
+export async function sendChatRequest(groupId: number, input: string, model = "", historyMessages: { role: Role, content: string }[] = [], useSystemRole = true) {
     if (!agent.chat) return "[handle]请设置有效的AI接口";
     var result = await agent.chat.chatRequest(groupId, model, input, historyMessages, useSystemRole);
     return result;
@@ -372,19 +373,6 @@ export async function loadContext(groupId: number | string) {
         logger.error("[handle]加载上下文失败:", error);
         return [];
     }
-}
-
-/**
- * @description: 情感生成
- * @param {*}
- * @return {*}
- * @author: JUHKFF
- */
-export async function emotionGenerate(): Promise<string> {
-    let model = config.autoReply.chatModel;
-    var emotion = await sendChatRequest(null, config.autoReply.emotionGeneratePrompt, model, [], false);
-    logger.info(`[handle]情感生成: ${emotion}`);
-    return emotion;
 }
 
 export async function getImageUniqueId(e: { message: { type: string, url: string }[]; }): Promise<string> {

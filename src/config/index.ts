@@ -54,6 +54,8 @@ function processCron(data: Config) {
         data.dailyReport.dailyReportTime = normalizeCron(data.dailyReport.dailyReportTime);
     if (!Objects.isNull(data.dailyReport.preHandleTime))
         data.dailyReport.preHandleTime = normalizeCron(data.dailyReport.preHandleTime);
+    if (!Objects.isNull(data.autoReply.emotionGenerateTime))
+        data.autoReply.emotionGenerateTime = normalizeCron(data.autoReply.emotionGenerateTime);
 }
 
 // node-schedule的cron表达式只支持6位
