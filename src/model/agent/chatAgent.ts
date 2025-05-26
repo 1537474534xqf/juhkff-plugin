@@ -199,6 +199,7 @@ export abstract class ChatAgent implements ChatInterface, VisualInterface {
         if (config.autoReply.debugMode) {
             // 创建打印用副本
             var logRequest = JSON.parse(JSON.stringify(request));
+            /*
             logRequest.options.body.messages.forEach((message: any) => {
                 var content = message.content;
                 content.forEach((item: any) => {
@@ -211,6 +212,7 @@ export abstract class ChatAgent implements ChatInterface, VisualInterface {
                     }
                 });
             });
+            */
 
             logger.info(`[autoReply]视觉模型 ${logRequest.options.body.model} API调用，请求内容：${JSON.stringify(logRequest, null, 2)}`);
         }
