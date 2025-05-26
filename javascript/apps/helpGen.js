@@ -203,6 +203,12 @@ var douBaoHelp = () => {
                 type: "sub",
                 command: "#歌曲生成[豆包] -p提示文本 [...]",
                 enable: config.douBao.useSongGenerate,
+            },
+            {
+                name: "纯音乐生成",
+                type: "sub",
+                command: "#BGM生成[豆包] -p提示文本 [...]",
+                enable: config.douBao.useBgmGenerate,
             }
         ]
     };
