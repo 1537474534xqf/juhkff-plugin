@@ -1,6 +1,6 @@
 import { config } from "../../../config/index.js";
-import { ChatAgent } from "../chatAgent.js";
-export class DeepSeek extends ChatAgent {
+import { OpenAI } from "../openaiAgent.js";
+export class DeepSeek extends OpenAI {
     constructor(apiKey) { super(apiKey, "https://api.deepseek.com"); }
     static hasVisual = () => false;
     async chatModels() {

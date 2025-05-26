@@ -70,7 +70,7 @@ export class autoReply extends plugin {
             await parseUrl(e);
         }
         // 通过自定义的e.j_msg拼接完整消息内容
-        var msg = e.j_msg.map((msg) => msg.text.trim()).join(" ");
+        var msg = e.j_msg.filter((msg) => msg.hasOwnProperty("text")).map((msg) => msg.text.trim()).join(" ");
         logger.debug(`[autoReply]解析后的消息内容: ${msg}`);
         if (msg)
             msg = msg.trim();

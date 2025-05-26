@@ -74,6 +74,17 @@ export type DouBao = {
         queryVersion: string;
         returnLyrics: boolean;
     };
+    useBgmGenerate: boolean;
+    bgmGenerate: {
+        action: string;
+        version: string;
+        genre: string;
+        mood: string;
+        instrument: string;
+        theme: string;
+        queryAction: string;
+        queryVersion: string;
+    }
 }
 
 export let douBaoConfig: DouBao = null;

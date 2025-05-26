@@ -50,6 +50,20 @@ export class StringUtils {
     static toUpperFirst(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
+    static splitByMultiple(str, separators) {
+        // 将每个分隔符转义，并用正则的“或”( | )连接
+        const escaped = separators.map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+        const regexPattern = new RegExp(escaped.join('|'), 'g');
+        return str.split(regexPattern);
+    }
+    static startsWithStrs(str, strs) {
+        for (const s of strs) {
+            if (str.startsWith(s)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 export class FileType {
     static getBase64ImageType(base64) {

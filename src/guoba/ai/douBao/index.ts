@@ -673,4 +673,99 @@ export const douBaoSchema = () => [
             ]
         },
     },
+    {
+        field: "douBao.useBgmGenerate",
+        label: "纯音乐生成开关",
+        component: "Switch",
+    },
+    {
+        field: "douBao.bgmGenerate",
+        label: "配置",
+        component: "GSubForm",
+        componentProps: {
+            modalProps: {
+                title: "歌曲生成配置"
+            },
+            style: {
+                maxHeight: '100px', // 设置最大高度
+                overflowY: 'auto'   // 添加垂直滚动条
+            },
+            schemas: [
+                {
+                    field: "action",
+                    label: "服务Action",
+                    bottomHelpMessage:
+                        "官方没有变动就不需要改默认值",
+                    component: "Input",
+                },
+                {
+                    field: "version",
+                    label: "服务Version",
+                    bottomHelpMessage:
+                        "官方没有变动就不需要改默认值",
+                    component: "Input",
+                },
+                {
+                    field: "genre",
+                    label: "歌曲曲风",
+                    bottomHelpMessage: "生成歌曲的曲风，如果不传或者传入空字符串，服务会基于内容提取或预测",
+                    component: "AutoComplete",
+                    componentProps: {
+                        options: douBao.queryBgmGenre().map((key) => ({
+                            label: key,
+                            value: key
+                        })),
+                    }
+                },
+                {
+                    field: "mood",
+                    label: "歌曲情绪",
+                    bottomHelpMessage: "生成歌曲的情绪，如果不传或者传入空字符串，服务会基于内容提取或预测",
+                    component: "AutoComplete",
+                    componentProps: {
+                        options: douBao.queryBgmMood().map((key) => ({
+                            label: key,
+                            value: key
+                        })),
+                    }
+                },
+                {
+                    field: "instrument",
+                    label: "歌曲乐器",
+                    bottomHelpMessage: "生成歌曲的乐器，如果不传或者传入空字符串，服务会基于内容提取或预测",
+                    component: "AutoComplete",
+                    componentProps: {
+                        options: douBao.queryBgmInstrument().map((key) => ({
+                            label: key,
+                            value: key
+                        })),
+                    }
+                },
+                {
+                    field: "theme",
+                    label: "歌曲主题",
+                    bottomHelpMessage: "生成歌曲的主题，如果不传或者传入空字符串，服务会基于内容提取或预测",
+                    component: "AutoComplete",
+                    componentProps: {
+                        options: douBao.queryBgmTheme().map((key) => ({
+                            label: key,
+                            value: key
+                        })),
+                    }
+                },
+                {
+                    field: "queryAction",
+                    label: "查询Action",
+                    bottomHelpMessage: "官方没有变动就不需要改默认值",
+                    component: "Input",
+                },
+                {
+                    field: "queryVersion",
+                    label: "查询Version",
+                    bottomHelpMessage: "官方没有变动就不需要改默认值",
+                    component: "Input",
+                }
+            ]
+        },
+    },
 ]

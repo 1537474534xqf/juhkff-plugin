@@ -1,3 +1,5 @@
+import { ChatApiType } from "../../config/define/autoReply.js";
+import { config } from "../../config/index.js";
 import { agentMap, agent } from "../../model/map.js";
 import { Objects } from "../../utils/kits.js";
 
@@ -8,8 +10,12 @@ import { Objects } from "../../utils/kits.js";
 function getChatModels() {
     if (!agent.chat) return [];
     var result = [];
-    for (const key of Object.keys(agent.chat.modelsChat)) {
-        result.push({ label: key, value: key });
+    if (config.autoReply.chatApiType.includes(ChatApiType.VISUAL)) {
+        for (const key of Object.keys(agent.chat.modelsVisual))
+            result.push({ label: key, value: key });
+    } else {
+        for (const key of Object.keys(agent.chat.modelsChat))
+            result.push({ label: key, value: key });
     }
     return result;
 }

@@ -14,16 +14,18 @@
 <img src="https://count.getloli.com/@juhkff-plugin?juhkff-plugin&theme=random&padding=7&offset=0&align=top&scale=1&pixelated=0&darkmode=auto" />
 </div>
 
-一个适用于 [TRSS-Yunzai 框架](https://github.com/TimeRainStarSky/Yunzai) 和 [OneBot-v11 标准](https://onebot.dev) 的 **自用** 综合群机器人插件
+一个适用于 [TRSS-Yunzai 框架](https://github.com/TimeRainStarSky/Yunzai) 和 [OneBot-v11 标准](https://onebot.dev) 的 **自用** 综合群机器人插件。**除非特意说明，各项配置在锅巴页面保存修改后立即生效，无需重启机器人**
 
 > [!WARNING]
 > 由于为自用插件，所以其它协议适配性未知，喵崽框架适配性未知（没运行过）
 >
-> **为调整结构和便于之后 AI 功能扩展，插件整体使用 typescript 重写，可能会有些新 Bug 出现，望理解和反馈。如果遇到问题可尝试重装插件**
+> **近期插件更新频繁，BUG率可能较高，望理解和反馈。如果遇到问题可尝试重装插件**
+>
+> **使用中发现有时启动时会报错config加载错误，此时重启云崽多试几次即可解决，具体原因还在排查**
 
-<div style="color:red; font-weight:bold;">
+<!-- <div style="color:red; font-weight:bold;">
 由于群聊接口配置结构发生变动，可能需要重新进行配置
-</div>
+</div> -->
 
 ## 安装插件
 
@@ -63,6 +65,7 @@ pnpm install --filter=juhkff-plugin
   5. Cloudflare 账户主页 -> 计算(Workers) -> 部署的openai-gemini -> 设置 -> 添加域和路由 -> 添加自己的域名<br>
   6. 可通过 `https://自定义域名/v1/chat/completions` 访问自己的 openai-gemini 服务，实现国内调用 Gemini
   </details>
+- OpenRouter 官网申请ApiKey: https://openrouter.ai/
 
 ### 一点使用经验
 
@@ -83,12 +86,14 @@ pnpm install --filter=juhkff-plugin
   - [x] 可以提取分享的 URL 内容并加入上下文
   - [x] 一定程度上支持对分享链接的解析并加入上下文
   - [x] 添加情感生成，会加入 API 接口调用中辅助生成群聊内容（神必功能，谨慎开启
-  - [x] **支持通过 AI 功能实现文本转语音（latest update）（目前实现较简单）**
+  - [x] 支持通过 AI 功能实现文本转语音
   - [x] 支持的 API 列表：
     - [x] DeepSeek
     - [x] SiliconFlow
     - [x] 火山方舟
-    - [x] **Gemini（latest update）**
+    - [x] Gemini（latest update）
+    - [x] **OpenRouter (latest update)**
+    - [x] **OpenAI通用格式(latest update)** 
 - [x] 生成和推送日报
   - [x] 借鉴 [真寻日报](https://github.com/HibiKier/nonebot-plugin-zxreport) 的样式和代码生成日报
 - [x] 表情偷取
@@ -96,7 +101,7 @@ pnpm install --filter=juhkff-plugin
   - [x] 同一图片在指定时间长度内被发送两次，则被视为表情并偷取
 - [x] AI 功能接入中
   - [x] 豆包 AI 部分接入
-  - [x] **SiliconFlow AI 接入（latest update）**
+  - [x] SiliconFlow AI 接入（latest update）
   - TODO: 其它 AI 接入...
 - [x] 调用指令可发送帮助图片
   - [x] 参考 [Miao-Plugin](https://github.com/yoimiya-kokomi/miao-plugin) 和 [TRSS-Yunzai](https://github.com/TimeRainStarSky/Yunzai) 的思路和代码实现

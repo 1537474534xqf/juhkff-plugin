@@ -163,3 +163,16 @@ songGenerate:
   queryAction: QuerySong
   queryVersion: 2024-08-12
   returnLyrics: false
+
+useBGMGenerate: false
+bgmGenerate:
+  # Query参数：接口名
+  action: GenBGMForTime
+  # Query参数：版本号
+  version: 2024-08-12
+  genre: ""
+  mood: ""
+  instrument: ""
+  theme: ""
+  queryAction: QuerySong
+  queryVersion: 2024-08-12

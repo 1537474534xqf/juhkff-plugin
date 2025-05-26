@@ -6,7 +6,7 @@ import { segment } from "oicq";
 // @ts-ignore
 import fastImageSize from "fast-image-size";
 import { PLUGIN_DATA_DIR } from "../../model/path.js";
-import { AudioParse, FileType, Objects } from "../../utils/kits.js";
+import { AudioParse, FileType, Objects, StringUtils } from "../../utils/kits.js";
 import { Request, RequestBody, RequestMsg } from "../../type.js";
 import { downloadFile, url2Base64 } from "../../utils/net.js";
 import { config } from "../../config/index.js";
@@ -77,6 +77,14 @@ export class douBao extends plugin {
                 {
                     reg: "^#歌曲生成豆包.*",
                     fnc: "songGenerate"
+                },
+                {
+                    reg: "^#BGM生成.*",
+                    fnc: "bgmGenerate"
+                },
+                {
+                    reg: "^#BGM生成豆包.*",
+                    fnc: "bgmGenerate"
                 }
             ],
         });
@@ -128,7 +136,17 @@ export class douBao extends plugin {
                 config.douBao.songGenerate.queryVersion,
                 config.douBao.songService.region,
                 config.douBao.songService.service
-            )
+            );
+            this.fetchBgmGenerate = getServiceApi(
+                config.douBao.songService.host,
+                config.douBao.songService.accessKeyId,
+                config.douBao.songService.secretAccessKey,
+                "POST",
+                config.douBao.bgmGenerate.action,
+                config.douBao.bgmGenerate.version,
+                config.douBao.songService.region,
+                config.douBao.songService.service
+            );
         }
         // --------------------------------------------------------------------------------------------------------------------
     }
@@ -156,10 +174,17 @@ export class douBao extends plugin {
         }
         */
         if (config.douBao.useSongGenerate) {
-            helpMsg += `\n  #歌曲生成[豆包] [-l歌词|-p提示词] [-g曲风] [-m歌曲风格] [-sFemale|Male] [-t音色] [-d时长(30-240)]`;
+            helpMsg += `\n  #歌曲生成[豆包] [-l歌词| -p提示词] [-g曲风] [-m歌曲风格] [-sFemale|Male] [-t音色] [-d时长(30-240)]`;
             helpMsg += `\n  #歌曲生成[豆包] 曲风查询`;
             helpMsg += `\n  #歌曲生成[豆包] 歌曲风格查询`;
             helpMsg += `\n  #歌曲生成[豆包] 音色查询`;
+        }
+        if (config.douBao.useBgmGenerate) {
+            helpMsg += `\n  #BGM生成[豆包] [-p提示词] [-g曲风] [-m情绪] [-i乐器] [-t主题] [-d时长(1-60)]`;
+            helpMsg += `\n  #BGM生成[豆包] 曲风查询`;
+            helpMsg += `\n  #BGM生成[豆包] 情绪查询`;
+            helpMsg += `\n  #BGM生成[豆包] 乐器查询`;
+            helpMsg += `\n  #BGM生成[豆包] 主题查询`;
         }
         await e.reply(helpMsg);
         return true;
@@ -693,8 +718,8 @@ export class douBao extends plugin {
     }
     */
 
-
     // ---------------------------------------------------- 歌曲生成 ----------------------------------------------------
+
     static querySongGenre() {
         return [
             "Folk", "Pop", "Rock", "Chinese Style", "Hip Hop/Rap", "R&B/Soul", "Punk", "Electronic", "Jazz", "Reggae", "DJ", "Pop Punk", "Disco",
@@ -739,8 +764,17 @@ export class douBao extends plugin {
             await e.reply("可用歌曲音色列表：" + douBao.querySongTimbre().join(", "));
             return true;
         }
-        // helpMsg += `#歌词生成[豆包] 提示词 [-g曲风] [-m歌词风格] [-sFemale|Male]`;
-        var strList = result.texts.split(/\s+/);
+        // helpMsg += `#歌词生成[豆包] [-p提示词 | -l歌词 | -g曲风 | -m歌词风格 | -sFemale|Male | -t音色 | -d时长]`;
+        var strPreList = result.texts.split(/\s+/);
+        // 预处理
+        const strList = [];
+        const options = ["-p", "-l", "-g", "-m", "-s", "-t", "-d"]
+        strList.push(strPreList[0]);
+        for (var i = 1; i < strPreList.length; i++) {
+            //选项中可能含有空格，所以要做预处理
+            if (StringUtils.startsWithStrs(strPreList[i], options)) strList.push(strPreList[i]);
+            else strList[strList.length - 1] = strList.at(-1) + " " + strPreList[i];
+        }
         for (var i = 0; i < strList.length; i++) {
             if (strList[i].startsWith("-g")) body.Genre = strList[i].replace("-g", "");
             else if (strList[i].startsWith("-m")) body.Mood = strList[i].replace("-m", "");
@@ -829,6 +863,143 @@ export class douBao extends plugin {
         if (config.douBao.songGenerate.returnLyrics) {
             await e.reply(lrc);
         }
+        fs.unlinkSync(filePath);
+    }
+
+    // ---------------------------------------------------- 纯音乐生成 ----------------------------------------------------
+
+    static queryBgmGenre() {
+        return [
+            "corporate", "dance/edm", "orchestral", "chill out", "rock", "hip hop", "folk", "funk", "ambient", "holiday", "jazz", "kids", "world", "travel", "commercial", "advertising", "driving", "cinematic", "upbeat", "epic", "inspiring", "business", "video game", "dark", "pop", "trailer", "modern", "electronic", "documentary", "soundtrack", "fashion", "acoustic", "movie", "tv", "high tech", "industrial", "dance", "video", "vlog", "marketing", "game", "radio", "promotional", "sports", "party", "summer", "beauty"
+        ]
+    }
+
+    static queryBgmMood() {
+        return ["positive", "uplifting", "energetic", "happy", "bright", "optimistic", "hopeful", "cool", "dreamy", "fun", "light", "powerful", "calm", "confident", "joyful", "dramatic", "peaceful", "playful", "soft", "groovy", "reflective", "easy", "relaxed", "lively", "smooth", "romantic", "intense", "elegant", "mellow", "emotional", "sentimental", "cheerful happy", "contemplative", "soothing", "proud", "passionate", "sweet", "mystical", "tranquil", "cheerful", "casual", "beautiful", "ethereal", "melancholy", "sad", "aggressive", "haunting", "adventure", "serene", "sincere", "funky", "funny"]
+    }
+
+    static queryBgmInstrument() {
+        return ["piano", "drums", "guitar", "percussion", "synth", "electric guitar", "acoustic guitar", "bass guitar", "brass", "violin", "cello", "flute", "organ", "trumpet", "ukulele", "saxophone", "double bass", "harp", "glockenspiel", "synthesizer", "keyboard", "marimba", "bass", "banjo", "strings"]
+    }
+
+    static queryBgmTheme() {
+        return ["inspirational", "motivational", "achievement", "discovery", "every day", "love", "technology", "lifestyle", "journey", "meditation", "drama", "children", "hope", "fantasy", "holiday", "health", "family", "real estate", "media", "kids", "science", "education", "progress", "world", "vacation", "training", "christmas", "sales"]
+    }
+
+    async bgmGenerate(e: any) {
+        if (!config.douBao.useDouBao) return false;
+        if (!config.douBao.useBgmGenerate) return false;
+        if (!await this.preCheck(e)) return true;
+        var result = await processMessage(e);
+        var body: RequestBody = {};
+        // body.SkipCopyCheck = config.douBao.songGenerate.skipCopyCheck;
+        // 将指令部分去除
+        result.texts = result.texts.replace(/^#BGM生成豆包/, "").trim();
+        result.texts = result.texts.replace(/^#BGM生成/, "").trim();
+        if (Objects.isNull(result.texts)) {
+            await e.reply("请完善指令内容");
+            return true;
+        }
+        if (result.texts.startsWith("曲风查询")) {
+            await e.reply("可用曲风列表：" + douBao.queryBgmGenre().join(", "));
+            return true;
+        }
+        if (result.texts.startsWith("情绪查询")) {
+            await e.reply("可用情绪列表：" + douBao.queryBgmMood().join(", "));
+            return true;
+        }
+        if (result.texts.startsWith("乐器查询")) {
+            await e.reply("可用乐器列表：" + douBao.queryBgmInstrument().join(", "));
+            return true;
+        }
+        if (result.texts.startsWith("主题查询")) {
+            await e.reply("可用主题列表：" + douBao.queryBgmTheme().join(", "));
+            return true;
+        }
+        // helpMsg += `#BGM生成[豆包] [-p提示词] [-g曲风] [-m情绪] [-i乐器] [-t主题] [-d时长]`;
+        var strPreList = result.texts.split(/\s+/);
+        // 预处理
+        const strList = [];
+        const options = ["-p", "-g", "-m", "-i", "-t", "-d"]
+        strList.push(strPreList[0]);
+        for (var i = 1; i < strPreList.length; i++) {
+            //选项中可能含有空格，所以要做预处理
+            if (StringUtils.startsWithStrs(strPreList[i], options)) strList.push(strPreList[i]);
+            else strList[strList.length - 1] = strList.at(-1) + " " + strPreList[i];
+        }
+        for (var i = 0; i < strList.length; i++) {
+            if (strList[i].startsWith("-g")) body.Genre = strList[i].replace("-g", "").split(",");
+            else if (strList[i].startsWith("-m")) body.Mood = strList[i].replace("-m", "").split(",");
+            else if (strList[i].startsWith("-i")) body.Instrument = strList[i].replace("-i", "").split(",");
+            else if (strList[i].startsWith("-t")) body.Theme = strList[i].replace("-t", "").split(",");
+            else if (strList[i].startsWith("-d")) body.Duration = parseInt(strList[i].replace("-d", ""));
+            else if (strList[i].startsWith("-p")) {
+                if (body.hasOwnProperty("Text")) {
+                    await e.reply("提示词项重复");
+                    return true;
+                }
+                body.Text = strList[i].replace("-p", "");
+            }
+        }
+        await e.reply("正在生成BGM，请稍等...");
+        var response = await this.fetchBgmGenerate(body, { timeout: 0 });
+        if (response?.ResponseMetadata?.Error) {
+            await e.reply(`生成BGM失败: ${response?.ResponseMetadata?.Error?.Code}. ${response?.ResponseMetadata?.Error?.Message}`);
+            return true;
+        }
+        var id = response.Result.TaskID;
+        if (Objects.isNull(id)) {
+            await e.reply(`BGM生成失败: ${response.error.code}, ${response.error.message}`);
+            return true;
+        }
+        logger.info(`[douBao]BGM生成任务创建成功，id：${id}`);
+        // 创建线程
+        this.createBGMGenerateTaskThread(e, id, this.handleBGMGenerateCompleted, this.handleBGMFailed);
+        return true;
+    }
+    createBGMGenerateTaskThread(e: any, id: string, successHandler?: (e: any, responseJson: any) => Promise<void>, failHandler?: (e: any, responseJson: any) => Promise<void>) {
+        var body = {
+            TaskID: id,
+        }
+        var taskThread = setInterval(async () => {
+            let response = await this.fetchSongQuery(body);
+            if (response.Result.Status == 2) {
+                clearInterval(taskThread);
+                // 处理完成
+                if (successHandler) await successHandler(e, response);
+            } else if (response.Result.Status == 3) {
+                clearInterval(taskThread);
+                // 处理失败
+                if (failHandler) await failHandler(e, response);
+            } else if (response.Result.Status != 0 && response.Result.Status != 1) {
+                // 处理取消
+                clearInterval(taskThread);
+            }
+        }, 5000);
+    }
+    async handleBGMFailed(e: any, response: { error: any; }) {
+        // 处理失败
+        var error = response.error;
+        var message = error.message;
+        var code = error.code;
+        var errorMsg = `[douBao]BGM生成失败，错误码：${code}，错误信息：${message}`;
+        e.reply(errorMsg);
+    }
+
+    async handleBGMGenerateCompleted(e: any, response: any) {
+        const audioUrl = response.Result.SongDetail.AudioUrl;
+        const res = await fetch(audioUrl);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const arrayBuffer = await res.arrayBuffer()
+        var timestamp = new Date().getTime();
+        const filePath = path.join(
+            PLUGIN_DATA_DIR,
+            `${e.group_id}`,
+            "audio",
+            `${timestamp}_${response.Result.TaskID}.${(await FileType.getFileTypeFromBuffer(arrayBuffer)).ext}`
+        );
+        await downloadFile(audioUrl, filePath);
+        await e.reply(segment.file(filePath, path.basename(filePath)));
         fs.unlinkSync(filePath);
     }
 }

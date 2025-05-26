@@ -11,6 +11,8 @@ import { ChatAgent } from "./agent/chatAgent.js";
 import { config } from "../config/index.js";
 import { Gemini } from "./agent/instance/gemini.js";
 import { GeminiOpenAPI } from "./agent/instance/gemini-openapi.js";
+import { OpenAI } from "./agent/openaiAgent.js";
+import { OpenRouter } from "./agent/instance/openrouter.js";
 
 // {属性名:{群号:值}}
 export const groupDict: Record<string, Record<string, string>> = {};
@@ -24,6 +26,8 @@ const agentMap: Record<string, { new(...args: any[]): ChatAgent; hasVisual: () =
     火山方舟: ArkEngine,
     Gemini: Gemini,
     "Gemini-OpenAPI（国内中转）": GeminiOpenAPI,
+    OpenRouter: OpenRouter,
+    OpenAI通用: OpenAI,
 };
 
 let chatInstance: ChatAgent | null = null;

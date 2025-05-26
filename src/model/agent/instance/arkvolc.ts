@@ -1,8 +1,8 @@
 import { config } from "../../../config/index.js";
 import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg, Request } from "../../../type.js";
-import { ChatAgent } from "../chatAgent.js";
+import { OpenAI } from "../openaiAgent.js";
 
-export class ArkEngine extends ChatAgent {
+export class ArkEngine extends OpenAI {
     constructor(apiKey: string) {
         super(apiKey);
     }

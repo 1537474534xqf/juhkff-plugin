@@ -1,8 +1,8 @@
-import { ChatAgent } from "../chatAgent.js";
 import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg, Request } from "../../../type.js";
 import { config } from "../../../config/index.js";
+import { OpenAI } from "../openaiAgent.js";
 
-export class GeminiOpenAPI extends ChatAgent {
+export class GeminiOpenAPI extends OpenAI {
     constructor(apiKey: string) { super(apiKey); }
     static hasVisual = () => true;
 
