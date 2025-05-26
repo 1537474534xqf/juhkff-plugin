@@ -1,8 +1,8 @@
 import axios from "axios";
-import { ChatAgent } from "../chatAgent.js";
 import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg, Request } from "../../../type.js";
+import { OpenAI } from "../openaiAgent.js";
 
-export class Siliconflow extends ChatAgent {
+export class Siliconflow extends OpenAI {
     constructor(apiKey: string) { super(apiKey, "https://api.siliconflow.cn/v1"); }
     static hasVisual = () => true;
 
@@ -131,7 +131,12 @@ export class Siliconflow extends ChatAgent {
                 },
             },
         };
-        var response = await this.modelsVisual[model].tool(JSON.parse(JSON.stringify(request)), j_msg);
-        return response;
+        if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
+            let response = await super.commonRequestTool(JSON.parse(JSON.stringify(request)), j_msg);
+            return response;
+        } else {
+            let response = await this.modelsVisual[model].tool(JSON.parse(JSON.stringify(request)), j_msg);
+            return response;
+        }
     }
 }

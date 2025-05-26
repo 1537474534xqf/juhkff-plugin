@@ -269,9 +269,11 @@ export class Gemini extends ChatAgent {
                         // 截断前40位
                         item.inline_data.data = item.inline_data.data.substring(0, 40) + "...";
                     }
+                    /*
                     if (item.hasOwnProperty("text") && item.text.length > 40) {
                         item.text = item.text.substring(0, 40) + "...";
                     }
+                    */
                 });
             });
 
@@ -326,9 +328,11 @@ export class Gemini extends ChatAgent {
                         // 截断前40位
                         item.inline_data.data = item.inline_data.data.substring(0, 40) + "...";
                     }
+                    /*
                     if (item.hasOwnProperty("text") && item.text.length > 40) {
                         item.text = item.text.substring(0, 40) + "...";
                     }
+                    */
                 });
             });
             logger.info(`[Gemini]视觉模型 Gemini API工具请求调用，请求内容：${JSON.stringify(logRequest, null, 2)}`);

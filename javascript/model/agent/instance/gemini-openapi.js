@@ -1,6 +1,6 @@
-import { ChatAgent } from "../chatAgent.js";
 import { config } from "../../../config/index.js";
-export class GeminiOpenAPI extends ChatAgent {
+import { OpenAI } from "../openaiAgent.js";
+export class GeminiOpenAPI extends OpenAI {
     constructor(apiKey) { super(apiKey); }
     static hasVisual = () => true;
     async visualModels() {

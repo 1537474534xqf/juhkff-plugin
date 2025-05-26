@@ -10,7 +10,6 @@ import { beforeUpdate, afterUpdate } from "./javascript/guoba/handler.js";
 import { updateConfig } from "./javascript/config/index.js";
 import { config } from "./javascript/config/index.js";
 import { transformDataToType } from "./javascript/guoba/handler.js";
-import { douBaoConfig } from "./javascript/config/define/ai/douBao.js";
 // 支持锅巴
 export function supportGuoba() {
     return {

@@ -1,8 +1,8 @@
 import { config } from "../../../config/index.js";
 import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg, Request, RequestBody } from "../../../type.js";
-import { ChatAgent } from "../chatAgent.js";
+import { OpenAI } from "../openaiAgent.js";
 
-export class DeepSeek extends ChatAgent {
+export class DeepSeek extends OpenAI {
     constructor(apiKey: string) { super(apiKey, "https://api.deepseek.com"); }
     static hasVisual = () => false;
 

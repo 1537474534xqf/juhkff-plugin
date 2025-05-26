@@ -1,6 +1,6 @@
 import { config } from "../../../config/index.js";
-import { ChatAgent } from "../chatAgent.js";
-export class ArkEngine extends ChatAgent {
+import { OpenAI } from "../openaiAgent.js";
+export class ArkEngine extends OpenAI {
     constructor(apiKey) {
         super(apiKey);
     }
