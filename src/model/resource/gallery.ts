@@ -7,6 +7,8 @@ import path from "path";
 export const emojiGallery: string[] = [];
 
 export function loadEmojiGallery(galleryPath: string): FSWatcher {
+    // 清空存储
+    emojiGallery.length = 0;
     var pathStr;
     if (galleryPath.indexOf("/") !== -1) {
         pathStr = galleryPath.split("/");

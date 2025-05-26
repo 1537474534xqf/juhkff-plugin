@@ -5,6 +5,8 @@ import { PLUGIN_ROOT_DIR } from "../path.js";
 import path from "path";
 export const emojiGallery = [];
 export function loadEmojiGallery(galleryPath) {
+    // 清空存储
+    emojiGallery.length = 0;
     var pathStr;
     if (galleryPath.indexOf("/") !== -1) {
         pathStr = galleryPath.split("/");
