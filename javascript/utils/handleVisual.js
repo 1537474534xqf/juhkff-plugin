@@ -4,12 +4,13 @@
  */
 import { emotionGenerate } from "../bgProcess/jobs.js";
 import { config } from "../config/index.js";
+import { EMOTION_KEY } from "../model/constant.js";
 import { agent } from "../model/map.js";
 import { formatDateDetail } from "./date.js";
 import { extractUrlContent } from "./helper.js";
 import { Objects } from "./kits.js";
 import { url2Base64 } from "./net.js";
-import { EMOTION_KEY, getSourceMessage } from "./redis.js";
+import { getSourceMessage } from "./redis.js";
 /**
  * 视觉模型版handle：由于会生成插件专属消息处理列表j_msg，该方法必须作为消息处理的第一个函数
  * @param {} e

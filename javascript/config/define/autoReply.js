@@ -2,8 +2,13 @@ import path from "path";
 import fs from "fs";
 import YAML from "yaml";
 import chokidar from "chokidar";
+import lodash from "lodash";
 import { PLUGIN_CONFIG_DIR, PLUGIN_DEFAULT_CONFIG_DIR } from "../../model/path.js";
 import { configFolderCheck, configSync, getFileHash } from "../common.js";
+import { removeSubKeys } from "../../utils/redis.js";
+import { eventBus } from "../../cache/global.js";
+import { EMOTION_GENERATE, EVENT_UPDATE_EMOTION_GENERATE_TIME, EMOTION_KEY, EVENT_RELOAD_INSTANCE } from "../../model/constant.js";
+import { deleteJob } from "../../utils/job.js";
 export var ChatApiType;
 (function (ChatApiType) {
     ChatApiType["TEXT"] = "text";
@@ -27,18 +32,37 @@ export const autoReplyConfig = {};
             delete defaultConfig.oldPrompt;
             configSync(userConfig, defaultConfig);
             Object.assign(autoReplyConfig, userConfig);
-            fs.writeFileSync(file, YAML.stringify(autoReplyConfig));
         };
         func();
         return func;
     })();
+    const afterUpdate = (previous) => {
+        if (previous.chatApi != autoReplyConfig.chatApi) {
+            autoReplyConfig.chatModel = "";
+        }
+        // 因为实现逻辑和结构体不同，所以切换时删除之前的redis存储
+        if (previous.chatApiType.includes(ChatApiType.VISUAL) != autoReplyConfig.chatApiType.includes(ChatApiType.VISUAL)) {
+            removeSubKeys("juhkff:auto_reply", [EMOTION_KEY]).then(() => { });
+        }
+        eventBus.emit(EVENT_RELOAD_INSTANCE);
+        if (autoReplyConfig.useAutoReply) {
+            if (autoReplyConfig.useEmotion != previous.useEmotion || autoReplyConfig.useAutoReply != previous.useAutoReply || autoReplyConfig.emotionGenerateTime != previous.emotionGenerateTime) {
+                eventBus.emit(EVENT_UPDATE_EMOTION_GENERATE_TIME);
+            }
+        }
+        else {
+            deleteJob(EMOTION_GENERATE);
+        }
+    };
     chokidar.watch(file).on("change", () => {
         const content = fs.readFileSync(file, "utf8");
         const hash = getFileHash(content);
         if (hash === lastHash)
             return;
+        const previous = lodash.cloneDeep(autoReplyConfig);
         sync();
+        afterUpdate(previous);
         lastHash = hash;
-        logger.info(`[JUHKFF-PLUGIN]同步主动群聊配置`);
+        logger.info(logger.grey(`[JUHKFF-PLUGIN]同步主动群聊配置`));
     }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]主动群聊同步配置异常`, err); });
 })();

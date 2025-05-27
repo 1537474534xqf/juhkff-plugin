@@ -2,7 +2,7 @@ import * as fileType from "file-type";
 import ffmpeg from "fluent-ffmpeg";
 import NodeID3 from "node-id3";
 import path from "path";
-import { groupDict } from "../cache/group-state.js";
+import { groupDict } from "../cache/global.js";
 
 /**
  * @description: 对象工具类

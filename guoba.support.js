@@ -6,7 +6,7 @@ import { emojiSaveSchema } from "./javascript/guoba/emojiSave/index.js";
 import { douBaoSchema } from "./javascript/guoba/ai/douBao/index.js";
 import { sfSchema } from "./javascript/guoba/ai/siliconflow/index.js";
 import { helpGenSchema } from "./javascript/guoba/helpGen/index.js";
-import { beforeUpdate, afterUpdate } from "./javascript/guoba/handler.js";
+import { beforeUpdate } from "./javascript/guoba/handler.js";
 import { updateConfig } from "./javascript/config/index.js";
 import { config } from "./javascript/config/index.js";
 import { transformDataToType } from "./javascript/guoba/handler.js";
@@ -61,19 +61,12 @@ export function supportGuoba() {
 
             // 设置配置的方法（前端点确定后调用的方法）
             setConfigData(data, { Result }) {
-                const previous = {
-                    autoReply: config.autoReply, dailyReport: config.dailyReport, emojiSave: config.emojiSave,
-                    douBao: config.douBao, siliconflow: config.siliconflow, helpGen: config.helpGen
-                };
                 //将 data 变成递归嵌套而非两层嵌套
                 data = transformDataToType(data);
                 // 更新前校验和处理
                 var beforeResult = beforeUpdate(data);
                 if (beforeResult.code != 0) return Result.error(beforeResult.code, null, beforeResult.message);
                 updateConfig(data);
-                // 更新后校验和处理
-                var afterResult = afterUpdate(previous);
-                if (afterResult.code != 0) return Result.error(afterResult.code, null, afterResult.message);
                 return Result.ok({}, "保存成功~");
             },
         },

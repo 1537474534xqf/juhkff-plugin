@@ -1,6 +1,6 @@
 import { config } from "../../../config/index.js";
 import { ChatKits, FileType, Objects } from "../../../utils/kits.js";
-import { EMOTION_KEY } from "../../../utils/redis.js";
+import { EMOTION_KEY } from "../../constant.js";
 import { ChatAgent } from "../chatAgent.js";
 export class Gemini extends ChatAgent {
     constructor(apiKey) { super(apiKey, "https://generativelanguage.googleapis.com/v1beta/models"); }

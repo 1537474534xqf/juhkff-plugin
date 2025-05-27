@@ -46,7 +46,6 @@ function reloadEmojiGallery(oldEmojiGalleryPath: string) {
             const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8")) as EmojiSave;
             configSync(userConfig, defaultConfig);
             Object.assign(emojiSaveConfig, userConfig);
-            fs.writeFileSync(file, YAML.stringify(emojiSaveConfig));
             watcher = loadEmojiGallery(emojiSaveConfig.emojiGalleryPath);
 
             reloadEmojiGallery(oldEmojiGalleryPath);
@@ -62,6 +61,6 @@ function reloadEmojiGallery(oldEmojiGalleryPath: string) {
         if (hash === lastHash) return;
         sync();
         lastHash = hash;
-        logger.info(`[JUHKFF-PLUGIN]同步表情偷取配置`);
+        logger.info(logger.grey(`[JUHKFF-PLUGIN]同步表情偷取配置`));
     }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]表情偷取同步配置异常`, err) })
 })();

@@ -11,6 +11,8 @@ import { Gemini } from "./agent/instance/gemini.js";
 import { GeminiOpenAPI } from "./agent/instance/gemini-openapi.js";
 import { OpenAI } from "./agent/openaiAgent.js";
 import { OpenRouter } from "./agent/instance/openrouter.js";
+import { eventBus } from "../cache/global.js";
+import { EVENT_RELOAD_INSTANCE } from "./constant.js";
 /**
  * 模型列表，新增的都加里面
  */
@@ -41,12 +43,11 @@ const agent = {
         visualInstance = new agentMap[config.autoReply.visualApi](config.autoReply.visualApiKey);
     }
 })();
-const reloadInstance = () => {
+eventBus.on(EVENT_RELOAD_INSTANCE, () => {
     if (!config.autoReply.useAutoReply)
         return;
     chatInstance = new agentMap[config.autoReply.chatApi](config.autoReply.chatApiKey);
-    if (config.autoReply.useVisual) {
+    if (config.autoReply.useVisual)
         visualInstance = new agentMap[config.autoReply.visualApi](config.autoReply.visualApiKey);
-    }
-};
-export { agentMap, agent, reloadInstance };
+});
+export { agentMap, agent };

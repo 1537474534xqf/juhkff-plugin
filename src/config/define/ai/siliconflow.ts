@@ -35,7 +35,6 @@ export const sfConfig: SiliconFlow = {} as SiliconFlow;
             const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8")) as SiliconFlow;
             configSync(userConfig, defaultConfig);
             Object.assign(sfConfig, userConfig);
-            fs.writeFileSync(file, YAML.stringify(sfConfig));
         }
         func();
         return func;
@@ -47,6 +46,6 @@ export const sfConfig: SiliconFlow = {} as SiliconFlow;
         if (hash === lastHash) return;
         sync();
         lastHash = hash;
-        logger.info(`[JUHKFF-PLUGIN]同步SiliconFlow配置`);
+        logger.info(logger.grey(`[JUHKFF-PLUGIN]同步SiliconFlow配置`));
     }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]SiliconFlow同步配置异常`, err) })
 })();

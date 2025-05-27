@@ -40,5 +40,3 @@ export async function removeSubKeys(parentKey: string, excludeKeys: string[] = [
         throw new Error(`[redis]删除redis key失败: ${error}`);
     }
 }
-
-export const EMOTION_KEY = `juhkff:auto_reply:emotion`;

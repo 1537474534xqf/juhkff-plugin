@@ -102,7 +102,6 @@ export const douBaoConfig: DouBao = {} as DouBao;
             const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8")) as DouBao;
             configSync(userConfig, defaultConfig);
             Object.assign(douBaoConfig, userConfig);
-            fs.writeFileSync(file, YAML.stringify(douBaoConfig));
         }
         func();
         return func;
@@ -114,6 +113,6 @@ export const douBaoConfig: DouBao = {} as DouBao;
         if (hash === lastHash) return;
         sync();
         lastHash = hash;
-        logger.info(`[JUHKFF-PLUGIN]同步豆包配置`);
+        logger.info(logger.grey(`[JUHKFF-PLUGIN]同步豆包配置`));
     }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]豆包同步配置异常`, err) })
 })();

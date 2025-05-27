@@ -48,7 +48,6 @@ export const helpGenConfig: HelpGen = {} as HelpGen;
             const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8")) as HelpGen;
             configSync(userConfig, defaultConfig);
             Object.assign(helpGenConfig, userConfig);
-            fs.writeFileSync(file, YAML.stringify(helpGenConfig));
         }
         func();
         return func;
@@ -60,6 +59,6 @@ export const helpGenConfig: HelpGen = {} as HelpGen;
         if (hash === lastHash) return;
         sync();
         lastHash = hash;
-        logger.info(`[JUHKFF-PLUGIN]同步帮助生成配置`);
+        logger.info(logger.grey(`[JUHKFF-PLUGIN]同步帮助生成配置`));
     }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]帮助生成同步配置异常`, err) })
 })();

@@ -1,14 +1,11 @@
 import fs from "fs";
-import { scheduleJob } from "node-schedule";
 import { config } from "../config/index.js";
 import { DAILY_REPORT_SAVE_PATH, dailyReport } from "../apps/dailyReport.js";
 import { sendChatRequest } from "../utils/handle.js";
-import { EMOTION_KEY } from "../utils/redis.js";
 import { Thread } from "../utils/kits.js";
-export const DAILY_REPORT_GENERATE = "dailyReportGenerateJob";
-export const DAILY_REPORT_PUSH = "dailyReportPushJob";
-export const EMOTION_GENERATE = "emotionGenerateJob";
-const jobDict = {};
+import { deleteJob, upsertJobFromConfig } from "../utils/job.js";
+import { EVENT_UPDATE_DAILY_REPORT_PUSH_TIME, DAILY_REPORT_GENERATE, EVENT_UPDATE_DAILY_REPORT_GENERATE_TIME, DAILY_REPORT_PUSH, EMOTION_GENERATE, EVENT_UPDATE_EMOTION_GENERATE_TIME, EMOTION_KEY } from "../model/constant.js";
+import { eventBus } from "../cache/global.js";
 export async function pushDailyReport() {
     logger.info("推送日报");
     let imageBuffer = null;
@@ -59,29 +56,31 @@ export async function autoSaveEmotion() {
     const emotion = await emotionGenerate();
     redis.set(EMOTION_KEY, emotion, { EX: 24 * 60 * 60 });
 }
-/**
- * 创建或更新定时任务
- * @param taskName 枚举值
- * @param taskCron Cron 表达式
- */
-export function upsertJobFromConfig(taskName, taskCron, taskFunc) {
-    if (jobDict[taskName] && jobDict[taskName].reschedule(taskCron))
-        logger.info(`[JUHKFF-PLUGIN] 已修改定时任务 ${taskName}: ${taskCron}`);
-    else {
-        jobDict[taskName] = scheduleJob(taskName, taskCron, taskFunc);
-        logger.info(logger.cyan(`- [JUHKFF-PLUGIN] 已设置定时任务 ${taskName}: ${taskCron}`));
-    }
-}
-export function deleteJob(taskName) {
-    if (jobDict[taskName]) {
-        jobDict[taskName].cancel();
-        delete jobDict[taskName];
-        logger.info(`[JUHKFF-PLUGIN] 已删除定时任务${taskName}`);
-    }
-}
 if (config.dailyReport.useDailyReport && config.dailyReport.push)
     upsertJobFromConfig(DAILY_REPORT_PUSH, config.dailyReport.dailyReportTime, pushDailyReport);
 if (config.dailyReport.useDailyReport && config.dailyReport.preHandle)
     upsertJobFromConfig(DAILY_REPORT_GENERATE, config.dailyReport.preHandleTime, autoSaveDailyReport);
 if (config.autoReply.useAutoReply && config.autoReply.useEmotion)
     upsertJobFromConfig(EMOTION_GENERATE, config.autoReply.emotionGenerateTime, autoSaveEmotion);
+eventBus.on(EVENT_UPDATE_DAILY_REPORT_PUSH_TIME, () => {
+    if (config.dailyReport.push) {
+        upsertJobFromConfig(DAILY_REPORT_PUSH, config.dailyReport.dailyReportTime, pushDailyReport);
+    }
+    else {
+        deleteJob(DAILY_REPORT_PUSH);
+    }
+}).on(EVENT_UPDATE_DAILY_REPORT_GENERATE_TIME, () => {
+    if (config.dailyReport.preHandle) {
+        upsertJobFromConfig(DAILY_REPORT_GENERATE, config.dailyReport.preHandleTime, autoSaveDailyReport);
+    }
+    else {
+        deleteJob(DAILY_REPORT_GENERATE);
+    }
+}).on(EVENT_UPDATE_EMOTION_GENERATE_TIME, () => {
+    if (config.autoReply.useEmotion) {
+        upsertJobFromConfig(EMOTION_GENERATE, config.autoReply.emotionGenerateTime, autoSaveEmotion);
+    }
+    else {
+        deleteJob(EMOTION_GENERATE);
+    }
+});
