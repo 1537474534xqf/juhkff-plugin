@@ -19,9 +19,7 @@
 > [!WARNING]
 > 由于为自用插件，所以其它协议适配性未知，喵崽框架适配性未知（没运行过）
 >
-> **近期插件更新频繁，BUG率可能较高，望理解和反馈。如果遇到问题可尝试重装插件**
->
-> **使用中发现有时启动时会报错config加载错误，此时重启云崽多试几次即可解决，具体原因还在排查**
+> **近期插件更新频繁，BUG 率可能较高，望理解和反馈。如果遇到问题可尝试重装插件**
 
 <!-- <div style="color:red; font-weight:bold;">
 由于群聊接口配置结构发生变动，可能需要重新进行配置
@@ -65,7 +63,7 @@ pnpm install --filter=juhkff-plugin
   5. Cloudflare 账户主页 -> 计算(Workers) -> 部署的openai-gemini -> 设置 -> 添加域和路由 -> 添加自己的域名<br>
   6. 可通过 `https://自定义域名/v1/chat/completions` 访问自己的 openai-gemini 服务，实现国内调用 Gemini
   </details>
-- OpenRouter 官网申请ApiKey: https://openrouter.ai/
+- OpenRouter 官网申请 ApiKey: https://openrouter.ai/
 
 ### 一点使用经验
 
@@ -91,9 +89,9 @@ pnpm install --filter=juhkff-plugin
     - [x] DeepSeek
     - [x] SiliconFlow
     - [x] 火山方舟
-    - [x] Gemini（latest update）
+    - [x] Gemini
     - [x] **OpenRouter (latest update)**
-    - [x] **OpenAI通用格式(latest update)** 
+    - [x] **OpenAI 通用格式(latest update)**
 - [x] 生成和推送日报
   - [x] 借鉴 [真寻日报](https://github.com/HibiKier/nonebot-plugin-zxreport) 的样式和代码生成日报
 - [x] 表情偷取
@@ -101,7 +99,7 @@ pnpm install --filter=juhkff-plugin
   - [x] 同一图片在指定时间长度内被发送两次，则被视为表情并偷取
 - [x] AI 功能接入中
   - [x] 豆包 AI 部分接入
-  - [x] SiliconFlow AI 接入（latest update）
+  - [x] SiliconFlow AI 接入
   - TODO: 其它 AI 接入...
 - [x] 调用指令可发送帮助图片
   - [x] 参考 [Miao-Plugin](https://github.com/yoimiya-kokomi/miao-plugin) 和 [TRSS-Yunzai](https://github.com/TimeRainStarSky/Yunzai) 的思路和代码实现
