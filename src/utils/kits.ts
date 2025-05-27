@@ -2,7 +2,7 @@ import * as fileType from "file-type";
 import ffmpeg from "fluent-ffmpeg";
 import NodeID3 from "node-id3";
 import path from "path";
-import { groupDict } from "../model/map.js";
+import { groupDict } from "../cache/group-state.js";
 
 /**
  * @description: 对象工具类
@@ -344,4 +344,11 @@ export class ChatKits {
         const dict = { botName: botName };
         groupDict[e.group_id] = dict;
     }
+}
+
+export class Thread {
+    // 定义 sleep 函数，用于异步延迟
+    static sleep(ms: number): Promise<void> {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    };
 }

@@ -1,5 +1,5 @@
 import { config } from "../../../config/index.js";
-import { HistorySimpleJMsg, ComplexJMsg, HistoryComplexJMsg, Request, RequestBody } from "../../../type.js";
+import { HistorySimpleJMsg, ComplexJMsg, HistoryComplexJMsg, Request, RequestBody } from "../../../types.js";
 import { ChatKits, FileType, Objects } from "../../../utils/kits.js";
 import { EMOTION_KEY } from "../../../utils/redis.js";
 import { ChatAgent } from "../chatAgent.js";

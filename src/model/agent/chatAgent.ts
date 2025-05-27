@@ -3,7 +3,7 @@
  * @fileoverview 聊天接口定义和公用函数
  * @author juhkff
  */
-import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg } from "../../type.js";
+import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg } from "../../types.js";
 
 export interface ChatInterface {
     chatRequest(groupId: number, model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any>;

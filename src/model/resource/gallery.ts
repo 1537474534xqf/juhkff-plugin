@@ -1,6 +1,6 @@
 import chokidar, { FSWatcher } from "chokidar";
 import fs from "fs";
-import { getAllFiles } from "../../utils/tools.js";
+import { getAllFiles } from "../../utils/file.js";
 import { PLUGIN_ROOT_DIR } from "../path.js";
 import path from "path";
 
@@ -9,7 +9,7 @@ export const emojiGallery: string[] = [];
 export function loadEmojiGallery(galleryPath: string): FSWatcher {
     // 清空存储
     emojiGallery.length = 0;
-    var pathStr;
+    var pathStr: string[];
     if (galleryPath.indexOf("/") !== -1) {
         pathStr = galleryPath.split("/");
     } else {
@@ -20,8 +20,9 @@ export function loadEmojiGallery(galleryPath: string): FSWatcher {
     if (!fs.existsSync(galleryPath) || !fs.lstatSync(galleryPath).isDirectory())
         fs.mkdirSync(galleryPath, { recursive: true });
     getAllFiles(galleryPath, emojiGallery);
+    if (emojiGallery.length > 0) logger.info(logger.grey(`- [JUHKFF-PLUGIN] 表情包本地图库：加载${emojiGallery.length}个文件`))
 
-    var watcher = chokidar.watch(galleryPath, {
+    const watcher = chokidar.watch(galleryPath, {
         persistent: true,
         ignoreInitial: true,
         awaitWriteFinish: {

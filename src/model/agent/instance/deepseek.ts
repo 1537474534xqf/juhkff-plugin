@@ -1,5 +1,5 @@
 import { config } from "../../../config/index.js";
-import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg, Request, RequestBody } from "../../../type.js";
+import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg, Request, RequestBody } from "../../../types.js";
 import { OpenAI } from "../openaiAgent.js";
 
 export class DeepSeek extends OpenAI {

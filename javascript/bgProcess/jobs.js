@@ -2,9 +2,9 @@ import fs from "fs";
 import { scheduleJob } from "node-schedule";
 import { config } from "../config/index.js";
 import { DAILY_REPORT_SAVE_PATH, dailyReport } from "../apps/dailyReport.js";
-import { sleep } from "../common.js";
 import { sendChatRequest } from "../utils/handle.js";
 import { EMOTION_KEY } from "../utils/redis.js";
+import { Thread } from "../utils/kits.js";
 export const DAILY_REPORT_GENERATE = "dailyReportGenerateJob";
 export const DAILY_REPORT_PUSH = "dailyReportPushJob";
 export const EMOTION_GENERATE = "emotionGenerateJob";
@@ -44,7 +44,7 @@ export async function autoSaveDailyReport() {
                 doOnce = true;
             }
             // 休眠后循环执行
-            sleep(config.dailyReport.preHandleRetryInterval * 1000);
+            await Thread.sleep(config.dailyReport.preHandleRetryInterval * 1000);
         }
     }
     logger.info("[JUHKFF-PLUGIN] 预处理 -> 生成日报成功");
@@ -69,7 +69,7 @@ export function upsertJobFromConfig(taskName, taskCron, taskFunc) {
         logger.info(`[JUHKFF-PLUGIN] 已修改定时任务 ${taskName}: ${taskCron}`);
     else {
         jobDict[taskName] = scheduleJob(taskName, taskCron, taskFunc);
-        logger.info(`- [JUHKFF-PLUGIN] 已设置定时任务 ${taskName}: ${taskCron}`);
+        logger.info(logger.cyan(`- [JUHKFF-PLUGIN] 已设置定时任务 ${taskName}: ${taskCron}`));
     }
 }
 export function deleteJob(taskName) {

@@ -4,29 +4,23 @@
  */
 import { Objects } from "../utils/kits.js";
 import { saveConfigToFile } from "./common.js";
-import { douBaoConfig, setDouBaoConfig } from "./define/ai/douBao.js";
-import { setSiliconflowConfig, sfConfig } from "./define/ai/siliconflow.js";
-import { autoReplyConfig, setAutoReplyConfig } from "./define/autoReply.js";
-import { dailyReportConfig, setDailyReportConfig } from "./define/dailyReport.js";
-import { emojiSaveConfig, setEmojiSaveConfig } from "./define/emojiSave.js";
-import { helpGenConfig, setHelpGenConfig } from "./define/helpGen.js";
-// ! 一切配置项使用此处的值，切勿直接使用子目录下的xxxConfig!
+import { douBaoConfig } from "./define/ai/douBao.js";
+import { sfConfig } from "./define/ai/siliconflow.js";
+import { autoReplyConfig } from "./define/autoReply.js";
+import { dailyReportConfig } from "./define/dailyReport.js";
+import { emojiSaveConfig } from "./define/emojiSave.js";
+import { helpGenConfig } from "./define/helpGen.js";
+// 全局 config
 export const config = {
-    get autoReply() { return autoReplyConfig; },
-    get dailyReport() { return dailyReportConfig; },
-    get emojiSave() { return emojiSaveConfig; },
-    get helpGen() { return helpGenConfig; },
-    get douBao() { return douBaoConfig; },
-    get siliconflow() { return sfConfig; }
+    autoReply: autoReplyConfig,
+    dailyReport: dailyReportConfig,
+    emojiSave: emojiSaveConfig,
+    helpGen: helpGenConfig,
+    douBao: douBaoConfig,
+    siliconflow: sfConfig
 };
 export function updateConfig(data) {
     processCron(data);
-    setAutoReplyConfig(data.autoReply);
-    setDailyReportConfig(data.dailyReport);
-    setEmojiSaveConfig(data.emojiSave);
-    setHelpGenConfig(data.helpGen);
-    setDouBaoConfig(data.douBao);
-    setSiliconflowConfig(data.siliconflow);
     saveConfigToFile(data.autoReply, "autoReply.yaml");
     saveConfigToFile(data.dailyReport, "dailyReport.yaml");
     saveConfigToFile(data.emojiSave, "emojiSave.yaml");

@@ -87,29 +87,32 @@ export type DouBao = {
     }
 }
 
-export let douBaoConfig: DouBao = null;
-
-export function setDouBaoConfig(config: DouBao) {
-    douBaoConfig = config;
-}
+export const douBaoConfig: DouBao = {} as DouBao;
 
 (() => {
     const file = path.join(PLUGIN_CONFIG_DIR, "ai", `douBao.yaml`);
     const defaultFile = path.join(PLUGIN_DEFAULT_CONFIG_DIR, "ai", `douBao.yaml`);
     if (configFolderCheck(file, defaultFile)) logger.info(`[JUHKFF-PLUGIN]创建豆包配置`);
 
-    douBaoConfig = YAML.parse(fs.readFileSync(file, "utf8")) as DouBao;
-    const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8")) as DouBao;
-
     let lastHash: string = getFileHash(fs.readFileSync(file, "utf8"));
-    configSync(douBaoConfig, defaultConfig);
-    fs.writeFileSync(file, YAML.stringify(douBaoConfig));
+
+    const sync = (() => {
+        const func = () => {
+            const userConfig = YAML.parse(fs.readFileSync(file, "utf8")) as DouBao;
+            const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8")) as DouBao;
+            configSync(userConfig, defaultConfig);
+            Object.assign(douBaoConfig, userConfig);
+            fs.writeFileSync(file, YAML.stringify(douBaoConfig));
+        }
+        func();
+        return func;
+    })()
 
     chokidar.watch(file).on("change", () => {
         const content = fs.readFileSync(file, "utf8");
         const hash = getFileHash(content);
         if (hash === lastHash) return;
-        douBaoConfig = YAML.parse(content);
+        sync();
         lastHash = hash;
         logger.info(`[JUHKFF-PLUGIN]同步豆包配置`);
     }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]豆包同步配置异常`, err) })

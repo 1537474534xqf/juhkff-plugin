@@ -4,7 +4,7 @@ import { PLUGIN_DATA_DIR } from "../model/path.js";
 import { downloadFile } from "../utils/net.js";
 import { config } from "../config/index.js";
 import { emojiGallery } from "../model/resource/gallery.js";
-import { sleep } from "../common.js";
+import { Thread } from "../utils/kits.js";
 export const help = () => {
     return {
         name: "偷图",
@@ -108,7 +108,7 @@ export class emojiSave extends plugin {
                     let randomIndex = Math.floor(Math.random() * list.length);
                     var emojiUrl = path.join(emojiSaveDir, list[randomIndex]);
                     logger.info(`[emojiSave]发送表情: ${emojiUrl}`);
-                    await sleep(Math.random() * 5000);
+                    await Thread.sleep(Math.random() * 5000);
                     await e.reply([segment.image(emojiUrl)]);
                 }
                 else if (emojiGallery.length > 0) {
@@ -116,7 +116,7 @@ export class emojiSave extends plugin {
                     let randomIndex = Math.floor(Math.random() * emojiGallery.length);
                     var emojiUrl = emojiGallery[randomIndex];
                     logger.info(`[emojiSave]发送图库表情: ${emojiUrl}`);
-                    await sleep(Math.random() * 5000);
+                    await Thread.sleep(Math.random() * 5000);
                     await e.reply([segment.image(emojiUrl)]);
                 }
             }

@@ -6,7 +6,7 @@
 import { emotionGenerate } from "../bgProcess/jobs.js";
 import { config } from "../config/index.js";
 import { agent } from "../model/map.js";
-import { ComplexJMsg } from "../type.js";
+import { ComplexJMsg } from "../types.js";
 import { formatDateDetail } from "./date.js";
 import { extractUrlContent } from "./helper.js";
 import { Objects } from "./kits.js";

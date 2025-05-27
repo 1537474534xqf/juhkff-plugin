@@ -6,6 +6,7 @@ import { PLUGIN_APP_DIR, PLUGIN_RESOURCES_DIR } from "../model/path.js";
 import { Objects, StringUtils } from "../utils/kits.js";
 import { config } from "../config/index.js";
 export class helpGen extends plugin {
+    extraHelp;
     constructor() {
         super({
             name: "帮助",

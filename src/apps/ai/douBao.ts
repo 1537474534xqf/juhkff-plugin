@@ -7,12 +7,16 @@ import { segment } from "oicq";
 import fastImageSize from "fast-image-size";
 import { PLUGIN_DATA_DIR } from "../../model/path.js";
 import { AudioParse, FileType, Objects, StringUtils } from "../../utils/kits.js";
-import { Request, RequestBody, RequestMsg } from "../../type.js";
+import { Request, RequestBody, RequestMsg } from "../../types.js";
 import { downloadFile, url2Base64 } from "../../utils/net.js";
 import { config } from "../../config/index.js";
-import { processMessage } from "../../common.js";
+import { processMessage } from "../../utils/message.js";
 
 export class douBao extends plugin {
+    fetchImageService: any;
+    fetchSongGenerate: any;
+    fetchSongQuery: any;
+    fetchBgmGenerate: any;
     constructor() {
         super({
             name: "豆包",

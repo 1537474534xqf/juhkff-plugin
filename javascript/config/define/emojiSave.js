@@ -5,16 +5,16 @@ import chokidar from "chokidar";
 import { PLUGIN_CONFIG_DIR, PLUGIN_DEFAULT_CONFIG_DIR } from "../../model/path.js";
 import { configFolderCheck, configSync, getFileHash } from "../common.js";
 import { loadEmojiGallery } from "../../model/resource/gallery.js";
-export let emojiSaveConfig = null;
+import { Objects } from "../../utils/kits.js";
+export const emojiSaveConfig = {};
 let watcher = null;
-export function setEmojiSaveConfig(config) {
-    const { emojiGalleryPath } = emojiSaveConfig;
-    emojiSaveConfig = config;
-    const { emojiGalleryPath: newEmojiGalleryPath } = config;
-    if (emojiGalleryPath !== newEmojiGalleryPath) {
-        if (watcher)
-            watcher.close();
-        watcher = loadEmojiGallery(newEmojiGalleryPath);
+function reloadEmojiGallery(oldEmojiGalleryPath) {
+    if (emojiSaveConfig.emojiGalleryPath !== oldEmojiGalleryPath) {
+        if (Objects.isNull(emojiSaveConfig.emojiGalleryPath))
+            if (watcher)
+                watcher.close();
+            else
+                watcher = loadEmojiGallery(emojiSaveConfig.emojiGalleryPath);
     }
 }
 (() => {
@@ -22,18 +22,28 @@ export function setEmojiSaveConfig(config) {
     const defaultFile = path.join(PLUGIN_DEFAULT_CONFIG_DIR, `emojiSave.yaml`);
     if (configFolderCheck(file, defaultFile))
         logger.info(`[JUHKFF-PLUGIN]创建表情包配置`);
-    emojiSaveConfig = YAML.parse(fs.readFileSync(file, "utf8"));
-    const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8"));
     let lastHash = getFileHash(fs.readFileSync(file, "utf8"));
-    configSync(emojiSaveConfig, defaultConfig);
-    fs.writeFileSync(file, YAML.stringify(emojiSaveConfig));
-    watcher = loadEmojiGallery(emojiSaveConfig.emojiGalleryPath);
+    let oldEmojiGalleryPath = null;
+    const sync = (() => {
+        const func = () => {
+            const userConfig = YAML.parse(fs.readFileSync(file, "utf8"));
+            const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8"));
+            configSync(userConfig, defaultConfig);
+            Object.assign(emojiSaveConfig, userConfig);
+            fs.writeFileSync(file, YAML.stringify(emojiSaveConfig));
+            watcher = loadEmojiGallery(emojiSaveConfig.emojiGalleryPath);
+            reloadEmojiGallery(oldEmojiGalleryPath);
+            oldEmojiGalleryPath = emojiSaveConfig.emojiGalleryPath;
+        };
+        func();
+        return func;
+    })();
     chokidar.watch(file).on("change", () => {
         const content = fs.readFileSync(file, "utf8");
         const hash = getFileHash(content);
         if (hash === lastHash)
             return;
-        emojiSaveConfig = YAML.parse(content);
+        sync();
         lastHash = hash;
         logger.info(`[JUHKFF-PLUGIN]同步表情偷取配置`);
     }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]表情偷取同步配置异常`, err); });

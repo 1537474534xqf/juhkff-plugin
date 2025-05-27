@@ -1,11 +1,10 @@
-import { sleep } from "../common.js";
 import { ChatApiType } from "../config/define/autoReply.js";
 import { config } from "../config/index.js";
 import { transformTextToVoice } from "../plugin/siliconflow.js";
 import { formatDateDetail } from "../utils/date.js";
 import { generateAnswer, parseAt, parseImage, parseJson, parseSourceMessage, parseUrl, saveContext } from "../utils/handle.js";
 import { generateAnswerVisual, parseImageVisual, parseJsonVisual, parseSourceMessageVisual, parseTextVisual, parseUrlVisual, saveContextVisual } from "../utils/handleVisual.js";
-import { ChatKits, Objects } from "../utils/kits.js";
+import { ChatKits, Objects, Thread } from "../utils/kits.js";
 
 export const help = () => {
     return {
@@ -230,7 +229,7 @@ export class autoReply extends plugin {
             for (var i = 0; i < answerList.length; i++) {
                 var each = answerList[i];
                 await e.reply(each);
-                await sleep((-0.5 + Math.random()) * 2 * 1000 * 4 + 5000);  // 随机延迟，范围(1s,9s)
+                await Thread.sleep((-0.5 + Math.random()) * 2 * 1000 * 4 + 5000);  // 随机延迟，范围(1s,9s)
             }
             return;
         }

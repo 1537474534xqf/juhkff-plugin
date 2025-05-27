@@ -44,7 +44,3 @@ export async function processMessage(e) {
     result.texts = textPart.trim();
     return result;
 }
-// 定义 sleep 函数，用于异步延迟
-export const sleep = (ms) => {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-};

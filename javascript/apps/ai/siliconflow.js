@@ -1,7 +1,7 @@
 import { config } from "../../config/index.js";
 import { Objects } from "../../utils/kits.js";
 import { url2Base64 } from "../../utils/net.js";
-import { processMessage } from "../../common.js";
+import { processMessage } from "../../utils/message.js";
 import { getVoiceGenerateCharacter } from "../../guoba/ai/siliconflow/handler.js";
 export const help = () => {
     return {

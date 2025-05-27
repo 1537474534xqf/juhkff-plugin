@@ -6,8 +6,12 @@ import { PLUGIN_DATA_DIR } from "../../model/path.js";
 import { AudioParse, FileType, Objects, StringUtils } from "../../utils/kits.js";
 import { downloadFile, url2Base64 } from "../../utils/net.js";
 import { config } from "../../config/index.js";
-import { processMessage } from "../../common.js";
+import { processMessage } from "../../utils/message.js";
 export class douBao extends plugin {
+    fetchImageService;
+    fetchSongGenerate;
+    fetchSongQuery;
+    fetchBgmGenerate;
     constructor() {
         super({
             name: "豆包",

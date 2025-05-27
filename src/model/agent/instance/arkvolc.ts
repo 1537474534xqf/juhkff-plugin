@@ -1,5 +1,5 @@
 import { config } from "../../../config/index.js";
-import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg, Request } from "../../../type.js";
+import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg, Request } from "../../../types.js";
 import { OpenAI } from "../openaiAgent.js";
 
 export class ArkEngine extends OpenAI {
