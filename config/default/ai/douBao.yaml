@@ -9,7 +9,7 @@ videoGenerate:
   # 请求地址
   url: https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks
   # 模型名称
-  model: doubao-seaweed-241128
+  model: doubao-seedance
 
 # 图片生成开关
 useImageGenerate: false

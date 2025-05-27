@@ -86,13 +86,13 @@ export const sfSchema = () => [
     },
     {
         field: "siliconflow.chatTransVoiceResponse",
-        label: "群聊生成内容转语音",
-        bottomHelpMessage: "独立于语音生成开关。开启后，机器人的回复内容有概率以语音形式发送",
+        label: "回复转语音",
+        bottomHelpMessage: "独立于语音生成开关。开启后，机器人的主动群聊内容有概率以语音形式发送",
         component: "Switch",
     },
     {
         field: "siliconflow.chatTransVoiceRate",
-        label: "群聊生成内容转语音概率",
+        label: "转语音概率",
         component: "InputNumber",
         componentProps: {
             min: 0,
