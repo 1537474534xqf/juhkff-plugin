@@ -65,7 +65,7 @@ export class emojiSave extends plugin {
                     item.file_unique = item.file.split(".")[0];
                 try {
                     list = list ? list : [];
-                    if (!list.includes(`${item.file_unique}.jpg`)) {
+                    if (!list.includes(`${item.file_unique}.${item.file.split(".").pop()}`)) {
                         let can_be_stored = false;
                         if (!(await redis.get(`emojiSave:${e.group_id}:${item.file_unique}`))) {
                             //key不存在，设置key
