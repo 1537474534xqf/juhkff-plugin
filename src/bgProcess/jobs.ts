@@ -5,7 +5,6 @@ import { sendChatRequest } from "../utils/handle.js";
 import { Thread } from "../utils/kits.js";
 import { deleteJob, upsertJobFromConfig } from "../utils/job.js";
 import { EVENT_UPDATE_DAILY_REPORT_PUSH_TIME, DAILY_REPORT_GENERATE, EVENT_UPDATE_DAILY_REPORT_GENERATE_TIME, DAILY_REPORT_PUSH, EMOTION_GENERATE, EVENT_UPDATE_EMOTION_GENERATE_TIME, EMOTION_KEY } from "../model/constant.js";
-import { eventBus } from "../cache/global.js";
 
 
 export async function pushDailyReport() {
@@ -68,7 +67,7 @@ if (config.autoReply.useAutoReply && config.autoReply.useEmotion)
     upsertJobFromConfig(EMOTION_GENERATE, config.autoReply.emotionGenerateTime, autoSaveEmotion);
 
 
-eventBus.on(EVENT_UPDATE_DAILY_REPORT_PUSH_TIME, () => {
+Bot.on(EVENT_UPDATE_DAILY_REPORT_PUSH_TIME, () => {
     if (config.dailyReport.push) {
         upsertJobFromConfig(DAILY_REPORT_PUSH, config.dailyReport.dailyReportTime, pushDailyReport);
     } else {

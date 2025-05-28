@@ -8,7 +8,6 @@ import { CronExpression } from "../../types.js";
 import { configFolderCheck, configSync, getFileHash } from "../common.js";
 import { deleteJob } from "../../utils/job.js";
 import { EVENT_UPDATE_DAILY_REPORT_PUSH_TIME, DAILY_REPORT_GENERATE, EVENT_UPDATE_DAILY_REPORT_GENERATE_TIME, DAILY_REPORT_PUSH } from "../../model/constant.js";
-import { eventBus } from "../../cache/global.js";
 
 export type DailyReport = {
     useDailyReport: boolean;
@@ -46,10 +45,10 @@ export const dailyReportConfig: DailyReport = {} as DailyReport;
     const afterUpdate = (previous: DailyReport) => {
         if (dailyReportConfig.useDailyReport) {
             if (dailyReportConfig.push != previous.push || dailyReportConfig.useDailyReport != previous.useDailyReport || dailyReportConfig.dailyReportTime != previous.dailyReportTime) {
-                eventBus.emit(EVENT_UPDATE_DAILY_REPORT_PUSH_TIME);
+                Bot.emit(EVENT_UPDATE_DAILY_REPORT_PUSH_TIME);
             }
             if (dailyReportConfig.preHandle != previous.preHandle || dailyReportConfig.useDailyReport != previous.useDailyReport || dailyReportConfig.preHandleTime != previous.preHandleTime) {
-                eventBus.emit(EVENT_UPDATE_DAILY_REPORT_GENERATE_TIME);
+                Bot.emit(EVENT_UPDATE_DAILY_REPORT_GENERATE_TIME);
             }
         } else {
             deleteJob(DAILY_REPORT_PUSH);

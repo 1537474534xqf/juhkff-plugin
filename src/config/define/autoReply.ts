@@ -7,7 +7,6 @@ import { PLUGIN_CONFIG_DIR, PLUGIN_DEFAULT_CONFIG_DIR } from "../../model/path.j
 import { CronExpression } from "../../types.js";
 import { configFolderCheck, configSync, getFileHash } from "../common.js";
 import { removeSubKeys } from "../../utils/redis.js";
-import { eventBus } from "../../cache/global.js";
 import { EMOTION_GENERATE, EVENT_UPDATE_EMOTION_GENERATE_TIME, EMOTION_KEY, EVENT_RELOAD_INSTANCE } from "../../model/constant.js";
 import { deleteJob } from "../../utils/job.js";
 
@@ -75,11 +74,11 @@ export const autoReplyConfig: AutoReply = {} as AutoReply;
         if (previous.chatApiType.includes(ChatApiType.VISUAL) != autoReplyConfig.chatApiType.includes(ChatApiType.VISUAL)) {
             removeSubKeys("juhkff:auto_reply", [EMOTION_KEY]).then(() => { });
         }
-        eventBus.emit(EVENT_RELOAD_INSTANCE);
+        Bot.emit(EVENT_RELOAD_INSTANCE);
 
         if (autoReplyConfig.useAutoReply) {
             if (autoReplyConfig.useEmotion != previous.useEmotion || autoReplyConfig.useAutoReply != previous.useAutoReply || autoReplyConfig.emotionGenerateTime != previous.emotionGenerateTime) {
-                eventBus.emit(EVENT_UPDATE_EMOTION_GENERATE_TIME);
+                Bot.emit(EVENT_UPDATE_EMOTION_GENERATE_TIME);
             }
         } else {
             deleteJob(EMOTION_GENERATE);
