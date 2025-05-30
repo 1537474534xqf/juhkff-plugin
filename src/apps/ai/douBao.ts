@@ -2,7 +2,6 @@
 import path from "path";
 import fs from "fs";
 import { getServiceApi } from "../../ai/doubao/api.js";
-import { segment } from "oicq";
 // @ts-ignore
 import fastImageSize from "fast-image-size";
 import { PLUGIN_DATA_DIR } from "../../model/path.js";

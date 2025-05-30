@@ -1,7 +1,6 @@
 import path from "path";
 import fs from "fs";
 import { getServiceApi } from "../../ai/doubao/api.js";
-import { segment } from "oicq";
 import { PLUGIN_DATA_DIR } from "../../model/path.js";
 import { AudioParse, FileType, Objects, StringUtils } from "../../utils/kits.js";
 import { downloadFile, url2Base64 } from "../../utils/net.js";

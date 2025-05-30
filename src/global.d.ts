@@ -1,6 +1,60 @@
 /*-------------------------------- 声明全局变量 --------------------------------*/
 // AI真好用
-declare const Bot: import("events").EventEmitter & {
+
+// 原本以代理形式访问，这里合并到 Bot 上
+declare type util = {
+    // 日志工具
+    makeLogID(id?: string): string;
+    makeLog(level: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'mark' | 'fatal', msg: any, id?: string | boolean, force?: boolean): void;
+
+    // 文件系统
+    fsStat(path: string, opts?: any): Promise<import('node:fs').Stats | false>;
+    mkdir(dir: string, opts?: any): Promise<boolean>;
+    rm(file: string, opts?: any): Promise<boolean>;
+    glob(path: string, opts?: { recursive?: boolean; force?: boolean }): Promise<string[]>;
+    download(url: string, file?: string, opts?: any): Promise<{ url: string; file: string; buffer: Buffer }>;
+    fileType(data: { file: string | Buffer; name?: string }, opts?: any): Promise<{
+        name: string;
+        url: string;
+        buffer: Buffer;
+        type?: { ext: string; mime: string };
+        md5?: string;
+    }>;
+    Buffer(data: any, opts?: { size?: number; file?: boolean; http?: boolean }): Promise<string | Buffer>;
+
+    // 数据结构
+    makeMap(parent_map: any, parent_key: string, map: Map<any, any>): Map<any, any>;
+    setMap(map: Map<any, any>, set: Function, key: any, value: any): Promise<Map<any, any>>;
+    delMap(map: Map<any, any>, del: Function, key: any): Promise<boolean>;
+    importMap(dir: string, map: Map<any, any>): Promise<Map<any, any>>;
+    getMap(dir: string): Promise<Map<any, any>>;
+
+    // 字符串/对象处理
+    StringOrNull(data: any): string;
+    StringOrBuffer(data: any, base64?: boolean): string | Buffer;
+    getCircularReplacer(): (key: string, value: any) => any;
+    String(data: any, opts?: any): string;
+    Loging(data: any, opts?: any): string;
+
+    // 命令行工具
+    exec(cmd: string | string[], opts?: { quiet?: boolean; encoding?: string }): Promise<{
+        error?: Error;
+        stdout: string | Buffer;
+        stderr: string | Buffer;
+        raw: { stdout: Buffer; stderr: Buffer };
+    }>;
+    cmdPath(cmd: string, opts?: any): Promise<string | false>;
+    cmdStart(cmd: string, args?: string[], opts?: any): import("child_process").ChildProcess;
+
+    // 时间/异步
+    getTimeDiff(time1?: number, time2?: number): string;
+    promiseEvent(event: import("events").EventEmitter, resolve: string, reject?: string, timeout?: number): Promise<any>;
+    sleep(time: number): Promise<typeof Bot.sleepTimeout>;
+    sleep(time: number, promise: Promise<any>): Promise<any>;
+    debounce<T extends (...args: any[]) => any>(func: T, time?: number): T & { promise?: Promise<any> };
+};
+
+declare const Bot: import("events").EventEmitter & util & {
     /**
    * 机器人统计信息
    */
@@ -145,7 +199,12 @@ declare const Bot: import("events").EventEmitter & {
     /**
      * 获取好友 Map 映射
      */
-    getFriendMap(): Map<string | number, any>;
+    getFriendMap(): Map<string | number, { bot_id: number;[key: string]: any }>;
+
+    /**
+     * 获取好友 Map 映射（别名）
+     */
+    get fl(): Map<string | number, { bot_id: number;[key: string]: any }>;
 
     /**
      * 获取群组数组列表
@@ -163,14 +222,14 @@ declare const Bot: import("events").EventEmitter & {
     getGroupMap(): Map<string | number, any>;
 
     /**
-     * 获取群成员 Map 映射
+     * 获取群组 Map 映射（别名）
      */
-    gml: Map<string | number, Map<string | number, any>>;
+    get gl(): Map<string | number, { bot_id: number;[key: string]: any }>;
 
     /**
      * 获取群成员 Map 映射（别名）
      */
-    get gml(): Map<string | number, Map<string | number, any>>;
+    get gml(): Map<number, { bot_id: number } & Map<string | number, any>>;
 
     /**
      * 挑选好友对象
