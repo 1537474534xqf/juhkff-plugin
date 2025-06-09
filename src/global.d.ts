@@ -346,14 +346,8 @@ declare const plugin: {
     }): {
         reply(msg?: string, quote?: boolean, data?: Record<string, any>): boolean | void;
         conKey(isGroup?: boolean): string;
-        setContext(type: string, isGroup: boolean, time?: number, timeout?: string): void;
-        getContext(type: string, isGroup: boolean): {
-            reply?(msg: string, quote?: boolean, data?: Record<string, any>): void;
-            self_id?: number;
-            group_id?: number;
-            user_id?: number;
-            e?: any;
-        } | undefined;
+        setContext(type: string, isGroup?: boolean, time?: number, timeout?: string): void;
+        getContext(type: string, isGroup?: boolean): any;
         finish(type: string, isGroup: boolean): void;
         awaitContext(...args: any[]): Promise<any>;
         resolveContext(context: any): void;
