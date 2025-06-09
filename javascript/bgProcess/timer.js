@@ -85,3 +85,4 @@ process.on("exit", () => {
     clearInterval(cleanVideoTask);
     clearInterval(cleanAudioTask);
 });
+//# sourceMappingURL=timer.js.map

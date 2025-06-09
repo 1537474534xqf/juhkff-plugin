@@ -45,5 +45,6 @@ function reloadEmojiGallery(oldEmojiGalleryPath) {
         sync();
         lastHash = hash;
         logger.info(logger.grey(`[JUHKFF-PLUGIN]同步表情偷取配置`));
-    }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]表情偷取同步配置异常`, err); });
+    }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]表情偷取配置同步异常`, err); });
 })();
+//# sourceMappingURL=emojiSave.js.map

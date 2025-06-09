@@ -4,3 +4,4 @@ export const groupDict = {};
 export const jobDict = {};
 // 事件总线 可直接使用 Bot
 // export const eventBus = new EventEmitter();
+//# sourceMappingURL=global.js.map

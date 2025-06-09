@@ -79,3 +79,4 @@ export class GeminiOpenAPI extends OpenAI {
         return response;
     }
 }
+//# sourceMappingURL=gemini-openapi.js.map

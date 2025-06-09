@@ -10,8 +10,9 @@ import { AutoReply, autoReplyConfig } from "./define/autoReply.js"
 import { DailyReport, dailyReportConfig } from "./define/dailyReport.js"
 import { EmojiSave, emojiSaveConfig } from "./define/emojiSave.js"
 import { HelpGen, helpGenConfig } from "./define/helpGen.js"
+import { CommandPrompt, commandPromptConfig } from "./define/commandPrompt.js"
 
-export type ConfigType = AutoReply | DailyReport | EmojiSave | HelpGen | DouBao | SiliconFlow
+export type ConfigType = AutoReply | DailyReport | EmojiSave | HelpGen | DouBao | SiliconFlow | CommandPrompt
 
 export type Config = {
     autoReply: AutoReply
@@ -19,17 +20,19 @@ export type Config = {
     emojiSave: EmojiSave
     helpGen: HelpGen
     douBao: DouBao
-    siliconflow: SiliconFlow
+    siliconflow: SiliconFlow,
+    commandPrompt: CommandPrompt
 }
 
 // 全局 config
-export const config = {
+export const config: Config = {
     autoReply: autoReplyConfig,
     dailyReport: dailyReportConfig,
     emojiSave: emojiSaveConfig,
     helpGen: helpGenConfig,
     douBao: douBaoConfig,
-    siliconflow: sfConfig
+    siliconflow: sfConfig,
+    commandPrompt: commandPromptConfig
 };
 
 export function updateConfig(data: Config) {
@@ -41,6 +44,7 @@ export function updateConfig(data: Config) {
     saveConfigToFile(data.helpGen, "helpGen.yaml");
     saveConfigToFile(data.douBao, "ai", "douBao.yaml");
     saveConfigToFile(data.siliconflow, "ai", "siliconflow.yaml");
+    saveConfigToFile(data.commandPrompt, "commandPrompt.yaml");
 }
 
 function processCron(data: Config) {

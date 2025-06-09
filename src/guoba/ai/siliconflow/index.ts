@@ -1,6 +1,7 @@
+import { ConfigSchemaType } from "../../../types.js";
 import { getVideoGenerateModel, getVoiceGenerateCharacter } from "./handler.js";
 
-export const sfSchema = () => [
+export const sfSchema = (): ConfigSchemaType[] => [
     {
         label: "SiliconFlow",
         // 第四个分组标记开始

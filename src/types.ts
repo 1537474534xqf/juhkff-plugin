@@ -1,5 +1,35 @@
 import { Job } from "node-schedule";
 
+export type ConfigSchemaType = {
+    field?: string,
+    label?: string,
+    bottomHelpMessage?: string,
+    /** 随用随加 */
+    component:
+    "SOFT_GROUP_BEGIN" | "Divider" | "Switch" | "Input" | "InputTextArea" | "Select" | "AutoComplete" | "GSubForm" |
+    "InputNumber" | "InputPassword" | "GColorPicker" | "EasyCron" | "GSelectGroup"
+    componentProps?: {
+        type?: string,
+        style?: { [key: string]: string | number },
+        orientation?: string,
+        plain?: boolean,
+        multiple?: boolean,
+        modalProps?: { [key: string]: string | number },
+        schemas?: ConfigSchemaType[],
+        defaultValue?: any,
+        placeholder?: string,
+        rows?: number,
+        min?: number,
+        max?: number,
+        step?: number,
+        options?: {
+            label: string,
+            value: any,
+        }[],
+    },
+    required?: boolean,
+}
+
 export type CronExpression = string;
 
 export type RequestBody = Record<string, any>;

@@ -64,3 +64,4 @@ export function getAllFiles(dir, fileList) {
         }
     });
 }
+//# sourceMappingURL=file.js.map

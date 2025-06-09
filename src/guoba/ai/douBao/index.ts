@@ -1,6 +1,7 @@
 import { douBao } from "../../../apps/ai/douBao.js";
+import { ConfigSchemaType } from "../../../types.js";
 
-export const douBaoSchema = () => [
+export const douBaoSchema = (): ConfigSchemaType[] => [
     {
         label: "豆包",
         // 第四个分组标记开始

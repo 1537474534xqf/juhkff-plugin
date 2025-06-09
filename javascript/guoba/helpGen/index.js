@@ -17,10 +17,10 @@ export const helpGenSchema = () => [
         component: "Input",
     },
     {
-        "field": "helpGen.titleZh",
-        "label": "标题",
-        "bottomHelpMessage": "一般写图片的中文标题，为空则取命令为标题",
-        "component": "Input",
+        field: "helpGen.titleZh",
+        label: "标题",
+        bottomHelpMessage: "一般写图片的中文标题，为空则取命令为标题",
+        component: "Input",
     },
     {
         field: "helpGen.titleEn",
@@ -194,3 +194,4 @@ export const helpGenSchema = () => [
         },
     }
 ];
+//# sourceMappingURL=index.js.map

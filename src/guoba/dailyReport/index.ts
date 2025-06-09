@@ -1,4 +1,6 @@
-export const dailyReportSchema = () => [
+import { ConfigSchemaType } from "../../types";
+
+export const dailyReportSchema = (): ConfigSchemaType[] => [
     {
         label: "日报配置",
         // 第二个分组标记开始

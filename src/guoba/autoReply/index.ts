@@ -1,6 +1,7 @@
+import { ConfigSchemaType } from "../../types.js"
 import { appendIfShouldInputSelf, appendIfShouldInputSelfVisual, listAllChatApi, listAllVisualApi } from "./handler.js"
 
-export const autoReplySchema = () => [
+export const autoReplySchema = (): ConfigSchemaType[] => [
     {
         label: "群聊配置",
         // 第一个分组标记开始，无需标记结束

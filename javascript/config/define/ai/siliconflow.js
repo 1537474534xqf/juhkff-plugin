@@ -29,5 +29,6 @@ export const sfConfig = {};
         sync();
         lastHash = hash;
         logger.info(logger.grey(`[JUHKFF-PLUGIN]同步SiliconFlow配置`));
-    }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]SiliconFlow同步配置异常`, err); });
+    }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]SiliconFlow配置同步异常`, err); });
 })();
+//# sourceMappingURL=siliconflow.js.map

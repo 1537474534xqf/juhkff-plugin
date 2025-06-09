@@ -138,3 +138,4 @@ export async function generateDailyReport(data) {
     await browser.close();
     return imageBuffer;
 }
+//# sourceMappingURL=page.js.map

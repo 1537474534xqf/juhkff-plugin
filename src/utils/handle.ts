@@ -221,7 +221,7 @@ export async function parseUrl(e: { group_id: number, j_msg: SimpleJMsg[]; }) {
  * @param {string} url URL地址
  * @returns {boolean} 是否为不需要提取的文件类型
  */
-function isSkippedUrl(url: string) {
+function isSkippedUrl(url: string): boolean {
     // 检查常见图片后缀
     const imageExtensions = /\.(jpg|jpeg|png|gif|bmp|webp|svg|ico|tiff|tif|raw|cr2|nef|arw|dng|heif|heic|avif|jfif|psd|ai)$/i;
 

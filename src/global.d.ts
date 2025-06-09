@@ -54,6 +54,119 @@ declare type util = {
     debounce<T extends (...args: any[]) => any>(func: T, time?: number): T & { promise?: Promise<any> };
 };
 
+declare type E = {
+    adapter_id: string,
+    adapter_name: string,
+    bot: {
+        adapter: {
+            echo: any,
+            id: string,
+            name: string,
+            path: string,
+            timeout: number
+        },
+        get avatar(): string,
+        bkn: number,
+        clients: any,
+        cookies: { [key: string]: string },
+        fl: Map<number, { age: number, birthday_day: number, birthday_month: number, birthday_year: number, category_id: number, email: string, level: number, nickname: string, phone_num: string, remark: string, sex: "male" | "female" | "unknown", user_id: number }>,
+        getCookies: Function,
+        getCsrfToken: Function,
+        getFriendArray: Function,
+        getFriendList: Function,
+        getFriendMap: Function,
+        getGroupArray: Function,
+        getGroupList: Function,
+        getGroupMap: Function,
+        getGroupMemberMap: Function,
+        getSystemMsg: Function,
+        gl: Map<number, { group_all_shut: number, group_id: number, group_name: string, group_remark: string, max_member_count: number, member_count: number }>,
+        gml: Map<number, Map<number, { age: number, area: string, card: string, card_changeable: boolean, group_id: number, is_robot: boolean, join_time: number, last_sent_time: number, level: string, nickname: string, qq_level: number, role: "owner" | "member" | string, sex: "male" | "female" | "unknown", shut_up_timestamp: number, title: string, title_expire_time: number, unfriendly: boolean, user_id: number }>>,
+        guild_info: any,
+        info: {
+            nickname: string,
+            user_id: number
+        },
+        model: "TRSS Yunzai" | string,
+        get nickname(): string,
+        pickFriend: Function,
+        pickGroup: Function,
+        pickMember: Function,
+        pickUser: Function,
+        removeEssenceMessage: Function,
+        request_list: any[],
+        sendApi: Function,
+        setAvatar: Function,
+        setEssenceMessage: Function,
+        setFriendAddRequest: Function,
+        setGroupAddRequest: Function,
+        setNickname: (nickname: string) => void,
+        setProfile: Function,
+        stat: {
+            good: boolean,
+            lost_pkt_cnt: Function,
+            lost_times: Function,
+            online: boolean,
+            recv_msg_cnt: Function,
+            recv_pkt_cnt: Function,
+            sent_msg_cnt: Function,
+            sent_pkt_cnt: Function,
+            start_time: number,
+            stat: Object,
+        },
+        get uin(): number,
+        version: {
+            app_name: string,
+            app_version: string,
+            id: string,
+            name: string,
+            protocol_version: string,
+            get version(): string
+        },
+        ws: WebSocket
+    },
+    font: number,
+    group_id: number,
+    group_name: string,
+    isGroup: boolean,
+    get isGs(): boolean,
+    get isSr(): boolean,
+    logFnc: string,
+    logText: string,
+    /** 随用随加 */
+    message: {
+        type: "at" | "record" | "reply" | "text" | "image" | "file" | "face" | "poke",
+        text?: string,
+        qq?: number | "all",
+        file?: string,
+        id?: number,
+        time?: number
+    },
+    message_format: "array" | string,
+    message_id: number,
+    message_seq: number,
+    message_type: "group" | string,
+    msg: string,
+    post_type: "message" | string,
+    raw: string,
+    raw_message: string,
+    real_id: number,
+    real_seq: string,
+    recall: Function,
+    reply: (msg: string, quote: boolean, data: any) => Promise<void>,
+    runtime: any,
+    self_id: number,
+    sender: {
+        card: string,
+        nickname: string,
+        role: "owner" | "member" | string,
+        user_id: number
+    },
+    sub_type: "normal" | string,
+    time: number,
+    user_id: number
+} & { [key: string]: any };
+
 declare const Bot: import("events").EventEmitter & util & {
     /**
    * 机器人统计信息
@@ -352,7 +465,8 @@ declare const plugin: {
         awaitContext(...args: any[]): Promise<any>;
         resolveContext(context: any): void;
         renderImg(plugin: string, tpl: string, data: any, cfg?: any): Promise<string | Buffer | null>;
-    }
+        e: E
+    },
 };
 // 不需要
 // declare const Renderer: any;

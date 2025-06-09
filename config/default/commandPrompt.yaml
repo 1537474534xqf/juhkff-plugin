@@ -1,0 +1,14 @@
+useCommandPrompt: true
+commandDict:
+  - cmd: 海龟汤
+    prompt:
+      - text: 预设1
+      - text: 预设2
+    timeout: 120
+    timeoutChat: 猜不出来？换一道吧
+  - cmd: 成语接龙
+    prompt:
+      - text: 预设1
+      - text: 预设2
+    timeout: 10
+    timeoutChat: 你输了！

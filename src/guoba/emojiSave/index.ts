@@ -1,4 +1,6 @@
-export const emojiSaveSchema = () => [
+import { ConfigSchemaType } from "../../types";
+
+export const emojiSaveSchema = (): ConfigSchemaType[] => [
     {
         label: "偷图配置",
         // 第三个分组标记开始

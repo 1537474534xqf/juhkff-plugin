@@ -1,4 +1,6 @@
-export const helpGenSchema = () => [
+import { ConfigSchemaType } from "../../types";
+
+export const helpGenSchema = (): ConfigSchemaType[] => [
     {
         label: "帮助图片",
         // 第一个分组标记开始，无需标记结束
@@ -19,11 +21,11 @@ export const helpGenSchema = () => [
         component: "Input",
     },
     {
-        "field": "helpGen.titleZh",
-        "label": "标题",
-        "bottomHelpMessage":
+        field: "helpGen.titleZh",
+        label: "标题",
+        bottomHelpMessage:
             "一般写图片的中文标题，为空则取命令为标题",
-        "component": "Input",
+        component: "Input",
     },
     {
         field: "helpGen.titleEn",

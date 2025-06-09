@@ -114,5 +114,5 @@ export const douBaoConfig: DouBao = {} as DouBao;
         sync();
         lastHash = hash;
         logger.info(logger.grey(`[JUHKFF-PLUGIN]同步豆包配置`));
-    }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]豆包同步配置异常`, err) })
+    }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]豆包配置同步异常`, err) })
 })();
