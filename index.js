@@ -12,7 +12,7 @@ if (!global.segment) {
 
 let ret = [];
 
-logger.info(logger.yellow("- 正在载入 JUHKFF-PLUGIN"));
+logger.info(logger.yellow("- [JUHKFF-PLUGIN] 正在载入"));
 logger.info(logger.redBright("- [JUHKFF-PLUGIN] 如果插件更新后出现问题，可能是新的配置同步时出现错误，可以尝试删除并重装该插件"));
 
 async function getFiles(dir) {
@@ -59,6 +59,6 @@ for (let i in files) {
     apps[name] = ret[i].value[validKey];
 }
 
-logger.info(logger.green("- JUHKFF-PLUGIN 载入成功"));
+logger.info(logger.green("- [JUHKFF-PLUGIN] 载入成功"));
 
 export { apps };

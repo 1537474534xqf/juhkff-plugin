@@ -20,21 +20,21 @@ export const autoReplyConfig = {};
     const defaultFile = path.join(PLUGIN_DEFAULT_CONFIG_DIR, `autoReply.yaml`);
     if (configFolderCheck(file, defaultFile))
         logger.info(`[JUHKFF-PLUGIN]创建主动群聊配置`);
-    let lastHash = getFileHash(fs.readFileSync(file, "utf8"));
     const sync = (() => {
+        const userConfig = YAML.parse(fs.readFileSync(file, "utf8"));
+        const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8"));
+        privateSync(userConfig, defaultConfig);
+        configSync(userConfig, defaultConfig);
+        fs.writeFileSync(file, YAML.stringify(userConfig));
+        Object.assign(autoReplyConfig, userConfig);
         const func = () => {
             const userConfig = YAML.parse(fs.readFileSync(file, "utf8"));
-            const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8"));
-            // 对预设单独处理，将旧预设自动更新为新预设
-            if (defaultConfig.oldPrompt.includes(userConfig.chatPrompt.trim()))
-                userConfig.chatPrompt = defaultConfig.chatPrompt;
-            delete defaultConfig.oldPrompt;
-            configSync(userConfig, defaultConfig);
             Object.assign(autoReplyConfig, userConfig);
         };
         func();
         return func;
     })();
+    let lastHash = getFileHash(fs.readFileSync(file, "utf8"));
     const afterUpdate = (previous) => {
         if (previous.chatApi != autoReplyConfig.chatApi) {
             autoReplyConfig.chatModel = "";
@@ -65,4 +65,15 @@ export const autoReplyConfig = {};
         logger.info(logger.grey(`[JUHKFF-PLUGIN]同步主动群聊配置`));
     }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]主动群聊配置同步异常`, err); });
 })();
+/**
+ * 针对该功能的配置同步
+ * @param userConfig
+ * @param defaultConfig
+ */
+function privateSync(userConfig, defaultConfig) {
+    // 对预设单独处理，将旧预设自动更新为新预设
+    if (defaultConfig.oldPrompt.includes(userConfig.chatPrompt.trim()))
+        userConfig.chatPrompt = defaultConfig.chatPrompt;
+    delete defaultConfig.oldPrompt;
+}
 //# sourceMappingURL=autoReply.js.map

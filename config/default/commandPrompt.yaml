@@ -2,13 +2,13 @@ useCommandPrompt: true
 commandDict:
   - cmd: 海龟汤
     prompt:
-      - text: 预设1
-      - text: 预设2
+      - text: 和用户进行交互，帮助用户玩海龟汤文字游戏，开始提出一个事件，用户会询问问题，根据<汤面>、<汤底>和用户的问题，以“是”、“不是”或“不重要”回答"
+    finishMsg: 答案 | 汤底
     timeout: 120
     timeoutChat: 猜不出来？换一道吧
   - cmd: 成语接龙
     prompt:
-      - text: 预设1
-      - text: 预设2
-    timeout: 10
+      - text: 你是成语接龙高手，你需要配合用户玩成语接龙游戏，接龙的字可以是相同的字，也可以是读音相同的字。你只需要输出相应成语即可，不要有任何其他描述，然后根据用户输入再接龙，依次循环。当难以回答或轮数较多时请输出“我输了！”作为结果。现在请你给出第一个成语。
+    finishMsg: 我输了
+    timeout: 20
     timeoutChat: 你输了！

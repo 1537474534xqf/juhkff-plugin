@@ -13,13 +13,16 @@ export const commandPromptConfig = {};
         logger.info(`[JUHKFF-PLUGIN]创建情景预设配置`);
     let lastHash = getFileHash(fs.readFileSync(file, "utf8"));
     const sync = (() => {
+        const userConfig = YAML.parse(fs.readFileSync(file, "utf8"));
+        const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8"));
+        configSync(userConfig, defaultConfig);
+        privateSync(userConfig, defaultConfig);
+        fs.writeFileSync(file, YAML.stringify(userConfig));
+        Object.assign(commandPromptConfig, userConfig);
         const func = () => {
             const userConfig = YAML.parse(fs.readFileSync(file, "utf8"));
-            const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8"));
-            configSync(userConfig, defaultConfig);
             Object.assign(commandPromptConfig, userConfig);
         };
-        func();
         return func;
     })();
     const afterUpdate = (previous) => { };
@@ -35,4 +38,27 @@ export const commandPromptConfig = {};
         logger.info(logger.grey(`[JUHKFF-PLUGIN]同步情景预设配置`));
     }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]情景预设配置同步异常`, err); });
 })();
+/**
+ * 针对该功能的配置同步
+ * @param userConfig
+ * @param defaultConfig
+ */
+function privateSync(userConfig, defaultConfig) {
+    let add = false;
+    const cmd = [];
+    for (const each of defaultConfig.commandDict) {
+        if (userConfig.commandDict.find(e => e.cmd === each.cmd) !== undefined) {
+            const index = userConfig.commandDict.findIndex(e => e.cmd === each.cmd);
+            for (const property in each) {
+                if (!userConfig.commandDict[index].hasOwnProperty(property)) {
+                    userConfig.commandDict[index][property] = each[property];
+                    add = true;
+                    cmd.push(each.cmd);
+                }
+            }
+        }
+    }
+    if (add)
+        logger.info(logger.bgRgb(82, 70, 77).rgb(206, 139, 180).bold(`- [JUHKFF-PLUGIN]情景预设更新：${cmd.join(", ")}`));
+}
 //# sourceMappingURL=commandPrompt.js.map

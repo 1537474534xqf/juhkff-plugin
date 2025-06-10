@@ -43,10 +43,13 @@ export const helpGenConfig: HelpGen = {} as HelpGen;
     let lastHash: string = getFileHash(fs.readFileSync(file, "utf8"));
 
     const sync = (() => {
+        const userConfig = YAML.parse(fs.readFileSync(file, "utf8")) as HelpGen;
+        const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8")) as HelpGen;
+        configSync(userConfig, defaultConfig);
+        fs.writeFileSync(file, YAML.stringify(userConfig));
+        Object.assign(helpGenConfig, userConfig);
         const func = () => {
             const userConfig = YAML.parse(fs.readFileSync(file, "utf8")) as HelpGen;
-            const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8")) as HelpGen;
-            configSync(userConfig, defaultConfig);
             Object.assign(helpGenConfig, userConfig);
         }
         func();

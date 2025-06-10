@@ -153,7 +153,7 @@ declare type E = {
     real_id: number,
     real_seq: string,
     recall: Function,
-    reply: (msg: string, quote: boolean, data: any) => Promise<void>,
+    reply: (msg?: string, quote?: boolean, data?: any) => Promise<void>,
     runtime: any,
     self_id: number,
     sender: {
@@ -462,7 +462,7 @@ declare const plugin: {
         setContext(type: string, isGroup?: boolean, time?: number, timeout?: string): void;
         getContext(type: string, isGroup?: boolean): any;
         finish(type: string, isGroup: boolean): void;
-        awaitContext(...args: any[]): Promise<any>;
+        awaitContext(isGroup?: boolean, time?: number, timeout?: string): Promise<boolean | E>;
         resolveContext(context: any): void;
         renderImg(plugin: string, tpl: string, data: any, cfg?: any): Promise<string | Buffer | null>;
         e: E

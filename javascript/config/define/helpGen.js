@@ -12,10 +12,13 @@ export const helpGenConfig = {};
         logger.info(`[JUHKFF-PLUGIN]创建帮助生成配置`);
     let lastHash = getFileHash(fs.readFileSync(file, "utf8"));
     const sync = (() => {
+        const userConfig = YAML.parse(fs.readFileSync(file, "utf8"));
+        const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8"));
+        configSync(userConfig, defaultConfig);
+        fs.writeFileSync(file, YAML.stringify(userConfig));
+        Object.assign(helpGenConfig, userConfig);
         const func = () => {
             const userConfig = YAML.parse(fs.readFileSync(file, "utf8"));
-            const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8"));
-            configSync(userConfig, defaultConfig);
             Object.assign(helpGenConfig, userConfig);
         };
         func();

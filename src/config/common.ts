@@ -34,7 +34,7 @@ export function saveConfigToFile(config: ConfigType, ...pathRelativeToConfigFold
  * 
  * 同步用户配置和默认配置，核心是保证结构相同
  * @param config 
- * @param defaultConfig 同步项会被删除
+ * @param defaultConfig 修改：同步项不会被删除
  */
 export function configSync(config: Record<string, any>, defaultConfig: Record<string, any>) {
     for (var key in defaultConfig) {
@@ -50,7 +50,7 @@ export function configSync(config: Record<string, any>, defaultConfig: Record<st
             continue;
         }
         if (typeof defaultConfig[key] != 'object') {
-            delete defaultConfig[key];
+            // delete defaultConfig[key];
             continue;
         }
         // 特殊处理对象类型
@@ -63,12 +63,12 @@ export function configSync(config: Record<string, any>, defaultConfig: Record<st
         if (!Array.isArray(defaultConfig[key]) && !Array.isArray(config[key])) {
             configSync(config[key], defaultConfig[key]);
             if (Object.keys(defaultConfig[key]).length === 0) {
-                delete defaultConfig[key];
+                // delete defaultConfig[key];
             }
             continue;
         }
         // 均为一般类型或数组类型就直接删除defaultConfig中的该项
-        delete defaultConfig[key];
+        // delete defaultConfig[key];
     }
 }
 

@@ -10,17 +10,20 @@ export const sfConfig = {};
     const defaultFile = path.join(PLUGIN_DEFAULT_CONFIG_DIR, "ai", `siliconflow.yaml`);
     if (configFolderCheck(file, defaultFile))
         logger.info(`[JUHKFF-PLUGIN]创建SiliconFlow配置`);
-    let lastHash = getFileHash(fs.readFileSync(file, "utf8"));
     const sync = (() => {
+        const userConfig = YAML.parse(fs.readFileSync(file, "utf8"));
+        const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8"));
+        configSync(userConfig, defaultConfig);
+        fs.writeFileSync(file, YAML.stringify(userConfig));
+        Object.assign(sfConfig, userConfig);
         const func = () => {
             const userConfig = YAML.parse(fs.readFileSync(file, "utf8"));
-            const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8"));
-            configSync(userConfig, defaultConfig);
             Object.assign(sfConfig, userConfig);
         };
         func();
         return func;
     })();
+    let lastHash = getFileHash(fs.readFileSync(file, "utf8"));
     chokidar.watch(file).on("change", () => {
         const content = fs.readFileSync(file, "utf8");
         const hash = getFileHash(content);

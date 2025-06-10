@@ -41,16 +41,25 @@ export const commandPromptSchema = () => [
                                     rows: 3
                                 },
                                 required: true,
-                                bottomHelpMessage: "预置文本"
+                                bottomHelpMessage: "可配置多个，配置多个时会随机选择其中一项，所以请注意和结束提示词等项的兼容性"
                             }
                         ]
+                    }
+                },
+                {
+                    field: "finishMsg",
+                    label: "结束提示词",
+                    component: "Input",
+                    bottomHelpMessage: "若群BOT的AI生成内容包含结束提示词，群BOT退出预设情景，多项之间以`|`分隔",
+                    componentProps: {
+                        placeholder: "有需要BOT自行终止情景的需求时输入该项"
                     }
                 },
                 {
                     field: "timeout",
                     label: "超时时间（秒）",
                     component: "InputNumber",
-                    bottomHelpMessage: "超时后群BOT退出预设场景",
+                    bottomHelpMessage: "超时后群BOT退出预设场景，群成员也可通过输入 `#结束` 退出",
                     componentProps: {
                         min: 0,
                         step: 1

@@ -31,10 +31,13 @@ export const dailyReportConfig: DailyReport = {} as DailyReport;
     let lastHash: string = getFileHash(fs.readFileSync(file, "utf8"));
 
     const sync = (() => {
+        const userConfig = YAML.parse(fs.readFileSync(file, "utf8")) as DailyReport;
+        const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8")) as DailyReport;
+        configSync(userConfig, defaultConfig);
+        fs.writeFileSync(file, YAML.stringify(userConfig));
+        Object.assign(dailyReportConfig, userConfig);
         const func = () => {
             const userConfig = YAML.parse(fs.readFileSync(file, "utf8")) as DailyReport;
-            const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8")) as DailyReport;
-            configSync(userConfig, defaultConfig);
             Object.assign(dailyReportConfig, userConfig);
         };
         func();

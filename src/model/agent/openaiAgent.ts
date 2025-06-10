@@ -148,7 +148,8 @@ export class OpenAI extends ChatAgent {
                 // }
             });
         }
-        (request.options.body as RequestBody).messages.push({ role: "user", content: input });
+        if (input != null)
+            (request.options.body as RequestBody).messages.push({ role: "user", content: input });
         if (config.autoReply.debugMode)
             logger.info(`[OpenAI]对话模型 ${(request.options.body as RequestBody).model} API调用，请求内容：${JSON.stringify(request, null, 2)}`);
         try {

@@ -94,19 +94,20 @@ export const douBaoConfig: DouBao = {} as DouBao;
     const defaultFile = path.join(PLUGIN_DEFAULT_CONFIG_DIR, "ai", `douBao.yaml`);
     if (configFolderCheck(file, defaultFile)) logger.info(`[JUHKFF-PLUGIN]创建豆包配置`);
 
-    let lastHash: string = getFileHash(fs.readFileSync(file, "utf8"));
-
     const sync = (() => {
+        const userConfig = YAML.parse(fs.readFileSync(file, "utf8")) as DouBao;
+        const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8")) as DouBao;
+        configSync(userConfig, defaultConfig);
+        fs.writeFileSync(file, YAML.stringify(userConfig));
+        Object.assign(douBaoConfig, userConfig);
         const func = () => {
             const userConfig = YAML.parse(fs.readFileSync(file, "utf8")) as DouBao;
-            const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8")) as DouBao;
-            configSync(userConfig, defaultConfig);
             Object.assign(douBaoConfig, userConfig);
         }
         func();
         return func;
     })()
-
+    let lastHash: string = getFileHash(fs.readFileSync(file, "utf8"));
     chokidar.watch(file).on("change", () => {
         const content = fs.readFileSync(file, "utf8");
         const hash = getFileHash(content);

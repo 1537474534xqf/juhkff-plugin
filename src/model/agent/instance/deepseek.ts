@@ -60,7 +60,8 @@ export class DeepSeek extends OpenAI {
             });
         }
         // 添加当前对话
-        (request.options.body as RequestBody).messages.push({ role: "user", content: input });
+        if (input != null)
+            (request.options.body as RequestBody).messages.push({ role: "user", content: input });
         logger.info(`[ds]DeepSeek-V3 API调用，请求内容：${JSON.stringify(request, null, 2)}`);
         try {
             request.options.body = JSON.stringify(request.options.body);
@@ -88,12 +89,14 @@ export class DeepSeek extends OpenAI {
         }
         // 添加历史对话
         let content = "";
+        // 原则上来说 input 和 historyMessages 不可均为空，所以这里不再做额外判断
         if (historyMessages && historyMessages.length > 0) {
             content += historyMessages
                 .filter((msg) => !msg.imageBase64)
                 .map((msg) => `"role": "${msg.role}", "content": "${msg.content}",\n`)
                 .join("");
-            content += `"role": "user", "content": "${input}"`;
+            if (input != null)
+                content += `"role": "user", "content": "${input}"`;
         } else {
             content = input;
         }

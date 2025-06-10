@@ -25,14 +25,17 @@ function reloadEmojiGallery(oldEmojiGalleryPath) {
     let lastHash = getFileHash(fs.readFileSync(file, "utf8"));
     let oldEmojiGalleryPath = null;
     const sync = (() => {
+        const userConfig = YAML.parse(fs.readFileSync(file, "utf8"));
+        const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8"));
+        configSync(userConfig, defaultConfig);
+        fs.writeFileSync(file, YAML.stringify(userConfig));
+        Object.assign(emojiSaveConfig, userConfig);
+        watcher = loadEmojiGallery(emojiSaveConfig.emojiGalleryPath);
+        reloadEmojiGallery(oldEmojiGalleryPath);
+        oldEmojiGalleryPath = emojiSaveConfig.emojiGalleryPath;
         const func = () => {
             const userConfig = YAML.parse(fs.readFileSync(file, "utf8"));
-            const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8"));
-            configSync(userConfig, defaultConfig);
             Object.assign(emojiSaveConfig, userConfig);
-            watcher = loadEmojiGallery(emojiSaveConfig.emojiGalleryPath);
-            reloadEmojiGallery(oldEmojiGalleryPath);
-            oldEmojiGalleryPath = emojiSaveConfig.emojiGalleryPath;
         };
         func();
         return func;

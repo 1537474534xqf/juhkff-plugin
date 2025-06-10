@@ -1,5 +1,6 @@
 import { config } from "../config/index.js"
 import { agent } from "../model/map.js";
+import { HistorySimpleJMsg } from "../types.js";
 import { Objects } from "../utils/kits.js";
 
 export const help = () => {
@@ -28,32 +29,46 @@ export class CommandPrompt extends plugin {
         })
     }
 
-    async commandPrompt(e: any) {
-        let content = extractText(e.message);
+    async commandPrompt(e: E) {
+        let content = e.msg;
         content = content.replace(/^#+/, '');
         if (!config.commandPrompt.useCommandPrompt || Objects.isNull(content)) return false;
         const command = config.commandPrompt.commandDict.find(cmdObj => cmdObj.cmd === content);
         if (!command) return false;
         const reqText = command.prompt[Math.floor(Math.random() * command.prompt.length)].text;
         if (!agent.chat) return "请开启主动群聊并设置有效的AI接口";
-        if (this.getContext("continueCommand", true)) await e.reply("由于发生新请求，情景重置...");
-        e.juhkff_cmd_msg = [];
-        e.juhkff_cmd_msg.push({ system: reqText });
-        this.setContext("continueCommand", true, command.timeout, command.timeoutChat);
-        const result = await agent.chat.chatRequest(e.group_id, config.autoReply.chatModel, reqText, [], false);
-        e.juhkff_cmd_msg.push({ assistant: result });
+        const cmd_msg = [];
+        cmd_msg.push({ content: reqText, message_id: e.message_id, role: "system" });
+        const result = await agent.chat.chatRequest(e.group_id, config.autoReply.chatModel, null, cmd_msg, false);
+        cmd_msg.push({ role: "assistant", message_id: 0, content: result });
         await e.reply(result);
-        this.setContext("continueCommand", true, command.timeout, command.timeoutChat);
-    }
-
-    async continueCommand(ae: any) {
-        // const context = this.getContext("continueCommand", true);
-        // logger.info(context);
-        const text = this.e.msg;
-        logger.info(text);
+        while (true) {
+            const ue = await this.awaitContext(true, command.timeout) as E;
+            if (typeof ue === "boolean" && ue === false) {
+                await e.reply(command.timeoutChat);
+                break;
+            }
+            this.finish("resolveContext", true);
+            const { msg: text } = ue;
+            if (text === "#结束") break;
+            const history: HistorySimpleJMsg[] = [];
+            for (let i = 0; i < cmd_msg.length; i++)
+                history.push({ role: cmd_msg[i].role, message_id: cmd_msg[i].message_id, content: cmd_msg[i].content });
+            cmd_msg.push({ content: text, message_id: ue.message_id, role: "user" });
+            const result = await agent.chat.chatRequest(ue.group_id, config.autoReply.chatModel, text, history, false)
+            if (command.finishMsg.includes(result)) {
+                await ue.reply(command.finishMsg);
+                break;
+            }
+            cmd_msg.push({ content: result, message_id: 0, role: "assistant" });
+            await ue.reply(result);
+        }
+        return true;
     }
 }
 
+/*
 function extractText(message: [{ type: string, text?: string }]) {
     return message.filter(item => item.type === "text" && typeof item.text === "string").map(item => item.text as string).join("");
 }
+*/

@@ -128,7 +128,8 @@ export class Gemini extends ChatAgent {
                 // }
             });
         }
-        request.options.body.contents.push({ role: "user", parts: [{ text: input }] });
+        if (input != null)
+            request.options.body.contents.push({ role: "user", parts: [{ text: input }] });
         if (config.autoReply.debugMode)
             logger.info(`[Gemini]对话模型 Gemini API调用，请求内容：${JSON.stringify(request, null, 2)}`);
         try {

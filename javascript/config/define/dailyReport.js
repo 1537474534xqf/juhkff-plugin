@@ -15,10 +15,13 @@ export const dailyReportConfig = {};
         logger.info(`[JUHKFF-PLUGIN]创建日报配置`);
     let lastHash = getFileHash(fs.readFileSync(file, "utf8"));
     const sync = (() => {
+        const userConfig = YAML.parse(fs.readFileSync(file, "utf8"));
+        const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8"));
+        configSync(userConfig, defaultConfig);
+        fs.writeFileSync(file, YAML.stringify(userConfig));
+        Object.assign(dailyReportConfig, userConfig);
         const func = () => {
             const userConfig = YAML.parse(fs.readFileSync(file, "utf8"));
-            const defaultConfig = YAML.parse(fs.readFileSync(defaultFile, "utf8"));
-            configSync(userConfig, defaultConfig);
             Object.assign(dailyReportConfig, userConfig);
         };
         func();
