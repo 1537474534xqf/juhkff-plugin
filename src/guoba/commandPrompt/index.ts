@@ -29,7 +29,7 @@ export const commandPromptSchema = (): ConfigSchemaType[] => [
                 },
                 {
                     field: "prompt",
-                    label: "预置文本",
+                    label: "预设文本",
                     component: "GSubForm",
                     bottomHelpMessage: "触发命令时发送给群BOT的群聊AI的文本",
                     componentProps: {

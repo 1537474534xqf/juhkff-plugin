@@ -3,7 +3,7 @@ commandDict:
   - cmd: 海龟汤
     prompt:
       - text: 和用户进行交互，帮助用户玩海龟汤文字游戏，开始提出一个事件，用户会询问问题，根据<汤面>、<汤底>和用户的问题，以“是”、“不是”或“不重要”回答"
-    finishMsg: 答案 | 汤底
+    finishMsg: 答案 | 汤底 | 猜对了
     timeout: 120
     timeoutChat: 猜不出来？换一道吧
   - cmd: 成语接龙

@@ -36,31 +36,36 @@ export class CommandPrompt extends plugin {
         const reqText = command.prompt[Math.floor(Math.random() * command.prompt.length)].text;
         if (!agent.chat)
             return "请开启主动群聊并设置有效的AI接口";
-        const cmd_msg = [];
-        cmd_msg.push({ content: reqText, message_id: e.message_id, role: "system" });
-        const result = await agent.chat.chatRequest(e.group_id, config.autoReply.chatModel, null, cmd_msg, false);
-        cmd_msg.push({ role: "assistant", message_id: 0, content: result });
+        const cmdMsg = [];
+        cmdMsg.push({ content: reqText, message_id: e.message_id, role: "system" });
+        const result = await agent.chat.chatRequest(e.group_id, config.autoReply.chatModel, null, cmdMsg, false);
+        cmdMsg.push({ role: "assistant", message_id: 0, content: result });
         await e.reply(result);
         while (true) {
             const ue = await this.awaitContext(true, command.timeout);
             if (typeof ue === "boolean" && ue === false) {
-                await e.reply(command.timeoutChat);
+                if (!Objects.isNull(command.timeoutChat))
+                    await e.reply(command.timeoutChat);
                 break;
             }
+            // 不知道怎么写好，先这么写了
             this.finish("resolveContext", true);
             const { msg: text } = ue;
             if (text === "#结束")
                 break;
             const history = [];
-            for (let i = 0; i < cmd_msg.length; i++)
-                history.push({ role: cmd_msg[i].role, message_id: cmd_msg[i].message_id, content: cmd_msg[i].content });
-            cmd_msg.push({ content: text, message_id: ue.message_id, role: "user" });
+            for (let i = 0; i < cmdMsg.length; i++)
+                history.push({ role: cmdMsg[i].role, message_id: cmdMsg[i].message_id, content: cmdMsg[i].content });
+            cmdMsg.push({ content: text, message_id: ue.message_id, role: "user" });
             const result = await agent.chat.chatRequest(ue.group_id, config.autoReply.chatModel, text, history, false);
-            if (command.finishMsg.includes(result)) {
-                await ue.reply(command.finishMsg);
-                break;
+            const finishMsgList = command.finishMsg.split("|");
+            for (const each of finishMsgList) {
+                if (result.includes(each.trim())) {
+                    await ue.reply(result);
+                    return true;
+                }
             }
-            cmd_msg.push({ content: result, message_id: 0, role: "assistant" });
+            cmdMsg.push({ content: result, message_id: 0, role: "assistant" });
             await ue.reply(result);
         }
         return true;
