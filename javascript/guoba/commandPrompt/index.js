@@ -8,7 +8,7 @@ export const commandPromptSchema = () => [
         field: "commandPrompt.useCommandPrompt",
         label: "命令预设开关",
         component: "Switch",
-        bottomHelpMessage: "启用命令预设功能，可通过`#命令`使群BOT进入相关功能预设场景",
+        bottomHelpMessage: "启用命令预设功能，可通过`#命令`使群BOT进入相关功能预设场景。开启此功能时请确保启用AI聊天接口",
     },
     {
         field: "commandPrompt.commandDict",
