@@ -90,17 +90,19 @@ pnpm install --filter=juhkff-plugin
     - [x] SiliconFlow
     - [x] 火山方舟
     - [x] Gemini
-    - [x] **OpenRouter (latest update)**
-    - [x] **OpenAI 通用格式(latest update)**
+    - [x] OpenRouter
+    - [x] OpenAI 通用格式
 - [x] 生成和推送日报
   - [x] 借鉴 [真寻日报](https://github.com/HibiKier/nonebot-plugin-zxreport) 的样式和代码生成日报
 - [x] 表情偷取
   - [x] 借鉴 [鸢尾花插件](https://github.com/logier/logier-plugins) 的思路改进实现
   - [x] 同一图片在指定时间长度内被发送两次，则被视为表情并偷取
+- [x] 命令预设
+  - [x] 使群BOT进入相关预设场景，直到生成特定关键词或用户输入 `#结束` 时退出
 - [x] AI 功能接入中
   - [x] 豆包 AI 部分接入
   - [x] SiliconFlow AI 接入
-  - TODO: 其它 AI 接入...
+  - [ ] 其它 AI 接入...
 - [x] 调用指令可发送帮助图片
   - [x] 参考 [Miao-Plugin](https://github.com/yoimiya-kokomi/miao-plugin) 和 [TRSS-Yunzai](https://github.com/TimeRainStarSky/Yunzai) 的思路和代码实现
   - [x] 支持手动添加其它命令，如其它插件的命令
