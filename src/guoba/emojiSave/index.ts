@@ -27,7 +27,7 @@ export const emojiSaveSchema = (): ConfigSchemaType[] => [
     {
         field: "emojiSave.defaultEmojiRate",
         label: "默认发送偷图概率",
-        bottomHelpMessage: "低于此概率发送偷图配置，高于此概率发送本地图库（若其中一种为空则固定发送另一种）。只发送本地图库可置为0，只发送偷图可置为1",
+        bottomHelpMessage: "生成[0,1)随机数，低于此概率值发送偷图图库，否则发送本地图库（若其中一种图库为空则固定发送另一种）。只发送本地图库可置为0，只发送偷图可置为1",
         component: "InputNumber",
         componentProps: {
             min: 0,
