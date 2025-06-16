@@ -97,7 +97,7 @@ pnpm install --filter=juhkff-plugin
 - [x] 表情偷取
   - [x] 借鉴 [鸢尾花插件](https://github.com/logier/logier-plugins) 的思路改进实现
   - [x] 同一图片在指定时间长度内被发送两次，则被视为表情并偷取
-- [x] 命令预设
+- [x] **命令预设 (latest update)**
   - [x] 使群BOT进入相关预设场景，直到生成特定关键词或用户输入 `#结束` 时退出
 - [x] AI 功能接入中
   - [x] 豆包 AI 部分接入
