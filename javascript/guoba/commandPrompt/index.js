@@ -59,7 +59,7 @@ export const commandPromptSchema = () => [
                     field: "timeout",
                     label: "超时时间（秒）",
                     component: "InputNumber",
-                    bottomHelpMessage: "超时后群BOT退出预设场景，群成员也可通过输入 `#结束` 退出",
+                    bottomHelpMessage: "超时后群BOT退出预设场景，为`0`时不会超时。群成员也可通过输入`#结束`退出",
                     componentProps: {
                         min: 0,
                         step: 1
