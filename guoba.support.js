@@ -53,10 +53,10 @@ export function supportGuoba() {
                 ...autoReplySchema(),
                 ...dailyReportSchema(),
                 ...emojiSaveSchema(),
+                ...commandPromptSchema(),
                 ...douBaoSchema(),
                 ...sfSchema(),
                 ...helpGenSchema(),
-                ...commandPromptSchema(),
             ],
             // 获取配置数据方法（用于前端填充显示数据）
             getConfigData: () => config,

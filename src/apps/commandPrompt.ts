@@ -3,14 +3,14 @@ import { agent } from "../model/map.js";
 import { HistorySimpleJMsg } from "../types.js";
 import { Objects } from "../utils/kits.js";
 
-export const help = () => {
-    return {
-        name: "命令预设",
-        type: "active",
-        dsc: "根据预设和群BOT进行情景互动",
-        enable: config.commandPrompt.useCommandPrompt,
-    }
-}
+// export const help = () => {
+//     return {
+//         name: "命令预设",
+//         type: "active",
+//         dsc: "根据预设和群BOT进行情景互动",
+//         enable: config.commandPrompt.useCommandPrompt,
+//     }
+// }
 
 export class CommandPrompt extends plugin {
     constructor() {
@@ -58,11 +58,13 @@ export class CommandPrompt extends plugin {
                 history.push({ role: cmdMsg[i].role, message_id: cmdMsg[i].message_id, content: cmdMsg[i].content });
             cmdMsg.push({ content: text, message_id: ue.message_id, role: "user" });
             const result = await agent.chat.chatRequest(ue.group_id, config.autoReply.chatModel, text, history, false)
-            const finishMsgList = command.finishMsg.split("|");
-            for (const each of finishMsgList) {
-                if (result.includes(each.trim())) {
-                    await ue.reply(result);
-                    return true;
+            if (!Objects.isNull(command.finishMsg)) {
+                const finishMsgList = command.finishMsg.split("|");
+                for (const each of finishMsgList) {
+                    if (result.includes(each.trim())) {
+                        await ue.reply(result);
+                        return true;
+                    }
                 }
             }
             cmdMsg.push({ content: result, message_id: 0, role: "assistant" });

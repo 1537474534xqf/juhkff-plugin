@@ -69,4 +69,3 @@ export const dailyReportSchema = () => [
         },
     },
 ];
-//# sourceMappingURL=index.js.map

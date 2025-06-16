@@ -34,4 +34,3 @@ export const douBaoConfig = {};
         logger.info(logger.grey(`[JUHKFF-PLUGIN]同步豆包配置`));
     }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]豆包配置同步异常`, err); });
 })();
-//# sourceMappingURL=douBao.js.map

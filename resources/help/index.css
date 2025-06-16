@@ -126,6 +126,7 @@ body {
 .group-desc {
     display: inline-block;
     padding-left: 10px;
+    padding-top: 3px;
     color: rgb(243, 182, 109);
     font-size: 13px;
     font-weight: lighter;

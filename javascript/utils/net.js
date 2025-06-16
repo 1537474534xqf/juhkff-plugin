@@ -122,4 +122,3 @@ export async function getImageDimensions(url) {
         return { width: 0, height: 0 }; // 返回默认值或抛出错误
     }
 }
-//# sourceMappingURL=net.js.map

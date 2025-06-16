@@ -50,4 +50,3 @@ Bot.on(EVENT_RELOAD_INSTANCE, () => {
         visualInstance = new agentMap[config.autoReply.visualApi](config.autoReply.visualApiKey);
 });
 export { agentMap, agent };
-//# sourceMappingURL=map.js.map

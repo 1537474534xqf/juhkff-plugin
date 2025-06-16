@@ -86,10 +86,13 @@ export class helpGen extends plugin {
                 var plugin = await import(filePath)
                 if (!plugin.help) {
                     if (this.extraHelp.hasOwnProperty(fileName)) {
-                        if (this.extraHelp[fileName] instanceof Function)
-                            helpList.push((this.extraHelp[fileName] as Function)());
-                        else
-                            helpList.push((this.extraHelp[fileName] as HelpType));
+                        if (this.extraHelp[fileName] instanceof Function) {
+                            if (!((this.extraHelp[fileName] as () => HelpType)()).hasOwnProperty("subMenu") || (this.extraHelp[fileName] as () => HelpType)().subMenu.length > 0)
+                                helpList.push((this.extraHelp[fileName] as Function)());
+                        } else {
+                            if (!(this.extraHelp[fileName] as HelpType).hasOwnProperty("subMenu") || (this.extraHelp[fileName] as HelpType).subMenu.length > 0)
+                                helpList.push((this.extraHelp[fileName] as HelpType));
+                        }
                     } else {
                         logger.warn(`[JUHKFF-PLUGIN] 插件 ${fileName} 未获取到帮助提示项`);
                     }
@@ -146,6 +149,7 @@ function initExtraHelp() {
     let extraHelp: Record<string, HelpType | (() => HelpType)> = {};
     extraHelp["douBao"] = douBaoHelp;
     extraHelp["helpGen"] = helpDesc;
+    extraHelp["commandPrompt"] = commandPromptHelp;
     return extraHelp;
 }
 
@@ -218,5 +222,19 @@ var douBaoHelp = (): HelpType => {
                 enable: config.douBao.useBgmGenerate,
             }
         ]
+    }
+}
+
+var commandPromptHelp = (): HelpType => {
+    return {
+        name: "命令预设",
+        type: "group",
+        dsc: "进入预设情景，群BOT回复一切聊天内容，除非触发关键词或输入 `#结束`",
+        enable: config.commandPrompt.useCommandPrompt,
+        subMenu: Object.values(config.commandPrompt.commandDict).map((item) => ({
+            name: `#${item.cmd}`,
+            type: "sub",
+            enable: config.commandPrompt.useCommandPrompt
+        })),
     }
 }

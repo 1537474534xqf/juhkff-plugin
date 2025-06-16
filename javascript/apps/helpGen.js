@@ -84,10 +84,14 @@ export class helpGen extends plugin {
                 var plugin = await import(filePath);
                 if (!plugin.help) {
                     if (this.extraHelp.hasOwnProperty(fileName)) {
-                        if (this.extraHelp[fileName] instanceof Function)
-                            helpList.push(this.extraHelp[fileName]());
-                        else
-                            helpList.push(this.extraHelp[fileName]);
+                        if (this.extraHelp[fileName] instanceof Function) {
+                            if (!(this.extraHelp[fileName]()).hasOwnProperty("subMenu") || this.extraHelp[fileName]().subMenu.length > 0)
+                                helpList.push(this.extraHelp[fileName]());
+                        }
+                        else {
+                            if (!this.extraHelp[fileName].hasOwnProperty("subMenu") || this.extraHelp[fileName].subMenu.length > 0)
+                                helpList.push(this.extraHelp[fileName]);
+                        }
                     }
                     else {
                         logger.warn(`[JUHKFF-PLUGIN] 插件 ${fileName} 未获取到帮助提示项`);
@@ -144,6 +148,7 @@ function initExtraHelp() {
     let extraHelp = {};
     extraHelp["douBao"] = douBaoHelp;
     extraHelp["helpGen"] = helpDesc;
+    extraHelp["commandPrompt"] = commandPromptHelp;
     return extraHelp;
 }
 function isAppFile(filePath) {
@@ -214,4 +219,16 @@ var douBaoHelp = () => {
         ]
     };
 };
-//# sourceMappingURL=helpGen.js.map
+var commandPromptHelp = () => {
+    return {
+        name: "命令预设",
+        type: "group",
+        dsc: "进入预设情景，群BOT回复一切聊天内容，除非触发关键词或输入 `#结束`",
+        enable: config.commandPrompt.useCommandPrompt,
+        subMenu: Object.values(config.commandPrompt.commandDict).map((item) => ({
+            name: `#${item.cmd}`,
+            type: "sub",
+            enable: config.commandPrompt.useCommandPrompt
+        })),
+    };
+};

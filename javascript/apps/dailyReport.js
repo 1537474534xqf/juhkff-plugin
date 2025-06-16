@@ -178,4 +178,3 @@ export class dailyReport extends plugin {
     }
 }
 export const DAILY_REPORT_SAVE_PATH = path.join(PLUGIN_DATA_DIR, "dailyReport", "dailyReport.png");
-//# sourceMappingURL=dailyReport.js.map

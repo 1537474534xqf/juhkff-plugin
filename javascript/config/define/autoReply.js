@@ -76,4 +76,3 @@ function privateSync(userConfig, defaultConfig) {
         userConfig.chatPrompt = defaultConfig.chatPrompt;
     delete defaultConfig.oldPrompt;
 }
-//# sourceMappingURL=autoReply.js.map
