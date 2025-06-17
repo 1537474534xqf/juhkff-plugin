@@ -148,17 +148,18 @@ body {
 .help-title {
     display: block;
     color: rgb(240, 197, 43);
-    font-size: 14px;
-    line-height: 18px;
+    font-size: 10px;
+    line-height: 12px;
     font-weight: normal;
     margin-top: 5px;
     font-family: Ys, "汉仪文黑-65W", PingFangSC-Medium, "PingFang SC", sans-serif;
+    white-space: pre-line;
 }
 
 .help-desc {
     display: block;
-    font-size: 14px;
-    line-height: 18px;
+    font-size: 12px;
+    line-height: 15px;
     font-weight: normal;
     margin-top: 5px;
 }

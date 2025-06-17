@@ -64,5 +64,11 @@ export function beforeUpdate(data) {
             return { code: -1, message: "子功能所属功能组不存在，请检查" };
         }
     }
+    // 骰子格式修正
+    data.dice.presets.forEach((preset) => {
+        if (typeof preset.faces === "string") {
+            preset.faces = preset.faces.split(",");
+        }
+    });
     return { code: 0, message: "校验成功" };
 }

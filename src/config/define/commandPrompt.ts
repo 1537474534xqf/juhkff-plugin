@@ -38,7 +38,7 @@ export const commandPromptConfig: CommandPrompt = {} as CommandPrompt;
 (() => {
     const file = path.join(PLUGIN_CONFIG_DIR, `commandPrompt.yaml`);
     const defaultFile = path.join(PLUGIN_DEFAULT_CONFIG_DIR, `commandPrompt.yaml`);
-    if (configFolderCheck(file, defaultFile)) logger.info(`[JUHKFF-PLUGIN]创建情景预设配置`);
+    if (configFolderCheck(file, defaultFile)) logger.info(`- [JUHKFF-PLUGIN] 创建情景预设配置`);
 
     let lastHash: string = getFileHash(fs.readFileSync(file, "utf8"));
 
@@ -66,8 +66,8 @@ export const commandPromptConfig: CommandPrompt = {} as CommandPrompt;
         sync();
         afterUpdate(previous);
         lastHash = hash;
-        logger.info(logger.grey(`[JUHKFF-PLUGIN]同步情景预设配置`));
-    }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]情景预设配置同步异常`, err) })
+        logger.info(logger.grey(`- [JUHKFF-PLUGIN] 同步情景预设配置`));
+    }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN] 情景预设配置同步异常`, err) })
 })();
 
 /**
@@ -90,5 +90,5 @@ function privateSync(userConfig: CommandPrompt, defaultConfig: CommandPrompt) {
             }
         }
     }
-    if (add) logger.info(logger.bgRgb(82, 70, 77).rgb(206, 139, 180).bold(`- [JUHKFF-PLUGIN]情景预设更新：${cmd.join(", ")}`))
+    if (add) logger.info(logger.bgRgb(82, 70, 77).rgb(206, 139, 180).bold(`- [JUHKFF-PLUGIN] 情景预设更新：${cmd.join(", ")}`))
 }

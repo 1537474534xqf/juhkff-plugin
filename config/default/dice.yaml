@@ -1,0 +1,26 @@
+useDice: true
+default: 2x标准骰
+briefMode: false
+presets:
+  - name: 标准骰
+    isNumber: true
+    faces:
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+  - name: 方向骰
+    isNumber: false
+    faces:
+      - 上
+      - 下
+      - 左
+      - 右
+
+packs:
+  - name: 2x标准骰
+    bundle:
+      - name: 标准骰
+        count: 2

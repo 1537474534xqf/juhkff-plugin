@@ -141,7 +141,7 @@ declare type E = {
         file?: string,
         id?: number,
         time?: number
-    },
+    }[],
     message_format: "array" | string,
     message_id: number,
     message_seq: number,

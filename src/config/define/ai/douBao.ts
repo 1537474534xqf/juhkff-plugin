@@ -92,7 +92,7 @@ export const douBaoConfig: DouBao = {} as DouBao;
 (() => {
     const file = path.join(PLUGIN_CONFIG_DIR, "ai", `douBao.yaml`);
     const defaultFile = path.join(PLUGIN_DEFAULT_CONFIG_DIR, "ai", `douBao.yaml`);
-    if (configFolderCheck(file, defaultFile)) logger.info(`[JUHKFF-PLUGIN]创建豆包配置`);
+    if (configFolderCheck(file, defaultFile)) logger.info(`- [JUHKFF-PLUGIN] 创建豆包配置`);
 
     const sync = (() => {
         const userConfig = YAML.parse(fs.readFileSync(file, "utf8")) as DouBao;
@@ -114,6 +114,6 @@ export const douBaoConfig: DouBao = {} as DouBao;
         if (hash === lastHash) return;
         sync();
         lastHash = hash;
-        logger.info(logger.grey(`[JUHKFF-PLUGIN]同步豆包配置`));
-    }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN]豆包配置同步异常`, err) })
+        logger.info(logger.grey(`- [JUHKFF-PLUGIN] 同步豆包配置`));
+    }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN] 豆包配置同步异常`, err) })
 })();

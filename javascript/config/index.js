@@ -11,6 +11,7 @@ import { dailyReportConfig } from "./define/dailyReport.js";
 import { emojiSaveConfig } from "./define/emojiSave.js";
 import { helpGenConfig } from "./define/helpGen.js";
 import { commandPromptConfig } from "./define/commandPrompt.js";
+import { diceConfig } from "./define/dice.js";
 // 全局 config
 export const config = {
     autoReply: autoReplyConfig,
@@ -19,7 +20,8 @@ export const config = {
     helpGen: helpGenConfig,
     douBao: douBaoConfig,
     siliconflow: sfConfig,
-    commandPrompt: commandPromptConfig
+    commandPrompt: commandPromptConfig,
+    dice: diceConfig
 };
 export function updateConfig(data) {
     processCron(data);
@@ -30,6 +32,7 @@ export function updateConfig(data) {
     saveConfigToFile(data.douBao, "ai", "douBao.yaml");
     saveConfigToFile(data.siliconflow, "ai", "siliconflow.yaml");
     saveConfigToFile(data.commandPrompt, "commandPrompt.yaml");
+    saveConfigToFile(data.dice, "dice.yaml");
 }
 function processCron(data) {
     if (!Objects.isNull(data.dailyReport.dailyReportTime))

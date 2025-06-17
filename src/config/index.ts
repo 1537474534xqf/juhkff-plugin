@@ -11,8 +11,9 @@ import { DailyReport, dailyReportConfig } from "./define/dailyReport.js"
 import { EmojiSave, emojiSaveConfig } from "./define/emojiSave.js"
 import { HelpGen, helpGenConfig } from "./define/helpGen.js"
 import { CommandPrompt, commandPromptConfig } from "./define/commandPrompt.js"
+import { Dice, diceConfig } from "./define/dice.js"
 
-export type ConfigType = AutoReply | DailyReport | EmojiSave | HelpGen | DouBao | SiliconFlow | CommandPrompt
+export type ConfigType = AutoReply | DailyReport | EmojiSave | HelpGen | DouBao | SiliconFlow | CommandPrompt | Dice
 
 export type Config = {
     autoReply: AutoReply
@@ -21,7 +22,8 @@ export type Config = {
     helpGen: HelpGen
     douBao: DouBao
     siliconflow: SiliconFlow,
-    commandPrompt: CommandPrompt
+    commandPrompt: CommandPrompt,
+    dice: Dice
 }
 
 // 全局 config
@@ -32,7 +34,8 @@ export const config: Config = {
     helpGen: helpGenConfig,
     douBao: douBaoConfig,
     siliconflow: sfConfig,
-    commandPrompt: commandPromptConfig
+    commandPrompt: commandPromptConfig,
+    dice: diceConfig
 };
 
 export function updateConfig(data: Config) {
@@ -45,6 +48,7 @@ export function updateConfig(data: Config) {
     saveConfigToFile(data.douBao, "ai", "douBao.yaml");
     saveConfigToFile(data.siliconflow, "ai", "siliconflow.yaml");
     saveConfigToFile(data.commandPrompt, "commandPrompt.yaml");
+    saveConfigToFile(data.dice, "dice.yaml");
 }
 
 function processCron(data: Config) {
