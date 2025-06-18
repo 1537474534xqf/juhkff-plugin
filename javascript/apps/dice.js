@@ -10,7 +10,7 @@ export const help = () => {
         enable: config.dice.useDice,
     };
 };
-export class CommandPrompt extends plugin {
+export class dice extends plugin {
     constructor() {
         super({
             name: "[扎克芙芙]骰子",

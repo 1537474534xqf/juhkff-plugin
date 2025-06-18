@@ -9,7 +9,7 @@ import { Objects } from "../utils/kits.js";
 //         enable: config.commandPrompt.useCommandPrompt,
 //     }
 // }
-export class CommandPrompt extends plugin {
+export class commandPrompt extends plugin {
     constructor() {
         super({
             name: "[扎克芙芙]情景预设",
