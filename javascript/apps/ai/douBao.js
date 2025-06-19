@@ -424,6 +424,10 @@ export class douBao extends plugin {
     }
     // ---------------------------------------------------- 视频生成 ----------------------------------------------------
     static videoGenerateMap = {
+        "doubao-seedance-pro": {
+            "text": "doubao-seedance-1-0-pro-250528",
+            "image_1": "doubao-seedance-1-0-pro-250528"
+        },
         "doubao-seedance": {
             "text": "doubao-seedance-1-0-lite-t2v-250428",
             "image_1": "doubao-seedance-1-0-lite-i2v-250428"

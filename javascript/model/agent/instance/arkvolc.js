@@ -35,6 +35,10 @@ export class ArkEngine extends OpenAI {
     async visualModels() {
         return {
             "doubao-1.5-vision-pro-250328": null,
+            "doubao-1-5-thinking-vision-pro-250428": null,
+            "doubao-seed-1-6-250615": null,
+            "doubao-seed-1-6-thinking-250615": null,
+            "doubao-seed-1-6-flash-250615": null,
             "输入其它或自定义模型（请勿选择该项）": null
         };
     }

@@ -159,13 +159,13 @@ export const autoReplySchema = () => [
     {
         field: "autoReply.chatApiKey",
         label: "群聊AI ApiKey",
-        bottomHelpMessage: "填写AI接口和ApiKey、确保主动群聊开关开启后，务必先保存并刷新页面，否则模型无法选择！",
+        bottomHelpMessage: "填写AI接口和ApiKey、确保主动群聊开关开启、并选择正确的群聊AI接口类型后，务必先保存并刷新页面，否则模型无法选择！",
         component: "InputPassword",
     },
     {
         field: "autoReply.chatApiType",
         label: "群聊AI接口类型",
-        bottomHelpMessage: "勾选视觉可支持图片识别。在勾选前请确保所选择的接口和模型支持相关功能",
+        bottomHelpMessage: "勾选视觉可支持图片识别。在勾选前请确保所选择的接口和模型支持相关功能。选择该项后，先保存并刷新页面，否则模型无法选择！",
         component: "CheckboxGroup",
         componentProps: {
             options: [
