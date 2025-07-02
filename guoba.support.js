@@ -30,7 +30,7 @@ export function supportGuoba() {
             // 作者主页地址。若author为数组，则authorLink也需要为数组，且需要与author一一对应
             authorLink: ["https://github.com/juhkff"],
             // 仓库地址
-            link: "https://github.com/juhkff/juhkff-plugin",
+            link: "https://gitee.com/juhkff/juhkff-plugin",
             isV3: true,
             isV2: false,
             // 是否显示在左侧菜单，可选值：auto、true、false
