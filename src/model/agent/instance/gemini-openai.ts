@@ -2,7 +2,7 @@ import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg, Request } from "../
 import { config } from "../../../config/index.js";
 import { OpenAI } from "../openaiAgent.js";
 
-export class GeminiOpenAPI extends OpenAI {
+export class GeminiOpenAI extends OpenAI {
     constructor(apiKey: string) { super(apiKey); }
     static hasVisual = () => true;
 

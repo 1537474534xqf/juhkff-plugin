@@ -8,7 +8,7 @@ import { DeepSeek } from "./agent/instance/deepseek.js";
 import { Siliconflow } from "./agent/instance/siliconflow.js";
 import { config } from "../config/index.js";
 import { Gemini } from "./agent/instance/gemini.js";
-import { GeminiOpenAPI } from "./agent/instance/gemini-openapi.js";
+import { GeminiOpenAI } from "./agent/instance/gemini-openai.js";
 import { OpenAI } from "./agent/openaiAgent.js";
 import { OpenRouter } from "./agent/instance/openrouter.js";
 import { EVENT_RELOAD_INSTANCE } from "./constant.js";
@@ -20,7 +20,7 @@ const agentMap = {
     deepseek: DeepSeek,
     火山方舟: ArkEngine,
     Gemini: Gemini,
-    "Gemini-OpenAPI（国内中转）": GeminiOpenAPI,
+    "Gemini-OpenAI（国内中转）": GeminiOpenAI,
     OpenRouter: OpenRouter,
     OpenAI通用: OpenAI,
 };

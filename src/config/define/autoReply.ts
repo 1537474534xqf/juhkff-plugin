@@ -105,4 +105,6 @@ function privateSync(userConfig: AutoReply, defaultConfig: AutoReply) {
     // 对预设单独处理，将旧预设自动更新为新预设
     if (defaultConfig.oldPrompt.includes(userConfig.chatPrompt.trim())) userConfig.chatPrompt = defaultConfig.chatPrompt;
     delete defaultConfig.oldPrompt;
+    // 兼容和修复命名错误
+    if (userConfig.chatApi === "Gemini-OpenAPI（国内中转）") userConfig.chatApi = "Gemini-OpenAI（国内中转）";
 }

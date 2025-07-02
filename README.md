@@ -51,7 +51,7 @@ pnpm install --filter=juhkff-plugin
 - DeepSeek 官网申请 ApiKey: https://platform.deepseek.com/
 - 火山方舟 官网申请 ApiKey 和创建应用: https://console.volcengine.com/ark/
 - Gemini 官网申请 ApiKey: https://aistudio.google.com/apikey
-- Gemini-OpenAPI（国内中转）教程: https://github.com/PublicAffairs/openai-gemini
+- Gemini-OpenAI（国内中转）教程: https://github.com/PublicAffairs/openai-gemini
   <details><summary>部署教程</summary>
   （需有一个国内可访问的域名）<br>
   1. 进入openai-gemini仓库<br>

@@ -75,4 +75,7 @@ function privateSync(userConfig, defaultConfig) {
     if (defaultConfig.oldPrompt.includes(userConfig.chatPrompt.trim()))
         userConfig.chatPrompt = defaultConfig.chatPrompt;
     delete defaultConfig.oldPrompt;
+    // 兼容和修复命名错误
+    if (userConfig.chatApi === "Gemini-OpenAPI（国内中转）")
+        userConfig.chatApi = "Gemini-OpenAI（国内中转）";
 }
