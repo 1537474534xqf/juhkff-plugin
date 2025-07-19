@@ -261,7 +261,7 @@ function isSkippedUrl(url: string): boolean {
 export async function generateAnswer(e: { group_id: number; sender: { card: string; }; }, msg: string) {
     let apiKey = config.autoReply.chatApiKey;
     let model = config.autoReply.chatModel;
-    if (!apiKey || apiKey == "") {
+    if (!apiKey || apiKey.length == 0) {
         logger.error("[handle]请先设置chatApiKey");
         return "[handle]请先设置chatApiKey";
     }

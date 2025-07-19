@@ -1,9 +1,8 @@
-import axios from "axios";
 import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg, Request } from "../../../types.js";
 import { OpenAI } from "../openaiAgent.js";
 
 export class Siliconflow extends OpenAI {
-    constructor(apiKey: string) { super(apiKey, "https://api.siliconflow.cn/v1"); }
+    constructor(apiKey: { name: string, apiKey: string, enabled: boolean }[]) { super(apiKey, "https://api.siliconflow.cn/v1"); }
     static hasVisual = () => true;
 
     public async visualModels(): Promise<Record<string, { chat: Function, tool: Function }> | undefined> {
@@ -37,46 +36,59 @@ export class Siliconflow extends OpenAI {
         };
     }
     public async chatModels(): Promise<Record<string, Function> | undefined> {
-        let response = await axios.get(`${this.apiUrl}/models?type=text`, {
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${this.apiKey}`,
-            },
-        });
-        let modelMap: Record<string, Function> = {};
-        let models = response.data.data;
-        for (const model of models) {
-            modelMap[model.id] = super.commonRequestChat.bind(this);
+        let response: any;
+        for (const eachKey of this.apiKey.filter((key) => key.enabled)) {
+            response = await fetch(`${this.apiUrl}/models?type=text`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${eachKey.apiKey}`,
+                },
+            });
+            if (response && response.ok) {
+                const modelMap: Record<string, Function> = {};
+                const models = await response.json();
+                for (const model of models.data) {
+                    modelMap[model.id] = super.commonRequestChat.bind(this);
+                }
+                modelMap["输入其它模型（请勿选择该项）"] = null;
+                return modelMap;
+            }
         }
-        modelMap["输入其它模型（请勿选择该项）"] = null;
-        return modelMap;
+        if (this.apiKey.length > 0) {
+            const error = await response?.json();
+            logger.error(`Siliconflow: 获取模型列表失败，${JSON.stringify(error, null, 2)}`);
+            return {};
+        }
     }
 
     async chatRequest(groupId: number, model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any> {
         // 构造请求体
-        var request: Request = {
-            url: `${this.apiUrl}/chat/completions`,
-            options: {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
-                    "Content-Type": "application/json",
+        let response: any;
+        for (const eachKey of this.apiKey.filter((key) => key.enabled)) {
+            var request: Request = {
+                url: `${this.apiUrl}/chat/completions`,
+                options: {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${eachKey.apiKey}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: {
+                        model: model,
+                        messages: [],
+                        stream: false,
+                        temperature: 1.5,
+                    },
                 },
-                body: {
-                    model: model,
-                    messages: [],
-                    stream: false,
-                    temperature: 1.5,
-                },
-            },
-        };
-        if (!this.modelsChat.hasOwnProperty(model) || this.modelsChat[model] === null) {
-            let response = await super.commonRequestChat(groupId, request, input, historyMessages, useSystemRole);
-            return response;
-        } else {
-            let response = await this.modelsChat[model](groupId, request, input, historyMessages, useSystemRole)
-            return response;
+            };
+            if (!this.modelsChat.hasOwnProperty(model) || this.modelsChat[model] === null) {
+                response = await super.commonRequestChat(groupId, request, input, historyMessages, useSystemRole);
+            } else {
+                response = await this.modelsChat[model](groupId, request, input, historyMessages, useSystemRole)
+            }
+            if (response && response.ok) return response.data;
         }
+        if (this.apiKey.length > 0) return response.error;
     }
     public async visualRequest(groupId: number, model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any> {
         /*
@@ -85,28 +97,31 @@ export class Siliconflow extends OpenAI {
             return "[autoReply]不支持的视觉模型：" + model;
         }
         */
-        let request: Request = {
-            url: `${this.apiUrl}/chat/completions`,
-            options: {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
-                    "Content-Type": "application/json",
+        let response: any;
+        for (const eachKey of this.apiKey.filter((key) => key.enabled)) {
+            let request: Request = {
+                url: `${this.apiUrl}/chat/completions`,
+                options: {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${eachKey.apiKey}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: {
+                        model: model,
+                        messages: [],
+                        stream: false,
+                    },
                 },
-                body: {
-                    model: model,
-                    messages: [],
-                    stream: false,
-                },
-            },
-        };
-        if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
-            let response = await super.commonRequestVisual(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
-            return response;
-        } else {
-            let response = await this.modelsVisual[model].chat(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
-            return response;
+            };
+            if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
+                response = await super.commonRequestVisual(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
+            } else {
+                response = await this.modelsVisual[model].chat(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
+            }
+            if (response && response.ok) return response.data;
         }
+        if (this.apiKey.length > 0) return response?.error;
     }
 
     async toolRequest(model: string, j_msg: { img?: string[], text: string[] }): Promise<any> {
@@ -116,27 +131,30 @@ export class Siliconflow extends OpenAI {
             return `[sf]不支持的视觉模型: ${model}`;
         }
         */
-        var request: Request = {
-            url: `${this.apiUrl}/chat/completions`,
-            options: {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
-                    "Content-Type": "application/json",
+        let response: any;
+        for (const eachKey of this.apiKey.filter((key) => key.enabled)) {
+            var request: Request = {
+                url: `${this.apiUrl}/chat/completions`,
+                options: {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${eachKey.apiKey}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: {
+                        model: model,
+                        messages: [],
+                        stream: false,
+                    },
                 },
-                body: {
-                    model: model,
-                    messages: [],
-                    stream: false,
-                },
-            },
-        };
-        if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
-            let response = await super.commonRequestTool(JSON.parse(JSON.stringify(request)), j_msg);
-            return response;
-        } else {
-            let response = await this.modelsVisual[model].tool(JSON.parse(JSON.stringify(request)), j_msg);
-            return response;
+            };
+            if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
+                response = await super.commonRequestTool(JSON.parse(JSON.stringify(request)), j_msg);
+            } else {
+                response = await this.modelsVisual[model].tool(JSON.parse(JSON.stringify(request)), j_msg);
+            }
+            if (response && response.ok) return response.data;
         }
+        if (this.apiKey.length > 0) return response?.error;
     }
 }

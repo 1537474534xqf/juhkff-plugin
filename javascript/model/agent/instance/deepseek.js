@@ -14,29 +14,37 @@ export class DeepSeek extends OpenAI {
             logger.error("[ds]不支持的模型：" + model);
             return "[ds]不支持的模型：" + model;
         }
-        let request = {
-            url: `${this.apiUrl}/chat/completions`,
-            options: {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
-                    "Content-Type": "application/json",
+        let response;
+        for (const eachKey of this.apiKey.filter((key) => key.enabled)) {
+            let request = {
+                url: `${this.apiUrl}/chat/completions`,
+                options: {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${eachKey.apiKey}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: {
+                        model: model,
+                        messages: [],
+                        stream: false,
+                        temperature: 1.5,
+                    },
                 },
-                body: {
-                    model: model,
-                    messages: [],
-                    stream: false,
-                    temperature: 1.5,
-                },
-            },
-        };
-        let response = await this.modelsChat[model](groupId, request, input, historyMessages, useSystemRole);
-        // 如果 DeepSeek-R1 失败，尝试使用 DeepSeek-V3
-        if (typeof response === "string" && response.startsWith("[ds]DeepSeek-R1调用失败")) {
-            request.options.body.model = "deepseek-chat";
-            response = await this.deepseek_chat(groupId, JSON.parse(JSON.stringify(request)), input, historyMessages, useSystemRole);
+            };
+            response = await this.modelsChat[model](groupId, request, input, historyMessages, useSystemRole);
+            if (response && response.ok)
+                return response.data;
+            // 如果 DeepSeek-R1 失败，尝试使用 DeepSeek-V3
+            if (model == "deepseek-reasoner") {
+                request.options.body.model = "deepseek-chat";
+                response = await this.deepseek_chat(groupId, JSON.parse(JSON.stringify(request)), input, historyMessages, useSystemRole);
+                if (response && response.ok)
+                    return response.data;
+            }
         }
-        return response;
+        if (this.apiKey.length > 0)
+            return response?.error;
     }
     async deepseek_chat(groupId, request, input, historyMessages = [], useSystemRole = true) {
         // 添加消息内容
@@ -59,19 +67,19 @@ export class DeepSeek extends OpenAI {
         logger.info(`[ds]DeepSeek-V3 API调用，请求内容：${JSON.stringify(request, null, 2)}`);
         try {
             request.options.body = JSON.stringify(request.options.body);
-            let response = await fetch(request.url, request.options);
+            const response = await fetch(request.url, request.options);
             const data = await response.json();
-            if (data?.choices?.[0]?.message?.content) {
-                return data.choices[0].message.content;
+            if (response.ok) {
+                return { ok: response.ok, data: data?.choices?.[0]?.message?.content };
             }
             else {
                 logger.error("[ds]DeepSeek-V3调用失败：", JSON.stringify(data, null, 2));
-                return "[ds]DeepSeek-V3调用失败，详情请查阅控制台。";
+                return { ok: response.ok, error: "[ds]DeepSeek-V3调用失败，详情请查阅控制台。" };
             }
         }
         catch (error) {
             logger.error(`[ds]DeepSeek-V3调用失败`, error);
-            return "[ds]DeepSeek-V3调用失败，详情请查阅控制台。";
+            return { ok: false, error: "[ds]DeepSeek-V3调用失败，详情请查阅控制台。" };
         }
     }
     async deepseek_reasoner(groupId, request, input, historyMessages = [], useSystemRole = true) {
@@ -100,17 +108,17 @@ export class DeepSeek extends OpenAI {
             request.options.body = JSON.stringify(request.options.body);
             let response = await fetch(request.url, request.options);
             const data = await response.json();
-            if (data?.choices?.[0]?.message?.content) {
-                return data.choices[0].message.content;
+            if (response && response.ok) {
+                return { ok: response.ok, data: data?.choices?.[0]?.message?.content };
             }
             else {
                 logger.error("[ds]DeepSeek-R1调用失败：", JSON.stringify(data, null, 2));
-                return "[ds]DeepSeek-R1调用失败，详情请查阅控制台。";
+                return { ok: response.ok, error: "[ds]DeepSeek-R1调用失败，详情请查阅控制台。" };
             }
         }
         catch (error) {
             logger.error(`[ds]DeepSeek-R1调用失败`, error);
-            return "[ds]DeepSeek-R1调用失败，详情请查阅控制台。";
+            return { ok: false, error: "[ds]DeepSeek-R1调用失败，详情请查阅控制台。" };
         }
     }
     visualRequest(groupId, model, nickName, j_msg, historyMessages, useSystemRole) {

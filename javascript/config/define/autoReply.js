@@ -78,4 +78,8 @@ function privateSync(userConfig, defaultConfig) {
     // 兼容和修复命名错误
     if (userConfig.chatApi === "Gemini-OpenAPI（国内中转）")
         userConfig.chatApi = "Gemini-OpenAI（国内中转）";
+    // 兼容apiKey从字符串变为obj数组
+    if (typeof userConfig.chatApiKey === "string") {
+        userConfig.chatApiKey = userConfig.chatApiKey.trim() === "" ? [] : [{ name: "默认", apiKey: userConfig.chatApiKey, enabled: true }];
+    }
 }

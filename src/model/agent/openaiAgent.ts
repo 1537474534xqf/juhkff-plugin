@@ -5,7 +5,7 @@ import { EMOTION_KEY } from "../constant.js";
 import { ChatAgent } from "./chatAgent.js";
 
 export class OpenAI extends ChatAgent {
-    constructor(apiKey: string, apiUrl: string | null = null) { super(apiKey, apiUrl); }
+    constructor(apiKey: { name: string, apiKey: string, enabled: boolean }[], apiUrl: string | null = null) { super(apiKey, apiUrl); }
 
     static hasVisual = () => true;
 
@@ -15,30 +15,33 @@ export class OpenAI extends ChatAgent {
         };
     }
     async chatRequest(groupId: number, model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any> {
-        // 构造请求体
-        var request: Request = {
-            url: config.autoReply.apiCustomUrl,
-            options: {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
-                    "Content-Type": "application/json",
+        let response: any;
+        for (const eachKey of this.apiKey.filter((key) => key.enabled)) {
+            // 构造请求体
+            var request: Request = {
+                url: config.autoReply.apiCustomUrl,
+                options: {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${eachKey.apiKey}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: {
+                        model: model,
+                        messages: [],
+                        stream: false,
+                        temperature: 1.5,
+                    },
                 },
-                body: {
-                    model: model,
-                    messages: [],
-                    stream: false,
-                    temperature: 1.5,
-                },
-            },
-        };
-        if (!this.modelsChat.hasOwnProperty(model) || this.modelsChat[model] === null) {
-            let response = await this.commonRequestChat(groupId, request, input, historyMessages, useSystemRole);
-            return response;
-        } else {
-            let response = await this.modelsChat[model](groupId, request, input, historyMessages, useSystemRole)
-            return response;
+            };
+            if (!this.modelsChat.hasOwnProperty(model) || this.modelsChat[model] === null) {
+                response = await this.commonRequestChat(groupId, request, input, historyMessages, useSystemRole);
+            } else {
+                response = await this.modelsChat[model](groupId, request, input, historyMessages, useSystemRole)
+            }
+            if (response && response.ok) return response.data;
         }
+        if (this.apiKey.length > 0) return response?.error;
     }
     async visualModels(): Promise<Record<string, { chat: Function; tool: Function; }> | undefined> {
         return {
@@ -46,52 +49,58 @@ export class OpenAI extends ChatAgent {
         }
     }
     async visualRequest(groupId: number, model: string, nickName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole?: boolean): Promise<any> {
-        let request: Request = {
-            url: config.autoReply.apiCustomUrl,
-            options: {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
-                    "Content-Type": "application/json",
+        let response: any;
+        for (const eachKey of this.apiKey.filter((key) => key.enabled)) {
+            let request: Request = {
+                url: config.autoReply.apiCustomUrl,
+                options: {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${eachKey.apiKey}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: {
+                        model: model,
+                        messages: [],
+                        stream: false,
+                    },
                 },
-                body: {
-                    model: model,
-                    messages: [],
-                    stream: false,
-                },
-            },
-        };
-        if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
-            let response = await this.commonRequestVisual(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
-            return response;
-        } else {
-            let response = await this.modelsVisual[model].chat(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
-            return response;
+            };
+            if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
+                response = await this.commonRequestVisual(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
+            } else {
+                response = await this.modelsVisual[model].chat(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
+            }
+            if (response && response.ok) return response.data;
         }
+        if (this.apiKey.length > 0) return response?.error;
     }
     async toolRequest(model: string, j_msg: { img?: string[]; text: string[]; }): Promise<any> {
-        var request: Request = {
-            url: config.autoReply.visualApiCustomUrl,
-            options: {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
-                    "Content-Type": "application/json",
+        let response: any;
+        for (const eachKey of this.apiKey.filter((key) => key.enabled)) {
+            var request: Request = {
+                url: config.autoReply.visualApiCustomUrl,
+                options: {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${eachKey.apiKey}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: {
+                        model: model,
+                        messages: [],
+                        stream: false,
+                    },
                 },
-                body: {
-                    model: model,
-                    messages: [],
-                    stream: false,
-                },
-            },
-        };
-        if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
-            let response = await this.commonRequestTool(JSON.parse(JSON.stringify(request)), j_msg);
-            return response;
-        } else {
-            let response = await this.modelsVisual[model].tool(JSON.parse(JSON.stringify(request)), j_msg);
-            return response;
+            };
+            if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
+                response = await this.commonRequestTool(JSON.parse(JSON.stringify(request)), j_msg);
+            } else {
+                response = await this.modelsVisual[model].tool(JSON.parse(JSON.stringify(request)), j_msg);
+            }
+            if (response && response.ok) return response.data;
         }
+        if (this.apiKey.length > 0) return response?.error;
     }
 
     //----------------------------------------- function -----------------------------------------
@@ -154,17 +163,17 @@ export class OpenAI extends ChatAgent {
             logger.info(`[OpenAI]对话模型 ${(request.options.body as RequestBody).model} API调用，请求内容：${JSON.stringify(request, null, 2)}`);
         try {
             request.options.body = JSON.stringify(request.options.body);
-            let response = await fetch(request.url, request.options as RequestInit);
+            const response = await fetch(request.url, request.options as RequestInit);
             const data = await response.json();
-            if (data?.choices?.[0]?.message?.content) {
-                return data.choices[0].message.content;
+            if (response.ok) {
+                return { ok: response.ok, data: data?.choices?.[0]?.message?.content };
             } else {
                 logger.error(`[OpenAI]对话模型调用失败：`, JSON.stringify(data, null, 2));
-                return `[OpenAI]对话模型调用失败，详情请查阅控制台。`;
+                return { ok: response.ok, error: `[OpenAI]对话模型调用失败，详情请查阅控制台。` };
             }
         } catch (error) {
             logger.error(`[OpenAI]对话模型调用失败`, error);
-            return `[OpenAI]对话模型调用失败，详情请查阅控制台。`;
+            return { ok: false, error: `[OpenAI]对话模型调用失败，详情请查阅控制台。` };
         }
     }
 
@@ -271,20 +280,19 @@ export class OpenAI extends ChatAgent {
 
             logger.info(`[OpenAI]视觉模型 ${logRequest.options.body.model} API调用，请求内容：${JSON.stringify(logRequest, null, 2)}`);
         }
-        var response: Response;
         try {
             request.options.body = JSON.stringify(request.options.body);
-            response = await fetch(request.url, request.options as RequestInit);
+            const response = await fetch(request.url, request.options as RequestInit);
             const data = await response.json();
-            if (data?.choices?.[0]?.message?.content) {
-                return data.choices[0].message.content;
+            if (response.ok) {
+                return { ok: response.ok, data: data?.choices?.[0]?.message?.content };
             } else {
                 logger.error("[OpenAI]视觉模型API调用失败：", JSON.stringify(data, null, 2));
-                return "[OpenAI]视觉模型API调用失败，详情请查阅控制台。";
+                return { ok: response.ok, error: "[OpenAI]视觉模型API调用失败，详情请查阅控制台。" };
             }
         } catch (error) {
             logger.error("[OpenAI]视觉模型API调用失败", error);
-            return "[OpenAI]视觉模型API调用失败，详情请查阅控制台。";
+            return { ok: false, error: "[OpenAI]视觉模型API调用失败，详情请查阅控制台。" };
         }
     }
 
@@ -329,20 +337,19 @@ export class OpenAI extends ChatAgent {
             });
             logger.info(`[OpenAI]视觉模型 ${(logRequest.options.body as RequestBody).model} API工具请求调用，请求内容：${JSON.stringify(logRequest, null, 2)}`);
         }
-        var response: Response;
         try {
             request.options.body = JSON.stringify(request.options.body);
-            response = await fetch(request.url, request.options as RequestInit);
+            const response = await fetch(request.url, request.options as RequestInit);
             const data = await response.json();
-            if (data?.choices?.[0]?.message?.content) {
-                return data.choices[0].message.content;
+            if (response.ok) {
+                return { ok: response.ok, data: data?.choices?.[0]?.message?.content }
             } else {
                 logger.error(`[OpenAI]视觉模型API工具请求调用失败: ${JSON.stringify(data, null, 2)}`);
-                return "[OpenAI]视觉模型API工具请求调用失败，详情请查阅控制台。";
+                return { ok: response.ok, error: "[OpenAI]视觉模型API工具请求调用失败，详情请查阅控制台。" };
             }
         } catch (error) {
             logger.error("[OpenAI]视觉模型API工具请求调用失败", error);
-            return "[OpenAI]视觉模型API工具请求调用失败，详情请查阅控制台。";
+            return { ok: false, error: "[OpenAI]视觉模型API工具请求调用失败，详情请查阅控制台。" };
         }
     }
 }

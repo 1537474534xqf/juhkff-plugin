@@ -22,7 +22,7 @@ export type AutoReply = {
     useContext: boolean;
     maxHistoryLength: number;
     chatApi: string;
-    chatApiKey: string
+    chatApiKey: { name: string, apiKey: string, enabled: boolean }[];
     chatApiType: ChatApiType[]
     chatModel: string
     apiCustomUrl: string
@@ -107,4 +107,8 @@ function privateSync(userConfig: AutoReply, defaultConfig: AutoReply) {
     delete defaultConfig.oldPrompt;
     // 兼容和修复命名错误
     if (userConfig.chatApi === "Gemini-OpenAPI（国内中转）") userConfig.chatApi = "Gemini-OpenAI（国内中转）";
+    // 兼容apiKey从字符串变为obj数组
+    if (typeof userConfig.chatApiKey === "string") {
+        userConfig.chatApiKey = (userConfig.chatApiKey as string).trim() === "" ? [] : [{ name: "默认", apiKey: userConfig.chatApiKey as string, enabled: true }];
+    }
 }

@@ -15,27 +15,32 @@ export class Gemini extends ChatAgent {
         };
     }
     async chatRequest(groupId, model, input, historyMessages, useSystemRole) {
-        // 构造请求体
-        var request = {
-            url: `${this.apiUrl}/${model}:generateContent?key=${this.apiKey}`,
-            options: {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
+        let response;
+        for (const eachKey of this.apiKey.filter((key) => key.enabled)) {
+            // 构造请求体
+            var request = {
+                url: `${this.apiUrl}/${model}:generateContent?key=${eachKey.apiKey}`,
+                options: {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: {
+                        contents: []
+                    },
                 },
-                body: {
-                    contents: []
-                },
-            },
-        };
-        if (!this.modelsChat.hasOwnProperty(model) || this.modelsChat[model] === null) {
-            let response = await this.commonRequestChat(groupId, request, input, historyMessages, useSystemRole);
-            return response;
+            };
+            if (!this.modelsChat.hasOwnProperty(model) || this.modelsChat[model] === null) {
+                response = await this.commonRequestChat(groupId, request, input, historyMessages, useSystemRole);
+            }
+            else {
+                response = await this.modelsChat[model](groupId, request, input, historyMessages, useSystemRole);
+            }
+            if (response && response.ok)
+                return response.data;
         }
-        else {
-            let response = await this.modelsChat[model](groupId, request, input, historyMessages, useSystemRole);
-            return response;
-        }
+        if (this.apiKey.length > 0)
+            return response?.error;
     }
     async visualModels() {
         return {
@@ -65,26 +70,31 @@ export class Gemini extends ChatAgent {
             return "[Gemini]不支持的视觉模型：" + model;
         }
         */
-        let request = {
-            url: `${this.apiUrl}/${model}:generateContent?key=${this.apiKey}`,
-            options: {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
+        let response;
+        for (const eachKey of this.apiKey.filter((key) => key.enabled)) {
+            let request = {
+                url: `${this.apiUrl}/${model}:generateContent?key=${eachKey.apiKey}`,
+                options: {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: {
+                        contents: []
+                    },
                 },
-                body: {
-                    contents: []
-                },
-            },
-        };
-        if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
-            let response = await this.commonRequestVisual(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
-            return response;
+            };
+            if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
+                response = await this.commonRequestVisual(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
+            }
+            else {
+                response = await this.modelsVisual[model].chat(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
+            }
+            if (response.ok)
+                return response.data;
         }
-        else {
-            let response = await this.modelsVisual[model].chat(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
-            return response;
-        }
+        if (this.apiKey.length > 0)
+            return response?.error;
     }
     async toolRequest(model, j_msg) {
         /*
@@ -93,26 +103,31 @@ export class Gemini extends ChatAgent {
             return `[Gemini]不支持的视觉模型: ${model}`;
         }
         */
-        var request = {
-            url: `${this.apiUrl}/${model}:generateContent?key=${this.apiKey}`,
-            options: {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
+        let response;
+        for (const eachKey of this.apiKey.filter((key) => key.enabled)) {
+            var request = {
+                url: `${this.apiUrl}/${model}:generateContent?key=${eachKey.apiKey}`,
+                options: {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: {
+                        contents: []
+                    },
                 },
-                body: {
-                    contents: []
-                },
-            },
-        };
-        if (!this.modelsVisual.hasOwnProperty(model)) {
-            let response = await this.commonRequestTool(JSON.parse(JSON.stringify(request)), j_msg);
-            return response;
+            };
+            if (!this.modelsVisual.hasOwnProperty(model)) {
+                response = await this.commonRequestTool(JSON.parse(JSON.stringify(request)), j_msg);
+            }
+            else {
+                response = await this.modelsVisual[model].tool(JSON.parse(JSON.stringify(request)), j_msg);
+            }
+            if (response.ok)
+                return response.data;
         }
-        else {
-            var response = await this.modelsVisual[model].tool(JSON.parse(JSON.stringify(request)), j_msg);
-            return response;
-        }
+        if (this.apiKey.length > 0)
+            return response?.error;
     }
     async commonRequestChat(groupId, request, input, historyMessages = [], useSystemRole = true) {
         if (useSystemRole) {
@@ -134,22 +149,24 @@ export class Gemini extends ChatAgent {
             logger.info(`[Gemini]对话模型 Gemini API调用，请求内容：${JSON.stringify(request, null, 2)}`);
         try {
             request.options.body = JSON.stringify(request.options.body);
-            let response = await fetch(request.url, request.options);
+            const response = await fetch(request.url, request.options);
             const data = await response.json();
-            if (data?.error) {
-                return `${data?.error?.status}: ${data?.error?.message}`;
-            }
-            if (data?.candidates[0]?.content?.parts[0]) {
-                return data?.candidates[0]?.content?.parts[0].text;
+            if (response && response.ok) {
+                return { ok: response.ok, data: data?.candidates?.[0]?.content?.parts?.[0]?.text };
             }
             else {
-                logger.error(`[Gemini]对话模型调用失败：`, JSON.stringify(data, null, 2));
-                return `[Gemini]对话模型调用失败，详情请查阅控制台。`;
+                if (data?.error) {
+                    return { ok: response.ok, error: `${data?.error?.status}: ${data?.error?.message}` };
+                }
+                else {
+                    logger.error(`[Gemini]对话模型调用失败：`, JSON.stringify(data, null, 2));
+                    return { ok: response.ok, error: `[Gemini]对话模型调用失败，详情请查阅控制台。` };
+                }
             }
         }
         catch (error) {
             logger.error(`[Gemini]对话模型调用失败`, error);
-            return `[Gemini]对话模型调用失败，详情请查阅控制台。`;
+            return { ok: false, error: `[Gemini]对话模型调用失败，详情请查阅控制台。` };
         }
     }
     async generateSystemContent(groupId, useEmotion, chatPrompt) {
@@ -281,25 +298,27 @@ export class Gemini extends ChatAgent {
             });
             logger.info(`[Gemini]视觉模型 Gemini API调用，请求内容：${JSON.stringify(logRequest, null, 2)}`);
         }
-        var response;
         try {
             request.options.body = JSON.stringify(request.options.body);
-            response = await fetch(request.url, request.options);
+            const response = await fetch(request.url, request.options);
             const data = await response.json();
-            if (data?.error) {
-                return `${data?.error?.status}: ${data?.error?.message.length > 40 ? data?.error?.message.substring(0, 40) + "..." : data?.error?.message}`;
-            }
-            if (data?.candidates[0]?.content?.parts[0]) {
-                return data?.candidates[0]?.content?.parts[0].text;
+            if (response && response.ok) {
+                return { ok: response.ok, data: data?.candidates?.[0]?.content?.parts?.[0]?.text };
             }
             else {
-                logger.error(`[Gemini]对话模型调用失败：`, JSON.stringify(data, null, 2));
-                return `[Gemini]对话模型调用失败，详情请查阅控制台。`;
+                if (data?.error) {
+                    logger.error(`[Gemini]对话模型调用失败：`, JSON.stringify(data, null, 2));
+                    return { ok: response.ok, error: `${data?.error?.status}: ${data?.error?.message.length > 40 ? data?.error?.message.substring(0, 40) + "..." : data?.error?.message}` };
+                }
+                else {
+                    logger.error(`[Gemini]对话模型调用失败：`, JSON.stringify(data, null, 2));
+                    return { ok: response.ok, error: `[Gemini]对话模型调用失败，详情请查阅控制台。` };
+                }
             }
         }
         catch (error) {
             logger.error("[Gemini]视觉模型API调用失败", error);
-            return "[Gemini]视觉模型API调用失败，详情请查阅控制台。";
+            return { ok: false, error: "[Gemini]视觉模型API调用失败，详情请查阅控制台。" };
         }
     }
     async commonRequestTool(request, j_msg) {
@@ -339,25 +358,26 @@ export class Gemini extends ChatAgent {
             });
             logger.info(`[Gemini]视觉模型 Gemini API工具请求调用，请求内容：${JSON.stringify(logRequest, null, 2)}`);
         }
-        var response;
         try {
             request.options.body = JSON.stringify(request.options.body);
-            response = await fetch(request.url, request.options);
+            const response = await fetch(request.url, request.options);
             const data = await response.json();
-            if (data?.error) {
-                return `${data?.error?.status}: ${data?.error?.message.length > 40 ? data?.error?.message.substring(0, 40) + "..." : data?.error?.message}`;
-            }
-            if (data?.candidates[0]?.content?.parts[0]) {
-                return data?.candidates[0]?.content?.parts[0].text;
+            if (response && response.ok) {
+                return { ok: response.ok, data: data?.candidates[0]?.content?.parts[0].text };
             }
             else {
-                logger.error(`[Gemini]视觉模型API工具请求调用失败：`, JSON.stringify(data, null, 2));
-                return `[Gemini]视觉模型API工具请求调用失败，详情请查阅控制台。`;
+                if (data?.error) {
+                    return { ok: response.ok, error: `${data?.error?.status}: ${data?.error?.message.length > 40 ? data?.error?.message.substring(0, 40) + "..." : data?.error?.message}` };
+                }
+                else {
+                    logger.error(`[Gemini]视觉模型API工具请求调用失败：`, JSON.stringify(data, null, 2));
+                    return { ok: response.ok, error: `[Gemini]视觉模型API工具请求调用失败，详情请查阅控制台。` };
+                }
             }
         }
         catch (error) {
             logger.error("[Gemini]视觉模型API工具请求调用失败", error);
-            return "[Gemini]视觉模型API工具请求调用失败，详情请查阅控制台。";
+            return { ok: false, error: "[Gemini]视觉模型API工具请求调用失败，详情请查阅控制台。" };
         }
     }
 }

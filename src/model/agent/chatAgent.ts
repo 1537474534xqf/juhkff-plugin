@@ -17,11 +17,11 @@ export interface VisualInterface {
 }
 
 export abstract class ChatAgent implements ChatInterface, VisualInterface {
-    public apiKey: string;
+    public apiKey: { name: string, apiKey: string, enabled: boolean }[];
     public apiUrl: undefined | string = undefined;
     public modelsChat: Record<string, Function> = {};
     public modelsVisual: Record<string, { chat: Function, tool: Function }> = {};
-    constructor(apiKey: string, apiUrl: string | null = null) {
+    constructor(apiKey: { name: string, apiKey: string, enabled: boolean }[], apiUrl: string | null = null) {
         this.apiKey = apiKey;
         if (apiUrl)
             this.apiUrl = apiUrl;

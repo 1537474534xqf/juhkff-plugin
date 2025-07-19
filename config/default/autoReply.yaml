@@ -14,7 +14,7 @@ maxHistoryLength: 5
 chatApi: ""
 
 # 群聊ApiKey
-chatApiKey: ""
+chatApiKey: []
 
 # 群聊模型类型
 chatApiType:

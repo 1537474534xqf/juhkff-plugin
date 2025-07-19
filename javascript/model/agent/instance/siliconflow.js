@@ -1,4 +1,3 @@
-import axios from "axios";
 import { OpenAI } from "../openaiAgent.js";
 export class Siliconflow extends OpenAI {
     constructor(apiKey) { super(apiKey, "https://api.siliconflow.cn/v1"); }
@@ -34,46 +33,61 @@ export class Siliconflow extends OpenAI {
         };
     }
     async chatModels() {
-        let response = await axios.get(`${this.apiUrl}/models?type=text`, {
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${this.apiKey}`,
-            },
-        });
-        let modelMap = {};
-        let models = response.data.data;
-        for (const model of models) {
-            modelMap[model.id] = super.commonRequestChat.bind(this);
+        let response;
+        for (const eachKey of this.apiKey.filter((key) => key.enabled)) {
+            response = await fetch(`${this.apiUrl}/models?type=text`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${eachKey.apiKey}`,
+                },
+            });
+            if (response && response.ok) {
+                const modelMap = {};
+                const models = await response.json();
+                for (const model of models.data) {
+                    modelMap[model.id] = super.commonRequestChat.bind(this);
+                }
+                modelMap["输入其它模型（请勿选择该项）"] = null;
+                return modelMap;
+            }
         }
-        modelMap["输入其它模型（请勿选择该项）"] = null;
-        return modelMap;
+        if (this.apiKey.length > 0) {
+            const error = await response?.json();
+            logger.error(`Siliconflow: 获取模型列表失败，${JSON.stringify(error, null, 2)}`);
+            return {};
+        }
     }
     async chatRequest(groupId, model, input, historyMessages, useSystemRole) {
         // 构造请求体
-        var request = {
-            url: `${this.apiUrl}/chat/completions`,
-            options: {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
-                    "Content-Type": "application/json",
+        let response;
+        for (const eachKey of this.apiKey.filter((key) => key.enabled)) {
+            var request = {
+                url: `${this.apiUrl}/chat/completions`,
+                options: {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${eachKey.apiKey}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: {
+                        model: model,
+                        messages: [],
+                        stream: false,
+                        temperature: 1.5,
+                    },
                 },
-                body: {
-                    model: model,
-                    messages: [],
-                    stream: false,
-                    temperature: 1.5,
-                },
-            },
-        };
-        if (!this.modelsChat.hasOwnProperty(model) || this.modelsChat[model] === null) {
-            let response = await super.commonRequestChat(groupId, request, input, historyMessages, useSystemRole);
-            return response;
+            };
+            if (!this.modelsChat.hasOwnProperty(model) || this.modelsChat[model] === null) {
+                response = await super.commonRequestChat(groupId, request, input, historyMessages, useSystemRole);
+            }
+            else {
+                response = await this.modelsChat[model](groupId, request, input, historyMessages, useSystemRole);
+            }
+            if (response && response.ok)
+                return response.data;
         }
-        else {
-            let response = await this.modelsChat[model](groupId, request, input, historyMessages, useSystemRole);
-            return response;
-        }
+        if (this.apiKey.length > 0)
+            return response.error;
     }
     async visualRequest(groupId, model, nickName, j_msg, historyMessages, useSystemRole) {
         /*
@@ -82,29 +96,34 @@ export class Siliconflow extends OpenAI {
             return "[autoReply]不支持的视觉模型：" + model;
         }
         */
-        let request = {
-            url: `${this.apiUrl}/chat/completions`,
-            options: {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
-                    "Content-Type": "application/json",
+        let response;
+        for (const eachKey of this.apiKey.filter((key) => key.enabled)) {
+            let request = {
+                url: `${this.apiUrl}/chat/completions`,
+                options: {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${eachKey.apiKey}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: {
+                        model: model,
+                        messages: [],
+                        stream: false,
+                    },
                 },
-                body: {
-                    model: model,
-                    messages: [],
-                    stream: false,
-                },
-            },
-        };
-        if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
-            let response = await super.commonRequestVisual(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
-            return response;
+            };
+            if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
+                response = await super.commonRequestVisual(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
+            }
+            else {
+                response = await this.modelsVisual[model].chat(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
+            }
+            if (response && response.ok)
+                return response.data;
         }
-        else {
-            let response = await this.modelsVisual[model].chat(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
-            return response;
-        }
+        if (this.apiKey.length > 0)
+            return response?.error;
     }
     async toolRequest(model, j_msg) {
         /*
@@ -113,28 +132,33 @@ export class Siliconflow extends OpenAI {
             return `[sf]不支持的视觉模型: ${model}`;
         }
         */
-        var request = {
-            url: `${this.apiUrl}/chat/completions`,
-            options: {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
-                    "Content-Type": "application/json",
+        let response;
+        for (const eachKey of this.apiKey.filter((key) => key.enabled)) {
+            var request = {
+                url: `${this.apiUrl}/chat/completions`,
+                options: {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${eachKey.apiKey}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: {
+                        model: model,
+                        messages: [],
+                        stream: false,
+                    },
                 },
-                body: {
-                    model: model,
-                    messages: [],
-                    stream: false,
-                },
-            },
-        };
-        if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
-            let response = await super.commonRequestTool(JSON.parse(JSON.stringify(request)), j_msg);
-            return response;
+            };
+            if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
+                response = await super.commonRequestTool(JSON.parse(JSON.stringify(request)), j_msg);
+            }
+            else {
+                response = await this.modelsVisual[model].tool(JSON.parse(JSON.stringify(request)), j_msg);
+            }
+            if (response && response.ok)
+                return response.data;
         }
-        else {
-            let response = await this.modelsVisual[model].tool(JSON.parse(JSON.stringify(request)), j_msg);
-            return response;
-        }
+        if (this.apiKey.length > 0)
+            return response?.error;
     }
 }
