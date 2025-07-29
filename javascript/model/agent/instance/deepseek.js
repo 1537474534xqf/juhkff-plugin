@@ -33,7 +33,7 @@ export class DeepSeek extends OpenAI {
                 },
             };
             if (config.autoReply.useChatProxy)
-                request.options.proxy = this.proxy;
+                request.options.agent = this.proxy;
             response = await this.modelsChat[model](groupId, request, input, historyMessages, useSystemRole);
             if (response && response.ok)
                 return response.data;

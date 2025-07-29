@@ -37,7 +37,7 @@ export class GeminiOpenAI extends OpenAI {
                 },
             };
             if (config.autoReply.useChatProxy)
-                request.options.proxy = this.proxy;
+                request.options.agent = this.proxy;
             // var response = await this.ModelMap[model](
             response = await super.commonRequestChat(groupId, request, input, historyMessages, useSystemRole);
             if (response && response.ok) {
@@ -68,7 +68,7 @@ export class GeminiOpenAI extends OpenAI {
                 },
             };
             if (config.autoReply.useChatProxy)
-                request.options.proxy = this.proxy;
+                request.options.agent = this.proxy;
             response = await super.commonRequestVisual(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
             if (response && response.ok)
                 return response.data;
@@ -95,7 +95,7 @@ export class GeminiOpenAI extends OpenAI {
                 },
             };
             if (config.autoReply.useVisualProxy)
-                request.options.proxy = this.proxy;
+                request.options.agent = this.proxy;
             response = await super.commonRequestTool(JSON.parse(JSON.stringify(request)), j_msg);
             if (response && response.ok)
                 return response.data;

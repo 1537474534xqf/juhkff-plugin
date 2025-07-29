@@ -31,7 +31,7 @@ export class Gemini extends ChatAgent {
                 },
             };
             if (config.autoReply.useChatProxy)
-                request.options.proxy = this.proxy;
+                request.options.agent = this.proxy;
             if (!this.modelsChat.hasOwnProperty(model) || this.modelsChat[model] === null) {
                 response = await this.commonRequestChat(groupId, request, input, historyMessages, useSystemRole);
             }
@@ -87,7 +87,7 @@ export class Gemini extends ChatAgent {
                 },
             };
             if (config.autoReply.useChatProxy)
-                request.options.proxy = this.proxy;
+                request.options.agent = this.proxy;
             if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
                 response = await this.commonRequestVisual(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
             }
@@ -122,7 +122,7 @@ export class Gemini extends ChatAgent {
                 },
             };
             if (config.autoReply.useVisualProxy)
-                request.options.proxy = this.proxy;
+                request.options.agent = this.proxy;
             if (!this.modelsVisual.hasOwnProperty(model)) {
                 response = await this.commonRequestTool(JSON.parse(JSON.stringify(request)), j_msg);
             }
