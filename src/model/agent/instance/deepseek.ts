@@ -35,7 +35,7 @@ export class DeepSeek extends OpenAI {
                     },
                 },
             };
-
+            if (config.autoReply.useChatProxy) request.options.proxy = this.proxy;
             response = await this.modelsChat![model](groupId, request, input, historyMessages, useSystemRole);
             if (response && response.ok) return response.data;
             // 如果 DeepSeek-R1 失败，尝试使用 DeepSeek-V3

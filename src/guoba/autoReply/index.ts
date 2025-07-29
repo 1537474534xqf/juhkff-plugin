@@ -225,6 +225,24 @@ export const autoReplySchema = (): ConfigSchemaType[] => [
         },
         defaultValue: ["text"],
     },
+    {
+        field: "autoReply.useChatProxy",
+        label: "群聊接口使用代理",
+        bottomHelpMessage: "开启后，群聊接口请求会通过代理转发",
+        component: "Switch",
+        componentProps: {
+            defaultChecked: false,
+        }
+    },
+    {
+        field: "autoReply.chatProxyUrl",
+        label: "群聊接口代理地址",
+        bottomHelpMessage: "代理地址，格式为 http(s)://ip:port",
+        component: "Input",
+        componentProps: {
+            placeholder: "若需要，请输入代理地址",
+        }
+    },
     ...appendIfShouldInputSelf(),
     {
         component: "Divider",
@@ -311,6 +329,24 @@ export const autoReplySchema = (): ConfigSchemaType[] => [
                     required: true,
                 }
             ],
+        }
+    },
+    {
+        field: "autoReply.useVisualProxy",
+        label: "视觉接口使用代理",
+        bottomHelpMessage: "开启后，视觉接口请求会通过代理转发",
+        component: "Switch",
+        componentProps: {
+            defaultChecked: false,
+        }
+    },
+    {
+        field: "autoReply.visualProxyUrl",
+        label: "视觉接口代理地址",
+        bottomHelpMessage: "代理地址，格式为 http(s)://ip:port",
+        component: "Input",
+        componentProps: {
+            placeholder: "若需要，请输入代理地址",
         }
     },
     ...appendIfShouldInputSelfVisual(),

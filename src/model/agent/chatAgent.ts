@@ -3,6 +3,7 @@
  * @fileoverview 聊天接口定义和公用函数
  * @author juhkff
  */
+import { HttpsProxyAgent } from "https-proxy-agent";
 import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg } from "../../types.js";
 
 export interface ChatInterface {
@@ -17,6 +18,7 @@ export interface VisualInterface {
 }
 
 export abstract class ChatAgent implements ChatInterface, VisualInterface {
+    public proxy: HttpsProxyAgent<string> = null;
     public apiKey: { name: string, apiKey: string, enabled: boolean }[];
     public apiUrl: undefined | string = undefined;
     public modelsChat: Record<string, Function> = {};

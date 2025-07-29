@@ -12,6 +12,7 @@ import { GeminiOpenAI } from "./agent/instance/gemini-openai.js";
 import { OpenAI } from "./agent/openaiAgent.js";
 import { OpenRouter } from "./agent/instance/openrouter.js";
 import { EVENT_RELOAD_INSTANCE } from "./constant.js";
+import { HttpsProxyAgent } from "https-proxy-agent";
 /**
  * 模型列表，新增的都加里面
  */
@@ -38,15 +39,24 @@ const agent = {
     if (!config.autoReply.useAutoReply)
         return;
     chatInstance = new agentMap[config.autoReply.chatApi](config.autoReply.chatApiKey);
+    if (config.autoReply.useChatProxy)
+        chatInstance.proxy = new HttpsProxyAgent(config.autoReply.chatProxyUrl);
     if (config.autoReply.useVisual) {
         visualInstance = new agentMap[config.autoReply.visualApi](config.autoReply.visualApiKey);
+        if (config.autoReply.useVisualProxy)
+            visualInstance.proxy = new HttpsProxyAgent(config.autoReply.visualProxyUrl);
     }
 })();
 Bot.on(EVENT_RELOAD_INSTANCE, () => {
     if (!config.autoReply.useAutoReply)
         return;
     chatInstance = new agentMap[config.autoReply.chatApi](config.autoReply.chatApiKey);
-    if (config.autoReply.useVisual)
+    if (config.autoReply.useChatProxy)
+        chatInstance.proxy = new HttpsProxyAgent(config.autoReply.chatProxyUrl);
+    if (config.autoReply.useVisual) {
         visualInstance = new agentMap[config.autoReply.visualApi](config.autoReply.visualApiKey);
+        if (config.autoReply.useVisualProxy)
+            visualInstance.proxy = new HttpsProxyAgent(config.autoReply.visualProxyUrl);
+    }
 });
 export { agentMap, agent };

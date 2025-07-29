@@ -1,3 +1,4 @@
+import { HttpsProxyAgent } from "https-proxy-agent";
 import { Job } from "node-schedule";
 
 export type ConfigSchemaType = {
@@ -37,6 +38,7 @@ export type RequestBody = Record<string, any>;
 export type RequestOptions = {
     method: "POST" | "GET" | "PUT" | "DELETE";
     headers?: Record<string, string>;
+    proxy?: HttpsProxyAgent<string>;
     body?: RequestBody | string;
 } & Record<string, any>;
 

@@ -105,3 +105,15 @@ emotionGeneratePrompt: 作为群聊机器人，请你从丰富的情感光谱中
 
 # 调试模式，打印请求日志
 debugMode: true
+
+# 群聊接口是否使用代理
+useChatProxy: false
+
+# 群聊接口代理地址
+chatProxyUrl: ""
+
+# 视觉接口是否使用代理
+useVisualProxy: false
+
+# 视觉接口代理地址
+visualProxyUrl: ""

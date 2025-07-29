@@ -41,6 +41,10 @@ export type AutoReply = {
     emotionGenerateTime: CronExpression;
     emotionGeneratePrompt: string;
     debugMode: boolean;
+    useChatProxy: boolean;
+    chatProxyUrl: string;
+    useVisualProxy: boolean;
+    visualProxyUrl: string;
 }
 
 export const autoReplyConfig: AutoReply = {} as AutoReply;

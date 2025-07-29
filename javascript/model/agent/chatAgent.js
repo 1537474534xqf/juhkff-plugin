@@ -1,4 +1,5 @@
 export class ChatAgent {
+    proxy = null;
     apiKey;
     apiUrl = undefined;
     modelsChat = {};

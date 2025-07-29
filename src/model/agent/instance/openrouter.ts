@@ -1,3 +1,4 @@
+import { config } from "../../../config/index.js";
 import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg, Request } from "../../../types.js";
 import { OpenAI } from "../openaiAgent.js";
 
@@ -64,6 +65,7 @@ export class OpenRouter extends OpenAI {
                     },
                 },
             };
+            if (config.autoReply.useChatProxy) request.options.proxy = this.proxy;
             if (!this.modelsChat.hasOwnProperty(model) || this.modelsChat[model] === null) {
                 response = await super.commonRequestChat(groupId, request, input, historyMessages, useSystemRole);
             } else {
@@ -97,6 +99,7 @@ export class OpenRouter extends OpenAI {
                     },
                 },
             };
+            if (config.autoReply.useChatProxy) request.options.proxy = this.proxy;
             if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
                 response = await super.commonRequestVisual(groupId, JSON.parse(JSON.stringify(request)), nickName, j_msg, historyMessages, useSystemRole);
             } else {
@@ -131,6 +134,7 @@ export class OpenRouter extends OpenAI {
                     },
                 },
             };
+            if (config.autoReply.useVisualProxy) request.options.proxy = this.proxy;
             if (!this.modelsVisual.hasOwnProperty(model) || this.modelsVisual[model] === null) {
                 response = await super.commonRequestTool(JSON.parse(JSON.stringify(request)), j_msg);
             } else {
