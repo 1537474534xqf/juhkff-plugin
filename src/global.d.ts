@@ -382,7 +382,7 @@ declare const Bot: import("events").EventEmitter & util & {
     /**
      * 向 Master 用户发送消息
      */
-    sendMasterMsg(msg: any, bot_array?: Array<string | number>, sleep?: number): Record<string, any>;
+    async sendMasterMsg(msg: any, bot_array?: Array<string | number>, sleep?: number): Record<string, any>;
 
     /**
      * 创建转发消息结构

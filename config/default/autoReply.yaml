@@ -55,7 +55,7 @@ useVisual: false
 visualApi: ""
 
 # 视觉模型 Api Key
-visualApiKey: ""
+visualApiKey: []
 
 # 视觉模型选择，可选项：Qwen/Qwen2-VL-72B-Instruct
 visualModel: ""

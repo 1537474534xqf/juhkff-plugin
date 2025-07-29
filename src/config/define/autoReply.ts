@@ -31,7 +31,7 @@ export type AutoReply = {
     groupChatRate: { groupList: number[], chatRate: number, replyAtBot: boolean }[];
     useVisual: boolean;
     visualApi: string;
-    visualApiKey: string;
+    visualApiKey: { name: string, apiKey: string, enabled: boolean }[];
     visualModel: string;
     visualApiCustomUrl: string;
     // textToPaintPrompt: string;
@@ -108,7 +108,12 @@ function privateSync(userConfig: AutoReply, defaultConfig: AutoReply) {
     // 兼容和修复命名错误
     if (userConfig.chatApi === "Gemini-OpenAPI（国内中转）") userConfig.chatApi = "Gemini-OpenAI（国内中转）";
     // 兼容apiKey从字符串变为obj数组
+    if (!userConfig.chatApiKey) userConfig.chatApiKey = [];
     if (typeof userConfig.chatApiKey === "string") {
         userConfig.chatApiKey = (userConfig.chatApiKey as string).trim() === "" ? [] : [{ name: "默认", apiKey: userConfig.chatApiKey as string, enabled: true }];
+    }
+    if (!userConfig.visualApiKey) userConfig.visualApiKey = [];
+    if (typeof userConfig.visualApiKey === "string") {
+        userConfig.visualApiKey = (userConfig.visualApiKey as string).trim() === "" ? [] : [{ name: "默认", apiKey: userConfig.visualApiKey as string, enabled: true }];
     }
 }

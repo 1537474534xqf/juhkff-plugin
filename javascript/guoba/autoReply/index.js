@@ -263,7 +263,39 @@ export const autoReplySchema = () => [
         field: "autoReply.visualApiKey",
         label: "视觉AI ApiKey",
         bottomHelpMessage: "填写AI接口和ApiKey、确保视觉AI接口开启后，务必先保存并刷新页面，否则模型无法选择！",
-        component: "InputPassword",
+        component: "GSubForm",
+        componentProps: {
+            multiple: true,
+            schemas: [
+                {
+                    field: "name",
+                    label: "ApiKey名称",
+                    component: "Input",
+                    componentProps: {
+                        placeholder: "请输入ApiKey名称"
+                    },
+                    required: false,
+                    bottomHelpMessage: "命名，方便识别"
+                },
+                {
+                    field: "apiKey",
+                    label: "视觉AI ApiKey",
+                    component: "InputPassword",
+                    required: true,
+                    bottomHelpMessage: "请求时，会遍历尝试使用这些API Key，直到成功或全部失败",
+                },
+                {
+                    field: "enabled",
+                    label: "启用状态",
+                    component: "Switch",
+                    componentProps: {
+                        defaultChecked: false,
+                    },
+                    bottomHelpMessage: "是否启用该API Key，若关闭则不会被遍历。不管是还是否，都要点一下才能提交",
+                    required: true,
+                }
+            ],
+        }
     },
     ...appendIfShouldInputSelfVisual(),
 ];

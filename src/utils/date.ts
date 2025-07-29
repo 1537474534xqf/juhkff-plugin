@@ -137,8 +137,8 @@ export async function formatDate(timestamp: number | string, format: "en" | "zh"
         //   const lunarYear = lunar.getYearInChinese();
         const lunarMonth = lunar.getMonthInChinese();
         const lunarDay = lunar.getDayInChinese();
-        //   return `${lunarYear}年${lunarMonth}${lunarDay}`;
-        return `${lunarMonth}${lunarDay}`;
+        //   return `${lunarYear}年${lunarMonth}月${lunarDay}`;
+        return `${lunarMonth}月${lunarDay}`;
     } else {
         throw new Error("Invalid format. Use 'en' or 'zh'.");
     }

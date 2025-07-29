@@ -5,16 +5,28 @@ import { sendChatRequest } from "../utils/handle.js";
 import { Thread } from "../utils/kits.js";
 import { deleteJob, upsertJobFromConfig } from "../utils/job.js";
 import { EVENT_UPDATE_DAILY_REPORT_PUSH_TIME, DAILY_REPORT_GENERATE, EVENT_UPDATE_DAILY_REPORT_GENERATE_TIME, DAILY_REPORT_PUSH, EMOTION_GENERATE, EVENT_UPDATE_EMOTION_GENERATE_TIME, EMOTION_KEY } from "../model/constant.js";
+import { dailyReportDict } from "../cache/global.js";
 
 
 export async function pushDailyReport() {
     logger.info("推送日报");
     let imageBuffer = null;
     if (config.dailyReport.preHandle) {
-        if (!fs.existsSync(DAILY_REPORT_SAVE_PATH)) await dailyReport.generateAndSaveDailyReport();
+        if (!fs.existsSync(DAILY_REPORT_SAVE_PATH)) {
+            await dailyReport.generateAndSaveDailyReport();
+            if (dailyReportDict["error"]) {
+                await Bot.sendMasterMsg(dailyReportDict["error"]);
+                return;
+            }
+        }
         imageBuffer = fs.readFileSync(DAILY_REPORT_SAVE_PATH);
     } else {
         imageBuffer = await dailyReport.generateDailyReport();
+        if (dailyReportDict["error"]) {
+            imageBuffer = dailyReportDict["error"];
+            await Bot.sendMasterMsg(imageBuffer);
+            return;
+        }
     }
     for (let i = 0; i < config.dailyReport.pushGroupList.length; i++) {
         // 添加延迟以防止消息发送过快

@@ -6,6 +6,7 @@ import { generateDailyReport } from "../utils/page.js";
 import { config } from "../config/index.js";
 import { Objects } from "../utils/kits.js";
 import { PLUGIN_DATA_DIR } from "../model/path.js";
+import { dailyReportDict } from "../cache/global.js";
 export const help = () => {
     return {
         name: "日报",
@@ -29,6 +30,8 @@ export class dailyReport extends plugin {
                 },
             ],
         });
+        if (fs.existsSync(DAILY_REPORT_SAVE_PATH))
+            fs.unlinkSync(DAILY_REPORT_SAVE_PATH);
     }
     static hitokoto_url = "https://v1.hitokoto.cn/?c=a";
     static alapi_url = "https://v2.alapi.cn/api/zaobao";
@@ -64,6 +67,10 @@ export class dailyReport extends plugin {
         if (!Objects.isNull(config.dailyReport.alapiToken)) {
             // 使用 alapitoken 获取数据
             let alapi = await get(`${dailyReport.alapi_url}?token=${config.dailyReport.alapiToken}`);
+            if (alapi?.success === false) {
+                dailyReportDict["error"] = `日报生成错误：${alapi.message}`;
+                return null;
+            }
             let news = alapi.data.news;
             // 删掉、
             news.forEach((item, index) => {
@@ -144,10 +151,16 @@ export class dailyReport extends plugin {
         // 生成图片
         var image = await generateDailyReport(data);
         var imageBuffer = Buffer.from(image);
+        dailyReportDict["error"] = null;
         return imageBuffer;
     }
     static async generateAndSaveDailyReport() {
         const imageBuffer = await dailyReport.generateDailyReport();
+        if (dailyReportDict["error"]) {
+            if (fs.existsSync(DAILY_REPORT_SAVE_PATH))
+                fs.unlinkSync(DAILY_REPORT_SAVE_PATH);
+            return;
+        }
         if (!fs.existsSync(path.dirname(DAILY_REPORT_SAVE_PATH)))
             fs.mkdirSync(path.dirname(DAILY_REPORT_SAVE_PATH));
         fs.writeFileSync(DAILY_REPORT_SAVE_PATH, imageBuffer);
@@ -161,7 +174,11 @@ export class dailyReport extends plugin {
         }
         if (config.dailyReport.preHandle) {
             if (!fs.existsSync(DAILY_REPORT_SAVE_PATH)) {
-                dailyReport.generateAndSaveDailyReport();
+                await dailyReport.generateAndSaveDailyReport();
+            }
+            if (dailyReportDict["error"]) {
+                await e.reply(dailyReportDict["error"]);
+                return true;
             }
             const imageBuffer = fs.readFileSync(DAILY_REPORT_SAVE_PATH);
             if (imageBuffer) {
@@ -170,6 +187,10 @@ export class dailyReport extends plugin {
         }
         else {
             const imageBuffer = await dailyReport.generateDailyReport();
+            if (dailyReportDict["error"]) {
+                await e.reply(dailyReportDict["error"]);
+                return true;
+            }
             if (imageBuffer) {
                 await e.reply([segment.image(imageBuffer)]);
             }

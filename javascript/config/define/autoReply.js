@@ -79,7 +79,14 @@ function privateSync(userConfig, defaultConfig) {
     if (userConfig.chatApi === "Gemini-OpenAPI（国内中转）")
         userConfig.chatApi = "Gemini-OpenAI（国内中转）";
     // 兼容apiKey从字符串变为obj数组
+    if (!userConfig.chatApiKey)
+        userConfig.chatApiKey = [];
     if (typeof userConfig.chatApiKey === "string") {
         userConfig.chatApiKey = userConfig.chatApiKey.trim() === "" ? [] : [{ name: "默认", apiKey: userConfig.chatApiKey, enabled: true }];
+    }
+    if (!userConfig.visualApiKey)
+        userConfig.visualApiKey = [];
+    if (typeof userConfig.visualApiKey === "string") {
+        userConfig.visualApiKey = userConfig.visualApiKey.trim() === "" ? [] : [{ name: "默认", apiKey: userConfig.visualApiKey, enabled: true }];
     }
 }
