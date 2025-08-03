@@ -45,20 +45,20 @@ const agent = {
 (() => {
     if (!config.autoReply.useAutoReply) return;
     chatInstance = new agentMap[config.autoReply.chatApi](config.autoReply.chatApiKey);
-    if (config.autoReply.useChatProxy) chatInstance.proxy = new HttpsProxyAgent(config.autoReply.chatProxyUrl);
+    if (config.autoReply.useChatProxy && config.autoReply.chatProxyUrl.trim()) chatInstance.proxy = new HttpsProxyAgent(config.autoReply.chatProxyUrl);
     if (config.autoReply.useVisual) {
         visualInstance = new agentMap[config.autoReply.visualApi](config.autoReply.visualApiKey);
-        if (config.autoReply.useVisualProxy) visualInstance.proxy = new HttpsProxyAgent(config.autoReply.visualProxyUrl);
+        if (config.autoReply.useVisualProxy && config.autoReply.visualProxyUrl.trim()) visualInstance.proxy = new HttpsProxyAgent(config.autoReply.visualProxyUrl);
     }
 })();
 
 Bot.on(EVENT_RELOAD_INSTANCE, () => {
     if (!config.autoReply.useAutoReply) return;
     chatInstance = new agentMap[config.autoReply.chatApi](config.autoReply.chatApiKey);
-    if (config.autoReply.useChatProxy) chatInstance.proxy = new HttpsProxyAgent(config.autoReply.chatProxyUrl);
+    if (config.autoReply.useChatProxy && config.autoReply.chatProxyUrl.trim()) chatInstance.proxy = new HttpsProxyAgent(config.autoReply.chatProxyUrl);
     if (config.autoReply.useVisual) {
         visualInstance = new agentMap[config.autoReply.visualApi](config.autoReply.visualApiKey);
-        if (config.autoReply.useVisualProxy) visualInstance.proxy = new HttpsProxyAgent(config.autoReply.visualProxyUrl);
+        if (config.autoReply.useVisualProxy && config.autoReply.visualProxyUrl.trim()) visualInstance.proxy = new HttpsProxyAgent(config.autoReply.visualProxyUrl);
     }
 });
 

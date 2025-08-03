@@ -1,3 +1,4 @@
+import axios from "axios";
 import { config } from "../../../config/index.js";
 import { ChatKits, FileType, Objects } from "../../../utils/kits.js";
 import { EMOTION_KEY } from "../../constant.js";
@@ -155,18 +156,23 @@ export class Gemini extends ChatAgent {
             logger.info(`[Gemini]对话模型 Gemini API调用，请求内容：${JSON.stringify(request, null, 2)}`);
         try {
             request.options.body = JSON.stringify(request.options.body);
-            const response = await fetch(request.url, request.options);
-            const data = await response.json();
-            if (response && response.ok) {
-                return { ok: response.ok, data: data?.candidates?.[0]?.content?.parts?.[0]?.text };
+            // const response = await fetch(request.url, request.options as RequestInit);
+            const response = await axios.post(request.url, request.options.body, {
+                headers: request.options.headers,
+                httpAgent: request.options.agent,
+                httpsAgent: request.options.agent,
+            });
+            const data = response.data;
+            if (response && response.status === 200) {
+                return { ok: true, data: data?.candidates?.[0]?.content?.parts?.[0]?.text };
             }
             else {
                 if (data?.error) {
-                    return { ok: response.ok, error: `${data?.error?.status}: ${data?.error?.message}` };
+                    return { ok: false, error: `${data?.error?.status}: ${data?.error?.message}` };
                 }
                 else {
                     logger.error(`[Gemini]对话模型调用失败：`, JSON.stringify(data, null, 2));
-                    return { ok: response.ok, error: `[Gemini]对话模型调用失败，详情请查阅控制台。` };
+                    return { ok: false, error: `[Gemini]对话模型调用失败，详情请查阅控制台。` };
                 }
             }
         }
@@ -306,19 +312,24 @@ export class Gemini extends ChatAgent {
         }
         try {
             request.options.body = JSON.stringify(request.options.body);
-            const response = await fetch(request.url, request.options);
-            const data = await response.json();
-            if (response && response.ok) {
-                return { ok: response.ok, data: data?.candidates?.[0]?.content?.parts?.[0]?.text };
+            // const response = await fetch(request.url, request.options as RequestInit);
+            const response = await axios.post(request.url, request.options.body, {
+                headers: request.options.headers,
+                httpAgent: request.options.agent,
+                httpsAgent: request.options.agent,
+            });
+            const data = response.data;
+            if (response && response.status === 200) {
+                return { ok: true, data: data?.candidates?.[0]?.content?.parts?.[0]?.text };
             }
             else {
                 if (data?.error) {
                     logger.error(`[Gemini]对话模型调用失败：`, JSON.stringify(data, null, 2));
-                    return { ok: response.ok, error: `${data?.error?.status}: ${data?.error?.message.length > 40 ? data?.error?.message.substring(0, 40) + "..." : data?.error?.message}` };
+                    return { ok: false, error: `${data?.error?.status}: ${data?.error?.message.length > 40 ? data?.error?.message.substring(0, 40) + "..." : data?.error?.message}` };
                 }
                 else {
                     logger.error(`[Gemini]对话模型调用失败：`, JSON.stringify(data, null, 2));
-                    return { ok: response.ok, error: `[Gemini]对话模型调用失败，详情请查阅控制台。` };
+                    return { ok: false, error: `[Gemini]对话模型调用失败，详情请查阅控制台。` };
                 }
             }
         }
@@ -366,18 +377,23 @@ export class Gemini extends ChatAgent {
         }
         try {
             request.options.body = JSON.stringify(request.options.body);
-            const response = await fetch(request.url, request.options);
-            const data = await response.json();
-            if (response && response.ok) {
-                return { ok: response.ok, data: data?.candidates[0]?.content?.parts[0].text };
+            // const response = await fetch(request.url, request.options as RequestInit);
+            const response = await axios.post(request.url, request.options.body, {
+                headers: request.options.headers,
+                httpAgent: request.options.agent,
+                httpsAgent: request.options.agent,
+            });
+            const data = response.data;
+            if (response && response.status === 200) {
+                return { ok: true, data: data?.candidates[0]?.content?.parts[0].text };
             }
             else {
                 if (data?.error) {
-                    return { ok: response.ok, error: `${data?.error?.status}: ${data?.error?.message.length > 40 ? data?.error?.message.substring(0, 40) + "..." : data?.error?.message}` };
+                    return { ok: false, error: `${data?.error?.status}: ${data?.error?.message.length > 40 ? data?.error?.message.substring(0, 40) + "..." : data?.error?.message}` };
                 }
                 else {
                     logger.error(`[Gemini]视觉模型API工具请求调用失败：`, JSON.stringify(data, null, 2));
-                    return { ok: response.ok, error: `[Gemini]视觉模型API工具请求调用失败，详情请查阅控制台。` };
+                    return { ok: false, error: `[Gemini]视觉模型API工具请求调用失败，详情请查阅控制台。` };
                 }
             }
         }

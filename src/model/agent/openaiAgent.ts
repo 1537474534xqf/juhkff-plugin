@@ -1,3 +1,4 @@
+import axios from "axios";
 import { config } from "../../config/index.js";
 import { HistorySimpleJMsg, ComplexJMsg, HistoryComplexJMsg, Request, RequestBody } from "../../types.js";
 import { ChatKits, Objects } from "../../utils/kits.js";
@@ -166,13 +167,18 @@ export class OpenAI extends ChatAgent {
             logger.info(`[OpenAI]对话模型 ${(request.options.body as RequestBody).model} API调用，请求内容：${JSON.stringify(request, null, 2)}`);
         try {
             request.options.body = JSON.stringify(request.options.body);
-            const response = await fetch(request.url, request.options as RequestInit);
-            const data = await response.json();
-            if (response.ok) {
-                return { ok: response.ok, data: data?.choices?.[0]?.message?.content };
+            // const response = await fetch(request.url, request.options as RequestInit);
+            const response = await axios.post(request.url, request.options.body, {
+                headers: request.options.headers,
+                httpAgent: request.options.agent,
+                httpsAgent: request.options.agent,
+            });
+            const data = response.data;
+            if (response.status === 200) {
+                return { ok: true, data: data?.choices?.[0]?.message?.content };
             } else {
                 logger.error(`[OpenAI]对话模型调用失败：`, JSON.stringify(data, null, 2));
-                return { ok: response.ok, error: `[OpenAI]对话模型调用失败，详情请查阅控制台。` };
+                return { ok: false, error: `[OpenAI]对话模型调用失败，详情请查阅控制台。` };
             }
         } catch (error) {
             logger.error(`[OpenAI]对话模型调用失败`, error);

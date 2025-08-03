@@ -1,3 +1,4 @@
+import axios from "axios";
 import { config } from "../../../config/index.js";
 import { OpenAI } from "../openaiAgent.js";
 export class DeepSeek extends OpenAI {
@@ -69,14 +70,19 @@ export class DeepSeek extends OpenAI {
         logger.info(`[ds]DeepSeek-V3 API调用，请求内容：${JSON.stringify(request, null, 2)}`);
         try {
             request.options.body = JSON.stringify(request.options.body);
-            const response = await fetch(request.url, request.options);
-            const data = await response.json();
-            if (response.ok) {
-                return { ok: response.ok, data: data?.choices?.[0]?.message?.content };
+            // const response = await fetch(request.url, request.options as RequestInit);
+            const response = await axios.post(request.url, request.options.body, {
+                headers: request.options.headers,
+                httpAgent: request.options.agent,
+                httpsAgent: request.options.agent,
+            });
+            const data = response.data;
+            if (response && response.status === 200) {
+                return { ok: true, data: data?.choices?.[0]?.message?.content };
             }
             else {
                 logger.error("[ds]DeepSeek-V3调用失败：", JSON.stringify(data, null, 2));
-                return { ok: response.ok, error: "[ds]DeepSeek-V3调用失败，详情请查阅控制台。" };
+                return { ok: false, error: "[ds]DeepSeek-V3调用失败，详情请查阅控制台。" };
             }
         }
         catch (error) {
@@ -108,14 +114,19 @@ export class DeepSeek extends OpenAI {
         logger.info(`[ds]DeepSeek-R1 API调用，请求内容：${JSON.stringify(request, null, 2)}`);
         try {
             request.options.body = JSON.stringify(request.options.body);
-            let response = await fetch(request.url, request.options);
-            const data = await response.json();
-            if (response && response.ok) {
-                return { ok: response.ok, data: data?.choices?.[0]?.message?.content };
+            // let response = await fetch(request.url, request.options as RequestInit);
+            const response = await axios.post(request.url, request.options.body, {
+                headers: request.options.headers,
+                httpAgent: request.options.agent,
+                httpsAgent: request.options.agent,
+            });
+            const data = response.data;
+            if (response && response.status === 200) {
+                return { ok: true, data: data?.choices?.[0]?.message?.content };
             }
             else {
                 logger.error("[ds]DeepSeek-R1调用失败：", JSON.stringify(data, null, 2));
-                return { ok: response.ok, error: "[ds]DeepSeek-R1调用失败，详情请查阅控制台。" };
+                return { ok: false, error: "[ds]DeepSeek-R1调用失败，详情请查阅控制台。" };
             }
         }
         catch (error) {
