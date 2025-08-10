@@ -12,6 +12,7 @@ import { emojiSaveConfig } from "./define/emojiSave.js";
 import { helpGenConfig } from "./define/helpGen.js";
 import { commandPromptConfig } from "./define/commandPrompt.js";
 import { diceConfig } from "./define/dice.js";
+import { pixivConfig } from "./define/pixiv.js";
 // 全局 config
 export const config = {
     autoReply: autoReplyConfig,
@@ -21,7 +22,8 @@ export const config = {
     douBao: douBaoConfig,
     siliconflow: sfConfig,
     commandPrompt: commandPromptConfig,
-    dice: diceConfig
+    dice: diceConfig,
+    pixiv: pixivConfig,
 };
 export function updateConfig(data) {
     processCron(data);
@@ -33,6 +35,7 @@ export function updateConfig(data) {
     saveConfigToFile(data.siliconflow, "ai", "siliconflow.yaml");
     saveConfigToFile(data.commandPrompt, "commandPrompt.yaml");
     saveConfigToFile(data.dice, "dice.yaml");
+    saveConfigToFile(data.pixiv, "pixiv.yaml");
 }
 function processCron(data) {
     if (!Objects.isNull(data.dailyReport.dailyReportTime))
@@ -50,3 +53,4 @@ function normalizeCron(cron) {
     }
     return cron;
 }
+//# sourceMappingURL=index.js.map

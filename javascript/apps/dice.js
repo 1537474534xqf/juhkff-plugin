@@ -303,3 +303,4 @@ export class dice extends plugin {
         }
     }
 }
+//# sourceMappingURL=dice.js.map

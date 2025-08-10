@@ -6,3 +6,4 @@ export const EVENT_UPDATE_DAILY_REPORT_PUSH_TIME = "dailyReportConfigUpdated";
 export const EVENT_UPDATE_DAILY_REPORT_GENERATE_TIME = "updateDailyReportGenerateTime";
 export const EVENT_RELOAD_INSTANCE = "reloadInstance";
 export const EVENT_UPDATE_EMOTION_GENERATE_TIME = "updateEmotionGenerateTime";
+//# sourceMappingURL=constant.js.map

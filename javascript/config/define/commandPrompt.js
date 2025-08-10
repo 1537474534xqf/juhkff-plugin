@@ -61,3 +61,4 @@ function privateSync(userConfig, defaultConfig) {
     if (add)
         logger.info(logger.bgRgb(82, 70, 77).rgb(206, 139, 180).bold(`- [JUHKFF-PLUGIN] 情景预设更新：${cmd.join(", ")}`));
 }
+//# sourceMappingURL=commandPrompt.js.map

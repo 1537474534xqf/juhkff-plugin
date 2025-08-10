@@ -71,3 +71,4 @@ export function getFileHash(content) {
     return crypto.createHash("sha1").update(content).digest("hex");
 }
 ;
+//# sourceMappingURL=common.js.map

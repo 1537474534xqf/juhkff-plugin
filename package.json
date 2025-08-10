@@ -12,7 +12,9 @@
     "tsc": "npm run clean && tsc"
   },
   "dependencies": {
+    "@ibaraki-douji/pixivts": "^2.4.1",
     "@volcengine/openapi": "^1.29.0",
+    "async-mutex": "^0.5.0",
     "axios": "^1.6.2",
     "chokidar": "^4.0.3",
     "fast-image-size": "^0.1.3",

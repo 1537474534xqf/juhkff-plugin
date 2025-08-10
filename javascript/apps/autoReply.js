@@ -212,3 +212,4 @@ export class autoReply extends plugin {
         await e.reply(answer);
     }
 }
+//# sourceMappingURL=autoReply.js.map

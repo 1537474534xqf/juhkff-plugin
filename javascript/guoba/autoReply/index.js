@@ -335,3 +335,4 @@ export const autoReplySchema = () => [
     },
     ...appendIfShouldInputSelfVisual(),
 ];
+//# sourceMappingURL=index.js.map

@@ -95,3 +95,4 @@ export const emojiSaveSchema = () => [
         },
     },
 ];
+//# sourceMappingURL=index.js.map

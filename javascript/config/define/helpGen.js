@@ -34,3 +34,4 @@ export const helpGenConfig = {};
         logger.info(logger.grey(`- [JUHKFF-PLUGIN] 同步帮助生成配置`));
     }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN] 帮助生成配置同步异常`, err); });
 })();
+//# sourceMappingURL=helpGen.js.map

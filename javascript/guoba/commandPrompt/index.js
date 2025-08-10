@@ -75,3 +75,4 @@ export const commandPromptSchema = () => [
         }
     }
 ];
+//# sourceMappingURL=index.js.map

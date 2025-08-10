@@ -94,3 +94,4 @@ Bot.on(EVENT_UPDATE_DAILY_REPORT_PUSH_TIME, () => {
         deleteJob(EMOTION_GENERATE);
     }
 });
+//# sourceMappingURL=jobs.js.map

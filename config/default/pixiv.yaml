@@ -1,0 +1,8 @@
+# 是否开启 Pixiv
+usePixiv: false
+
+# 订阅用户ID
+subscribeUserId: []
+
+# 订阅查询频率（分）
+subscribeInterval: 60

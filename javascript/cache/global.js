@@ -4,5 +4,8 @@ export const groupDict = {};
 export const jobDict = {};
 // 日报错误输出记录
 export const dailyReportDict = {};
+// pixiv 订阅字典
+export const pixivSubscribeDict = {};
 // 事件总线 可直接使用 Bot
 // export const eventBus = new EventEmitter();
+//# sourceMappingURL=global.js.map
