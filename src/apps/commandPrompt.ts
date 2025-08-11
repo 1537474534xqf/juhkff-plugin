@@ -1,6 +1,6 @@
 import { config } from "../config/index.js"
 import { agent } from "../model/map.js";
-import { HistorySimpleJMsg } from "../types.js";
+import { HistorySimpleJMsg } from "../types/index.js";
 import { Objects } from "../utils/kits.js";
 
 // export const help = () => {

@@ -1,5 +1,5 @@
 import { config } from "../../config/index.js";
-import { HelpType, Request, RequestBody } from "../../types.js";
+import { HelpType, Request, RequestBody } from "../../types/index.js";
 import { Objects } from "../../utils/kits.js";
 import { url2Base64 } from "../../utils/net.js";
 import { processMessage } from "../../utils/message.js";

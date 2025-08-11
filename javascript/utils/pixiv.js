@@ -40,13 +40,12 @@ export async function createSubscribeTimer(userId, interval = 10) {
     pixivSubscribeDict[userId] = intervalId;
 }
 async function checkAndFetchUserNewestIllustId(lock, intervalConfig) {
-    if (lock.isLocked()) {
-        logger.info(`[JUHKFF-PLUGIN] pixiv用户 ${intervalConfig.userId} 的订阅定时器未锁定，跳过检查。`);
+    if (lock.isLocked())
         return;
-    }
     const release = await lock.acquire();
     try {
         const response = await pixiv.client.getIllustsByUserID(intervalConfig.userId, { limit: 0 });
+        // id应该是和时间一样的排序吧
         let ids = response.map(illust => illust.illustID).reverse();
         if (ids.length === 0)
             ids = ["-1"];

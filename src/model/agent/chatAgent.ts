@@ -4,7 +4,7 @@
  * @author juhkff
  */
 import { HttpsProxyAgent } from "https-proxy-agent";
-import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg } from "../../types.js";
+import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg } from "../../types/index.js";
 
 export interface ChatInterface {
     chatRequest(groupId: number, model: string, input: string, historyMessages?: HistorySimpleJMsg[], useSystemRole?: boolean): Promise<any>;

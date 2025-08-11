@@ -1,4 +1,4 @@
-import { ConfigSchemaType } from "../../../types.js";
+import { ConfigSchemaType } from "../../../types/index.js";
 import { getVideoGenerateModel, getVoiceGenerateCharacter } from "./handler.js";
 
 export const sfSchema = (): ConfigSchemaType[] => [

@@ -35,11 +35,4 @@ export const pixivConfig = {};
     }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN] Pixiv配置同步异常`, err); });
 })();
 // 添加订阅用户ID
-export function addSubscribeUserId(userId) {
-    if (!pixivConfig.subscribeUserId.includes(userId)) {
-        pixivConfig.subscribeUserId.push(userId);
-        const file = path.join(PLUGIN_CONFIG_DIR, `pixiv.yaml`);
-        fs.writeFileSync(file, YAML.stringify(pixivConfig));
-    }
-}
 //# sourceMappingURL=pixiv.js.map

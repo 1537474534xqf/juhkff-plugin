@@ -7,7 +7,7 @@ import { emotionGenerate } from "../bgProcess/jobs.js";
 import { config } from "../config/index.js";
 import { EMOTION_KEY } from "../model/constant.js";
 import { agent } from "../model/map.js";
-import { Role, SimpleJMsg } from "../types.js";
+import { Role, SimpleJMsg } from "../types/index.js";
 import { formatDateDetail } from "./date.js";
 import { analyseImage, extractUrlContent } from "./helper.js";
 import { Objects } from "./kits.js";

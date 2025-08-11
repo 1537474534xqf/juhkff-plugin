@@ -5,7 +5,7 @@ import { renderPage } from "../utils/page.js"
 import { PLUGIN_APP_DIR, PLUGIN_RESOURCES_DIR } from "../model/path.js";
 import { Objects, StringUtils } from "../utils/kits.js";
 import { config } from "../config/index.js";
-import { HelpType } from "../types.js";
+import { HelpType } from "../types/index.js";
 
 export class helpGen extends plugin {
     extraHelp: Record<string, HelpType | (() => HelpType)>;

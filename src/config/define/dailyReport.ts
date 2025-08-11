@@ -4,7 +4,7 @@ import YAML from "yaml";
 import chokidar from "chokidar";
 import lodash from "lodash";
 import { PLUGIN_CONFIG_DIR, PLUGIN_DEFAULT_CONFIG_DIR } from "../../model/path.js";
-import { CronExpression } from "../../types.js";
+import { CronExpression } from "../../types/index.js";
 import { configFolderCheck, configSync, getFileHash } from "../common.js";
 import { deleteJob } from "../../utils/job.js";
 import { EVENT_UPDATE_DAILY_REPORT_PUSH_TIME, DAILY_REPORT_GENERATE, EVENT_UPDATE_DAILY_REPORT_GENERATE_TIME, DAILY_REPORT_PUSH } from "../../model/constant.js";

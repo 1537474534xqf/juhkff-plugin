@@ -1,4 +1,4 @@
-import { ConfigSchemaType } from "../../types.js"
+import { ConfigSchemaType } from "../../types/index.js"
 import { appendIfShouldInputSelf, appendIfShouldInputSelfVisual, listAllChatApi, listAllVisualApi } from "./handler.js"
 
 export const autoReplySchema = (): ConfigSchemaType[] => [

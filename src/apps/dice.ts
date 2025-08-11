@@ -1,5 +1,5 @@
 import { config, updateConfig } from "../config/index.js"
-import { HelpType } from "../types.js";
+import { HelpType } from "../types/index.js";
 import { Objects } from "../utils/kits.js";
 import { randomInt } from "crypto";
 

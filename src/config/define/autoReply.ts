@@ -4,7 +4,7 @@ import YAML from "yaml";
 import chokidar from "chokidar";
 import lodash from "lodash";
 import { PLUGIN_CONFIG_DIR, PLUGIN_DEFAULT_CONFIG_DIR } from "../../model/path.js";
-import { CronExpression } from "../../types.js";
+import { CronExpression } from "../../types/index.js";
 import { configFolderCheck, configSync, getFileHash } from "../common.js";
 import { removeSubKeys } from "../../utils/redis.js";
 import { EMOTION_GENERATE, EVENT_UPDATE_EMOTION_GENERATE_TIME, EMOTION_KEY, EVENT_RELOAD_INSTANCE } from "../../model/constant.js";

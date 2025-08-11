@@ -1,5 +1,5 @@
 import { douBao } from "../../../apps/ai/douBao.js";
-import { ConfigSchemaType } from "../../../types.js";
+import { ConfigSchemaType } from "../../../types/index.js";
 
 export const douBaoSchema = (): ConfigSchemaType[] => [
     {

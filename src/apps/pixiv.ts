@@ -1,3 +1,4 @@
+import { addSubscribe } from "../config/define/pixiv.js";
 import { config } from "../config/index.js";
 import { createSubscribeTimer, firstSaveUserIllusts } from "../utils/pixiv.js";
 
@@ -26,8 +27,10 @@ export class pixiv extends plugin {
         }
         const result = await firstSaveUserIllusts(userId);
         // 获取最新的插画ID
-        if (!result) return await e.reply(`订阅pixiv用户 ${userId} 的作品失败，请检查日志。`);
+        if (!result) return await e.reply(`订阅pixiv用户 ${userId} 的插画失败，请检查日志。`);
+        // 更新config
+        addSubscribe(parseInt(userId), e.group_id);
         // 创建定时器循环获取最新的插画ID
-        await createSubscribeTimer(userId, config.pixiv.subscribeInterval);
+        await createSubscribeTimer(userId, config.pixiv.defaultInterval);
     }
 }

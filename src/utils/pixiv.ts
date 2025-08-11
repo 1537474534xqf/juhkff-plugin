@@ -26,7 +26,7 @@ export async function firstSaveUserIllusts(userId: string) {
     }
 }
 
-export async function createSubscribeTimer(userId: string, interval: number = 10) {
+export async function createSubscribeTimer(userId: number, groupId: number, interval: number = 30) {
     const filePath = path.join(PLUGIN_DATA_DIR, "pixiv", `user_subscribe_${userId}.json`);
     if (!fs.existsSync(filePath)) {
         logger.error(`[JUHKFF-PLUGIN] 订阅文件不存在：${filePath}`);
@@ -37,7 +37,7 @@ export async function createSubscribeTimer(userId: string, interval: number = 10
     const intervalConfig = { userId, lastIllustId: lastId };
     const lock = new Mutex();
     const intervalId = setInterval(checkAndFetchUserNewestIllustId, interval * 60 * 1000, lock, intervalConfig);
-    pixivSubscribeDict[userId] = intervalId;
+    pixivSubscribeDict.set({ userId, groupId }, intervalId);
 }
 
 

@@ -1,4 +1,4 @@
-import { RequestMsg } from "../types.js";
+import { RequestMsg } from "../types/index.js";
 
 /**
  * 处理消息

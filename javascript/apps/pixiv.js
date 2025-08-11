@@ -28,7 +28,7 @@ export class pixiv extends plugin {
         if (!result)
             return await e.reply(`订阅pixiv用户 ${userId} 的作品失败，请检查日志。`);
         // 创建定时器循环获取最新的插画ID
-        await createSubscribeTimer(userId, config.pixiv.subscribeInterval);
+        await createSubscribeTimer(userId, config.pixiv.defaultInterval);
     }
 }
 //# sourceMappingURL=pixiv.js.map

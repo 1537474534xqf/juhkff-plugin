@@ -6,7 +6,7 @@ import { getServiceApi } from "../../ai/doubao/api.js";
 import fastImageSize from "fast-image-size";
 import { PLUGIN_DATA_DIR } from "../../model/path.js";
 import { AudioParse, FileType, Objects, StringUtils } from "../../utils/kits.js";
-import { Request, RequestBody, RequestMsg } from "../../types.js";
+import { Request, RequestBody, RequestMsg } from "../../types/index.js";
 import { downloadFile, url2Base64 } from "../../utils/net.js";
 import { config } from "../../config/index.js";
 import { processMessage } from "../../utils/message.js";

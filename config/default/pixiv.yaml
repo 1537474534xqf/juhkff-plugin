@@ -2,7 +2,7 @@
 usePixiv: false
 
 # 订阅用户ID
-subscribeUserId: []
+groupSubscribeToUserId: []
 
-# 订阅查询频率（分）
-subscribeInterval: 60
+# 默认订阅查询频率（分）
+defaultInterval: 30

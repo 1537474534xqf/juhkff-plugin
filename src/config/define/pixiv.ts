@@ -3,12 +3,14 @@ import fs from "fs";
 import YAML from "yaml";
 import chokidar from "chokidar";
 import { PLUGIN_CONFIG_DIR, PLUGIN_DEFAULT_CONFIG_DIR } from "../../model/path.js";
-import { configFolderCheck, configSync, getFileHash } from "../common.js";
+import { configFolderCheck, configSync, getFileHash, saveConfigToFile } from "../common.js";
+import { GroupSubscribeUser } from "../../types/config/define/pixiv.js";
+import { config } from "../index.js";
 
 export type Pixiv = {
     usePixiv: boolean,
-    subscribeUserId: string[], // 订阅用户ID
-    subscribeInterval: number, // 订阅查询频率（分）
+    groupSubscribeToUserId: GroupSubscribeUser[],
+    defaultInterval: number,
 }
 
 export const pixivConfig: Pixiv = {} as Pixiv;
@@ -46,10 +48,18 @@ export const pixivConfig: Pixiv = {} as Pixiv;
 
 
 // 添加订阅用户ID
-export function addSubscribeUserId(userId: string) {
-    if (!pixivConfig.subscribeUserId.includes(userId)) {
-        pixivConfig.subscribeUserId.push(userId);
-        const file = path.join(PLUGIN_CONFIG_DIR, `pixiv.yaml`);
-        fs.writeFileSync(file, YAML.stringify(pixivConfig));
+export function addSubscribe(userId: number, groupId: number, interval: number = 30) {
+    const subscribeGroup = config.pixiv.groupSubscribeToUserId.find(user => user.userId === userId);
+    if (!subscribeGroup) {
+        config.pixiv.groupSubscribeToUserId.push({
+            userId,
+            groupIds: [groupId],
+            useSpecialInterval: false,
+            interval,
+        });
+        return;
     }
+    if (!subscribeGroup.groupIds.includes(groupId)) subscribeGroup.groupIds.push(groupId);
+    // 写入配置文件
+    saveConfigToFile(config.pixiv, "pixiv.yaml");
 }

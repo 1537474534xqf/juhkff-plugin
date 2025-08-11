@@ -1,5 +1,5 @@
 import { config } from "../../../config/index.js";
-import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg, Request } from "../../../types.js";
+import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg, Request } from "../../../types/index.js";
 import { OpenAI } from "../openaiAgent.js";
 
 export class Siliconflow extends OpenAI {

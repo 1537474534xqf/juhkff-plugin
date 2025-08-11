@@ -1,6 +1,6 @@
 import { scheduleJob } from "node-schedule";
 import { jobDict } from "../cache/global.js";
-import { CronExpression } from "../types.js";
+import { CronExpression } from "../types/index.js";
 
 /**
  * 创建或更新定时任务
