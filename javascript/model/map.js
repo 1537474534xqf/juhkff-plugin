@@ -13,7 +13,6 @@ import { OpenAI } from "./agent/openaiAgent.js";
 import { OpenRouter } from "./agent/instance/openrouter.js";
 import { EVENT_RELOAD_INSTANCE } from "./constant.js";
 import { HttpsProxyAgent } from "https-proxy-agent";
-import { Pixiv } from "@ibaraki-douji/pixivts";
 /**
  * 模型列表，新增的都加里面
  */
@@ -36,12 +35,6 @@ const agent = {
         return visualInstance;
     }
 };
-let pixivInstance = null;
-const pixiv = {
-    get client() {
-        return pixivInstance;
-    }
-};
 (() => {
     if (config.autoReply.useAutoReply) {
         chatInstance = new agentMap[config.autoReply.chatApi](config.autoReply.chatApiKey);
@@ -53,9 +46,6 @@ const pixiv = {
                 visualInstance.proxy = new HttpsProxyAgent(config.autoReply.visualProxyUrl);
         }
     }
-    // pixiv 相关
-    if (config.pixiv.usePixiv)
-        pixivInstance = new Pixiv();
 })();
 Bot.on(EVENT_RELOAD_INSTANCE, () => {
     if (config.autoReply.useAutoReply) {
@@ -68,9 +58,6 @@ Bot.on(EVENT_RELOAD_INSTANCE, () => {
                 visualInstance.proxy = new HttpsProxyAgent(config.autoReply.visualProxyUrl);
         }
     }
-    // pixiv 相关
-    if (config.pixiv.usePixiv)
-        pixivInstance = new Pixiv();
 });
-export { agentMap, agent, pixiv };
+export { agentMap, agent };
 //# sourceMappingURL=map.js.map

@@ -3,7 +3,11 @@ import fs from "fs";
 import YAML from "yaml";
 import chokidar from "chokidar";
 import { PLUGIN_CONFIG_DIR, PLUGIN_DEFAULT_CONFIG_DIR } from "../../model/path.js";
-import { configFolderCheck, configSync, getFileHash } from "../common.js";
+import { configFolderCheck, configSync, getFileHash, saveConfigToFile } from "../common.js";
+import { createSubscribeTimer, firstSaveUserIllusts } from "../../utils/pixiv.js";
+import { pixivSubscribeTimerDict } from "../../cache/global.js";
+import { Pixiv as PixivVClient } from "@ibaraki-douji/pixivts";
+export let pixivInstance = null;
 export const pixivConfig = {};
 (() => {
     const file = path.join(PLUGIN_CONFIG_DIR, `pixiv.yaml`);
@@ -20,6 +24,13 @@ export const pixivConfig = {};
         const func = () => {
             const userConfig = YAML.parse(fs.readFileSync(file, "utf8"));
             Object.assign(pixivConfig, userConfig);
+            // 插件初始化逻辑，插件启动不需要await，直接调用即可
+            // pixiv 相关
+            if (pixivConfig.usePixiv)
+                pixivInstance = new PixivVClient();
+            // clearSubscribeTimer();
+            initSubscribeTimer();
+            removeUnusedSubscribeTimer();
         };
         func();
         return func;
@@ -32,7 +43,75 @@ export const pixivConfig = {};
         sync();
         lastHash = hash;
         logger.info(logger.grey(`- [JUHKFF-PLUGIN] 同步Pixiv配置`));
-    }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN] Pixiv配置同步异常`, err); });
+    }).on("error", (err) => { logger.error(`- [JUHKFF-PLUGIN] Pixiv配置同步异常`, err); });
 })();
+/* 修改配置的方法从文件内向外暴露 */
 // 添加订阅用户ID
+export function addSubscribe(userId, groupId, interval = 30) {
+    const subscribeGroup = pixivConfig.groupSubscribeToUserId.find(user => user.userId === userId);
+    if (!subscribeGroup) {
+        pixivConfig.groupSubscribeToUserId.push({
+            userId,
+            groupIds: [groupId],
+            useSpecialInterval: false,
+            interval,
+        });
+    }
+    else if (!subscribeGroup.groupIds.includes(groupId))
+        subscribeGroup.groupIds.push(groupId);
+    // 写入配置文件
+    saveConfigToFile(pixivConfig, "pixiv.yaml");
+}
+export function removeSubscribe(userId, groupId) {
+    const subscribeGroup = pixivConfig.groupSubscribeToUserId.find(user => user.userId === userId);
+    if (!subscribeGroup)
+        return;
+    const index = subscribeGroup.groupIds.indexOf(groupId);
+    if (index !== -1) {
+        subscribeGroup.groupIds.splice(index, 1);
+        // 如果没有群组了，删除该用户订阅
+        if (subscribeGroup.groupIds.length === 0) {
+            pixivConfig.groupSubscribeToUserId = pixivConfig.groupSubscribeToUserId.filter(user => user.userId !== userId);
+        }
+        // 写入配置文件
+        saveConfigToFile(pixivConfig, "pixiv.yaml");
+    }
+}
+/**
+ * 为方便配置刷新，只更新pixivSubscribeTimerDict中不存在的定时器
+ */
+async function initSubscribeTimer() {
+    for (const item of pixivConfig.groupSubscribeToUserId) {
+        for (const groupId of item.groupIds) {
+            if (pixivSubscribeTimerDict.has({ userId: item.userId, groupId }))
+                continue;
+            // 直接启动任务，不等待完成，所有任务并行执行
+            (async () => {
+                try {
+                    logger.info(`- [JUHKFF-PLUGIN] [Pixiv]获取订阅记录点中: 用户ID ${item.userId} 群组ID ${groupId}`);
+                    await firstSaveUserIllusts(item.userId.toString());
+                    const intervalId = await createSubscribeTimer(item.userId, groupId, item.useSpecialInterval ? item.interval : pixivConfig.defaultInterval);
+                    pixivSubscribeTimerDict.set({ userId: item.userId, groupId }, intervalId);
+                    logger.info(`- [JUHKFF-PLUGIN] [Pixiv]成功订阅: 用户ID ${item.userId} 群组ID ${groupId}`);
+                }
+                catch (error) {
+                    logger.error(`- [JUHKFF-PLUGIN] [Pixiv]订阅失败: 用户ID ${item.userId} 群组ID ${groupId}`, error);
+                }
+            })();
+        }
+    }
+}
+/**
+ * 删除取消的订阅定时器
+ */
+async function removeUnusedSubscribeTimer() {
+    for (const [key, value] of pixivSubscribeTimerDict) {
+        const subscribeGroup = pixivConfig.groupSubscribeToUserId.find(user => user.userId === key.userId);
+        if (!subscribeGroup || !subscribeGroup.groupIds.includes(key.groupId)) {
+            clearInterval(value);
+            pixivSubscribeTimerDict.delete(key);
+            logger.info(`- [JUHKFF-PLUGIN] [Pixiv]清除订阅: 用户ID ${key.userId} 群组ID ${key.groupId}`);
+        }
+    }
+}
 //# sourceMappingURL=pixiv.js.map

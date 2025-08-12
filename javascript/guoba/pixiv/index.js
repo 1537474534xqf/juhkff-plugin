@@ -19,27 +19,16 @@ export const pixivSchema = () => [
             multiple: true,
             schemas: [
                 {
-                    field: "groupId",
-                    label: "群组ID",
+                    field: "userId",
+                    label: "用户ID",
                     required: true,
                     component: "Input",
                 },
                 {
-                    field: "userIds",
-                    label: "订阅用户ID",
+                    field: "groupIds",
+                    label: "订阅群",
                     required: true,
-                    component: "GSubForm",
-                    componentProps: {
-                        multiple: true,
-                        schemas: [
-                            {
-                                field: "userId",
-                                label: "用户ID",
-                                required: true,
-                                component: "InputNumber",
-                            },
-                        ],
-                    },
+                    component: "GSelectGroup",
                 },
                 {
                     field: "useSpecialInterval",
@@ -52,6 +41,10 @@ export const pixivSchema = () => [
                     label: "轮询间隔(分钟)",
                     component: "InputNumber",
                     bottomHelpMessage: "轮询间隔，单位为分钟，使用该项需将上面的开关关闭",
+                    componentProps: {
+                        min: 0,
+                        defaultValue: 30,
+                    },
                 }
             ]
         }

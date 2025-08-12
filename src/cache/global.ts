@@ -10,7 +10,9 @@ export const jobDict: JobDict = {};
 export const dailyReportDict: Record<string, string> = {};
 
 // pixiv 订阅字典
-export const pixivSubscribeDict: Map<{ userId: number, groupId: number }, number> = new Map();
+export const pixivSubscribeTimerDict: Map<{ userId: number, groupId: number }, number> = new Map();
+
+export const botId = Bot.uin.filter((item) => typeof item == "number")[0] || Bot.uin[0];
 
 // 事件总线 可直接使用 Bot
 // export const eventBus = new EventEmitter();

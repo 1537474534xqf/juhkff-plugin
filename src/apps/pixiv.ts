@@ -1,4 +1,5 @@
-import { addSubscribe } from "../config/define/pixiv.js";
+import { pixivSubscribeTimerDict } from "../cache/global.js";
+import { addSubscribe, removeSubscribe } from "../config/define/pixiv.js";
 import { config } from "../config/index.js";
 import { createSubscribeTimer, firstSaveUserIllusts } from "../utils/pixiv.js";
 
@@ -18,7 +19,7 @@ export class pixiv extends plugin {
         });
     }
 
-    async subscribe(e: any) {
+    async subscribe(e: E) {
         let userId: string;
         try {
             userId = e.msg.match(/#pixiv订阅 (\d+)/)[1];
@@ -30,7 +31,18 @@ export class pixiv extends plugin {
         if (!result) return await e.reply(`订阅pixiv用户 ${userId} 的插画失败，请检查日志。`);
         // 更新config
         addSubscribe(parseInt(userId), e.group_id);
-        // 创建定时器循环获取最新的插画ID
-        await createSubscribeTimer(userId, config.pixiv.defaultInterval);
+        // 创建定时器循环获取最新的插画ID，使用默认间隔
+        const intervalId = await createSubscribeTimer(parseInt(userId), e.group_id, config.pixiv.defaultInterval);
+        pixivSubscribeTimerDict.set({ userId: parseInt(userId), groupId: e.group_id }, intervalId);
+    }
+
+    async unsubscribe(e: E) {
+        let userId: string;
+        try {
+            userId = e.msg.match(/#pixiv订阅 (\d+)/)[1];
+        } catch (error) {
+            return e.reply("请输入正确的pixiv订阅指令");
+        }
+        removeSubscribe(parseInt(userId), e.group_id);
     }
 }

@@ -78,7 +78,35 @@ const cleanAudioCache: () => NodeJS.Timeout = () => {
 
 export const cleanAudioTask = cleanAudioCache();
 
+const cleanPixivImagesCache: () => NodeJS.Timeout = () => {
+    const internalFunc = () => {
+        if (!fs.existsSync(PLUGIN_DATA_DIR)) return;
+        try {
+            const now = Date.now();
+            const fifteenMinutesAgo = now - 15 * 60 * 1000;
+            const pixivDir = path.join(PLUGIN_DATA_DIR, "pixiv", "images");
+            if (!fs.existsSync(pixivDir)) return;
+            fs.readdirSync(pixivDir).forEach((file) => {
+                const filePath = path.join(pixivDir, file);
+                const fileStat = fs.statSync(filePath);
+                if (fileStat.isFile() && fileStat.birthtimeMs < fifteenMinutesAgo) {
+                    fs.unlinkSync(filePath);
+                    logger.info(`删除Pixiv缓存文件: ${filePath}`);
+                }
+            });
+        } catch (err) {
+            logger.error("清理Pixiv缓存文件任务执行出错:", err);
+        }
+    };
+    // 程序启动时立即执行一次
+    internalFunc();
+    return setInterval(internalFunc, 15 * 60 * 1000);
+};
+
+export const cleanPixivImagesTask = cleanPixivImagesCache();
+
 process.on("exit", () => {
     clearInterval(cleanVideoTask);
     clearInterval(cleanAudioTask);
+    clearInterval(cleanPixivImagesTask);
 });
