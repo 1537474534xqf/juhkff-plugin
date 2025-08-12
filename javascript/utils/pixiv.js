@@ -6,6 +6,7 @@ import { pixivInstance } from "../config/define/pixiv.js";
 import { botId } from "../cache/global.js";
 import axios from "axios";
 import lockfile from "proper-lockfile";
+import { randomInt } from "crypto";
 export async function firstSaveUserIllusts(userId) {
     try {
         const response = await pixivInstance.getIllustsByUserID(userId, { limit: 0 });
@@ -46,7 +47,16 @@ async function checkAndFetchUserNewestIllustId(lock, intervalConfig) {
         return;
     const release = await lock.acquire();
     try {
-        const response = await pixivInstance.getIllustsByUserID(intervalConfig.userId, { limit: 0 });
+        let response;
+        while (true) {
+            response = await pixivInstance.getIllustsByUserID(intervalConfig.userId, { limit: 0 });
+            if (!response.ok && response.status == 429) {
+                logger.warn(`[JUHKFF-PLUGIN] [Pixiv]请求频繁触发反爬虫保护，等待一段时间后自动重试（可忽视此条）`);
+                await new Promise(resolve => setTimeout(resolve, 1000 * 60 + randomInt(0, 120) * 1000)); // 等待1-3分钟间隔，防止请求过于集中
+                continue;
+            }
+            break;
+        }
         // id应该是和时间一样的排序吧
         let ids = response.map(illust => illust.illustID).reverse();
         if (ids.length === 0)

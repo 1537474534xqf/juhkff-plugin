@@ -6,10 +6,20 @@ import { pixivInstance } from "../config/define/pixiv.js";
 import { botId } from "../cache/global.js";
 import axios from "axios";
 import lockfile from "proper-lockfile";
+import { randomInt } from "crypto";
 
 export async function firstSaveUserIllusts(userId: string) {
     try {
-        const response = await pixivInstance.getIllustsByUserID(userId, { limit: 0 });
+        let response;
+        while (true) {
+            response = await pixivInstance.getIllustsByUserID(userId, { limit: 0 });
+            if (!response.ok && response.status == 429) {
+                logger.warn(`[JUHKFF-PLUGIN] [Pixiv]请求频繁触发反爬虫保护，等待一段时间后自动重试（可忽视此条）`);
+                await new Promise(resolve => setTimeout(resolve, 1000 * 60 + randomInt(0, 120) * 1000)); // 等待1-3分钟间隔，防止请求过于集中
+                continue;
+            }
+            break;
+        }
         // 倒序排列
         let ids = response.map(illust => illust.illustID).reverse();
         if (ids.length === 0) ids = ["-1"];
@@ -47,7 +57,16 @@ async function checkAndFetchUserNewestIllustId(lock: Mutex, intervalConfig: { us
     if (lock.isLocked()) return;
     const release = await lock.acquire();
     try {
-        const response = await pixivInstance.getIllustsByUserID(intervalConfig.userId, { limit: 0 });
+        let response;
+        while (true) {
+            response = await pixivInstance.getIllustsByUserID(intervalConfig.userId, { limit: 0 });
+            if (!response.ok && response.status == 429) {
+                logger.warn(`[JUHKFF-PLUGIN] [Pixiv]请求频繁触发反爬虫保护，等待一段时间后自动重试（可忽视此条）`);
+                await new Promise(resolve => setTimeout(resolve, 1000 * 60 + randomInt(0, 120) * 1000)); // 等待1-3分钟间隔，防止请求过于集中
+                continue;
+            }
+            break;
+        }
         // id应该是和时间一样的排序吧
         let ids = response.map(illust => illust.illustID).reverse();
         if (ids.length === 0) ids = ["-1"];
@@ -96,33 +115,39 @@ export async function downloadPixivImage(illustId: string, imageUrl: string): Pr
 
         if (fs.existsSync(filePath) && fs.statSync(filePath).size > 0) return filePath;
 
-        // 执行下载操作
-        await new Promise<void>((resolve, reject) => {
-            axios({
-                method: 'GET',
-                url: imageUrl,
-                responseType: 'stream',
-                headers: { Referer: 'https://www.pixiv.net/' }
-            }).then(response => {
-                const fileStream = fs.createWriteStream(tempFilePath);
-                response.data.pipe(fileStream);
-                fileStream.on('finish', () => {
-                    fileStream.close();
-                    // 下载完成后原子性地重命名文件
-                    fs.renameSync(tempFilePath, filePath);
-                    resolve();
+        // todo 执行下载操作，区别处理
+        while (true) {
+            const result = await new Promise<boolean>((resolve, reject) => {
+                axios({
+                    method: 'GET',
+                    url: imageUrl,
+                    responseType: 'stream',
+                    headers: { Referer: 'https://www.pixiv.net/' }
+                }).then(response => {
+                    const fileStream = fs.createWriteStream(tempFilePath);
+                    response.data.pipe(fileStream);
+                    fileStream.on('finish', () => {
+                        fileStream.close();
+                        // 下载完成后原子性地重命名文件
+                        fs.renameSync(tempFilePath, filePath);
+                        resolve(true);
+                    });
+                }).catch(async err => {
+                    if (err.response?.status === 429) {
+                        logger.warn(`[JUHKFF-PLUGIN] [Pixiv]下载请求触发反爬虫保护，等待一段时间后自动重试（可忽视此条）`);
+                        await new Promise(resolve => setTimeout(resolve, 1000 * 60 + randomInt(0, 20) * 1000));
+                    } else {
+                        logger.error(`[JUHKFF-PLUGIN] [Pixiv]下载Pixiv订阅图片失败: ${err}`);
+                        // 清理临时文件
+                        if (fs.existsSync(tempFilePath)) {
+                            fs.unlinkSync(tempFilePath);
+                        }
+                        reject(err);
+                    }
                 });
-            }).catch(err => {
-                logger.error(`[JUHKFF-PLUGIN] [Pixiv]下载Pixiv订阅图片失败: ${err}`);
-                // 清理临时文件
-                if (fs.existsSync(tempFilePath)) {
-                    fs.unlinkSync(tempFilePath);
-                }
-                reject(err);
             });
-        });
-
-        return filePath;
+            if (result) return filePath;
+        }
     } finally {
         // 释放文件锁
         if (release) {

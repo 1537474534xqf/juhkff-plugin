@@ -21,13 +21,15 @@ export const pixivConfig = {};
         configSync(userConfig, defaultConfig);
         fs.writeFileSync(file, YAML.stringify(userConfig));
         Object.assign(pixivConfig, userConfig);
-        const func = () => {
+        const func = async () => {
             const userConfig = YAML.parse(fs.readFileSync(file, "utf8"));
             Object.assign(pixivConfig, userConfig);
             // 插件初始化逻辑，插件启动不需要await，直接调用即可
             // pixiv 相关
-            if (pixivConfig.usePixiv)
+            if (pixivConfig.usePixiv) {
                 pixivInstance = new PixivVClient();
+                pixivInstance.staticLogin("30242545_i5ypxGc6xzgtaXHvoz9okqkImuleufnA", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36");
+            }
             // clearSubscribeTimer();
             initSubscribeTimer();
             removeUnusedSubscribeTimer();
