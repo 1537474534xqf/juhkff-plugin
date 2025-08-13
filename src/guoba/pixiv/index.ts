@@ -42,7 +42,7 @@ export const pixivSchema = (): ConfigSchemaType[] => [
     {
         field: "pixiv.interval",
         label: "默认轮询间隔（分钟）",
-        bottomHelpMessage: "默认轮询间隔，单位为分钟，默认为30分钟",
+        bottomHelpMessage: "默认轮询间隔，单位为分钟，默认为30分钟。修改此项需重启机器人",
         component: "InputNumber",
         componentProps: {
             placeholder: "请输入轮询间隔",

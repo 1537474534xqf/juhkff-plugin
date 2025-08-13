@@ -103,7 +103,8 @@ async function initSubscribeTimer() {
                 let release;
                 try {
                     logger.info(`- [JUHKFF-PLUGIN] [Pixiv]获取订阅记录点中: 用户ID ${item.userId}`);
-                    await firstSaveUserIllusts(item.userId.toString());
+                    const success = await firstSaveUserIllusts(item.userId.toString());
+                    if (!success) break;
                     // 二次判断，如果在请求的间隔内取消了订阅，则不添加定时器
                     if (pixivConfig.groupSubscribeToUserId.find(user => user.userId === item.userId) === undefined) break;
                     // 为防止潜在并发，在这里设个锁
@@ -115,12 +116,12 @@ async function initSubscribeTimer() {
                         },
                         stale: 15 * 1000, // 15秒后锁失效
                     });
-                    const intervalId = await createSubscribeTimer(item.userId, pixivConfig.interval * 60 * 1000, pixivConfig);
+                    const intervalId = await createSubscribeTimer(item.userId, pixivConfig);
                     pixivSubscribeTimerDict[item.userId] = intervalId;
                     logger.info(`- [JUHKFF-PLUGIN] [Pixiv]成功订阅: 用户ID ${item.userId}`);
                     break;
                 } catch (error) {
-                    if (error.code === "ETIMEDOUT") {
+                    if (error.code === "ECONNRESET") {
                         logger.warn(`- [JUHKFF-PLUGIN] [Pixiv]获取订阅记录点请求被重置，等待2min后自动重试（可忽视此条）`);
                         await new Promise(resolve => setTimeout(resolve, 1000 * 60 * 2));
                         continue; // 重试

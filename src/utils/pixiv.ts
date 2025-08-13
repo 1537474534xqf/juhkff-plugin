@@ -32,7 +32,7 @@ export async function firstSaveUserIllusts(userId: string) {
             fs.writeFileSync(filePath, JSON.stringify({ "lastId": lastId }, null, 2));
             return true;
         } catch (error) {
-            if (error.code === "ETIMEDOUT") {
+            if (error.code === "ECONNRESET") {
                 logger.warn(`[JUHKFF-PLUGIN] [Pixiv]连接被重置，等待2min后自动重试（可忽视此条）`);
                 await new Promise(resolve => setTimeout(resolve, 1000 * 60 * 2));
                 continue;
@@ -43,7 +43,7 @@ export async function firstSaveUserIllusts(userId: string) {
     }
 }
 
-export async function createSubscribeTimer(userId: number, interval: number, pixivConfig: Pixiv) {
+export async function createSubscribeTimer(userId: number, pixivConfig: Pixiv) {
     const filePath = path.join(PLUGIN_DATA_DIR, "pixiv", `user_subscribe_${userId}.json`);
     if (!fs.existsSync(filePath)) {
         logger.error(`[JUHKFF-PLUGIN] [Pixiv]订阅配置文件不存在：${filePath}`);
@@ -53,7 +53,7 @@ export async function createSubscribeTimer(userId: number, interval: number, pix
     const lastIllustId = data.lastId as number;
     const intervalConfig = { userId: userId.toString(), lastIllustId, pixivConfig };
     const lock = new Mutex();
-    const intervalId = setInterval(checkAndFetchUserNewestIllustId, interval, lock, intervalConfig);
+    const intervalId = setInterval(checkAndFetchUserNewestIllustId, pixivConfig.interval * 60 * 1000, lock, intervalConfig);
     return intervalId;
 }
 
