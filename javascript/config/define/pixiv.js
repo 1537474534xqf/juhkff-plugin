@@ -27,11 +27,15 @@ export const pixivConfig = {};
             Object.assign(pixivConfig, userConfig);
             // 插件初始化逻辑，插件启动不需要await，直接调用即可
             // pixiv 相关
-            if (pixivConfig.usePixiv)
+            if (pixivConfig.usePixiv) {
                 pixivInstance = new PixivVClient();
-            // clearSubscribeTimer();
-            initSubscribeTimer();
-            removeUnusedSubscribeTimer();
+                // clearSubscribeTimer();
+                initSubscribeTimer();
+                removeUnusedSubscribeTimer();
+            }
+            else {
+                removeAllSubscribeTimer();
+            }
         };
         func();
         return func;
@@ -166,5 +170,11 @@ async function removeUnusedSubscribeTimer() {
                 logger.warn(`[JUHKFF-PLUGIN] [Pixiv]释放文件锁时出错: ${err}`);
             }
         }
+    }
+}
+function removeAllSubscribeTimer() {
+    for (const key of Object.keys(pixivSubscribeTimerDict)) {
+        clearInterval(pixivSubscribeTimerDict[key]);
+        delete pixivSubscribeTimerDict[key];
     }
 }
