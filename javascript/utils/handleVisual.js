@@ -347,4 +347,3 @@ export async function loadContextVisual(groupId) {
         return [];
     }
 }
-//# sourceMappingURL=handleVisual.js.map

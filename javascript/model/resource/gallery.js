@@ -45,4 +45,3 @@ export function loadEmojiGallery(galleryPath) {
     });
     return watcher;
 }
-//# sourceMappingURL=gallery.js.map

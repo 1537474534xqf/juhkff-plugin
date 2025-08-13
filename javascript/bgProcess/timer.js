@@ -96,17 +96,18 @@ const cleanPixivImagesCache = () => {
                 const fileStat = fs.statSync(filePath);
                 if (fileStat.isFile() && fileStat.birthtimeMs < fifteenMinutesAgo) {
                     fs.unlinkSync(filePath);
-                    logger.info(`删除Pixiv缓存文件: ${filePath}`);
+                    logger.info(`- [JUHKFF-PLUGIN] [Pixiv]删除缓存文件: ${filePath}`);
                 }
             });
         }
         catch (err) {
-            logger.error("清理Pixiv缓存文件任务执行出错:", err);
+            logger.error("[JUHKFF-PLUGIN] 清理Pixiv缓存文件任务执行出错:", err);
         }
     };
     // 程序启动时立即执行一次
     internalFunc();
-    return setInterval(internalFunc, 15 * 60 * 1000);
+    // 考虑到有锁文件，清理一天前的文件
+    return setInterval(internalFunc, 24 * 60 * 60 * 1000);
 };
 export const cleanPixivImagesTask = cleanPixivImagesCache();
 process.on("exit", () => {
@@ -114,4 +115,3 @@ process.on("exit", () => {
     clearInterval(cleanAudioTask);
     clearInterval(cleanPixivImagesTask);
 });
-//# sourceMappingURL=timer.js.map

@@ -78,4 +78,3 @@ function extractText(message: [{ type: string, text?: string }]) {
     return message.filter(item => item.type === "text" && typeof item.text === "string").map(item => item.text as string).join("");
 }
 */
-//# sourceMappingURL=commandPrompt.js.map

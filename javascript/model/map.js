@@ -60,4 +60,3 @@ Bot.on(EVENT_RELOAD_INSTANCE, () => {
     }
 });
 export { agentMap, agent };
-//# sourceMappingURL=map.js.map

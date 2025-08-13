@@ -10,7 +10,7 @@ export const jobDict: JobDict = {};
 export const dailyReportDict: Record<string, string> = {};
 
 // pixiv 订阅字典
-export const pixivSubscribeTimerDict: Map<{ userId: number, groupId: number }, number> = new Map();
+export const pixivSubscribeTimerDict: Record<number, NodeJS.Timeout> = {};
 
 export const botId = Bot.uin.filter((item) => typeof item == "number")[0] || Bot.uin[0];
 

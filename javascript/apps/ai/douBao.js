@@ -988,4 +988,3 @@ export class douBao extends plugin {
         fs.unlinkSync(filePath);
     }
 }
-//# sourceMappingURL=douBao.js.map

@@ -354,4 +354,3 @@ export async function getImageUniqueId(e) {
         return image[0].url;
     return "";
 }
-//# sourceMappingURL=handle.js.map

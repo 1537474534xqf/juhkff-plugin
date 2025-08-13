@@ -24,4 +24,3 @@ export function deleteJob(taskName) {
         logger.info(logger.cyan(`[JUHKFF-PLUGIN] 已删除定时任务${taskName}`));
     }
 }
-//# sourceMappingURL=job.js.map

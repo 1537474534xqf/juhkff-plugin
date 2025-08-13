@@ -5,4 +5,4 @@ usePixiv: false
 groupSubscribeToUserId: []
 
 # 默认订阅查询频率（分）
-defaultInterval: 30
+interval: 60

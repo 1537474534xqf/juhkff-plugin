@@ -157,4 +157,3 @@ export class OpenRouter extends OpenAI {
         return output_modalities.length == 1 && output_modalities[0] == "text";
     }
 }
-//# sourceMappingURL=openrouter.js.map

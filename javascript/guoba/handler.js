@@ -72,4 +72,3 @@ export function beforeUpdate(data) {
     });
     return { code: 0, message: "校验成功" };
 }
-//# sourceMappingURL=handler.js.map

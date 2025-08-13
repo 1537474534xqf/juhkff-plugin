@@ -53,4 +53,3 @@ function normalizeCron(cron) {
     }
     return cron;
 }
-//# sourceMappingURL=index.js.map

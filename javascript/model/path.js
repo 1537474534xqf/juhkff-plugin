@@ -1,4 +1,5 @@
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 // const _path = process.cwd().replace(/\\/g, "/");
 const _filename = fileURLToPath(import.meta.url);
@@ -30,5 +31,13 @@ const PLUGIN_DEFAULT_CONFIG_DIR = path.join(PLUGIN_ROOT_DIR, "config", "default"
  * 插件数据目录路径
  */
 const PLUGIN_DATA_DIR = path.join(PLUGIN_ROOT_DIR, "data");
-export { PLUGIN_NAME, PLUGIN_APP_DIR, PLUGIN_ROOT_DIR, PLUGIN_RESOURCES_DIR, PLUGIN_CONFIG_DIR, PLUGIN_DEFAULT_CONFIG_DIR, PLUGIN_DATA_DIR };
-//# sourceMappingURL=path.js.map
+/**
+ * Pixiv 初始化文件锁路径
+ */
+const PIXIV_INIT_LOCK_PATH = path.join(PLUGIN_DATA_DIR, "pixiv.init.lock");
+if (!fs.existsSync(path.dirname(PIXIV_INIT_LOCK_PATH))) {
+    fs.mkdirSync(path.dirname(PIXIV_INIT_LOCK_PATH), { recursive: true });
+}
+if (!fs.existsSync(PIXIV_INIT_LOCK_PATH))
+    fs.closeSync(fs.openSync(PIXIV_INIT_LOCK_PATH, 'w')); // 创建空文件占位
+export { PLUGIN_NAME, PLUGIN_APP_DIR, PLUGIN_ROOT_DIR, PLUGIN_RESOURCES_DIR, PLUGIN_CONFIG_DIR, PLUGIN_DEFAULT_CONFIG_DIR, PLUGIN_DATA_DIR, PIXIV_INIT_LOCK_PATH, };

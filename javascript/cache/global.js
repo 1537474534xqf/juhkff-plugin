@@ -5,8 +5,7 @@ export const jobDict = {};
 // 日报错误输出记录
 export const dailyReportDict = {};
 // pixiv 订阅字典
-export const pixivSubscribeTimerDict = new Map();
+export const pixivSubscribeTimerDict = {};
 export const botId = Bot.uin.filter((item) => typeof item == "number")[0] || Bot.uin[0];
 // 事件总线 可直接使用 Bot
 // export const eventBus = new EventEmitter();
-//# sourceMappingURL=global.js.map

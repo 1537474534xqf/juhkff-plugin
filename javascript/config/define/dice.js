@@ -37,4 +37,3 @@ export const diceConfig = {};
         logger.info(logger.grey(`- [JUHKFF-PLUGIN] 同步骰子配置`));
     }).on("error", (err) => { logger.error(`[JUHKFF-PLUGIN] 骰子配置同步异常`, err); });
 })();
-//# sourceMappingURL=dice.js.map

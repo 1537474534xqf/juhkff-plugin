@@ -90,4 +90,3 @@ function privateSync(userConfig, defaultConfig) {
         userConfig.visualApiKey = userConfig.visualApiKey.trim() === "" ? [] : [{ name: "默认", apiKey: userConfig.visualApiKey, enabled: true }];
     }
 }
-//# sourceMappingURL=autoReply.js.map

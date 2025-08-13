@@ -108,4 +108,3 @@ export const diceSchema = () => [
         }
     }
 ];
-//# sourceMappingURL=index.js.map
