@@ -78,7 +78,7 @@ pnpm install --filter=juhkff-plugin
 
 - [x] 主动群聊
   - [x] 支持上下文
-  - [x] **锅巴配置页面现已支持多 ApiKey 管理 (latest update)**
+  - [x] 锅巴配置页面现已支持多 ApiKey 管理
   - [x] 视觉模型开启时，会对图片提取关键内容加入上下文
   - [x] 视觉模型可以代替聊天模型完全接管主动群聊
   - [x] 可以提取分享的 URL 内容并加入上下文
@@ -99,7 +99,8 @@ pnpm install --filter=juhkff-plugin
   - [x] 同一图片在指定时间长度内被发送两次，则被视为表情并偷取
 - [x] 命令预设
   - [x] 使群BOT进入相关预设场景，直到生成特定关键词或用户输入 `#结束` 时退出
-- [x] **Pixix 订阅推送（自测中）**
+- [x] **Pixix 订阅推送(试运行中) (latest update)**
+  - [x] Pixiv的请求API使用 [@ibaraki-douji/pixivts](https://www.npmjs.com/package/@ibaraki-douji/pixivts) 的包源码并进行少许改造
   - [x] **在锅巴配置中或群聊中使用`#pixiv订阅 ID`可订阅相应ID用户的最新插画动态推送到群聊中**
   - [x] **在锅巴配置中或群聊中使用`#pixiv取消订阅`可取消订阅相应ID用户**
 - [x] 骰子

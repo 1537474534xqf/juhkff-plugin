@@ -67,7 +67,7 @@ async function checkAndFetchUserNewestIllustId(lock: Mutex, intervalConfig: { us
             let ids = response.map(illust => illust.illustID).reverse();
             if (ids.length === 0) ids = ["-1"];
             const lastId = ids[0];
-            // if (lastId === intervalConfig.lastIllustId) return;
+            if (lastId === intervalConfig.lastIllustId) return;
             // 有更新
             logger.info(`[JUHKFF-PLUGIN] [Pixiv]用户 ${intervalConfig.userId} 发布新插画，ID为：${lastId}`);
             const filePath = path.join(PLUGIN_DATA_DIR, "pixiv", `user_subscribe_${intervalConfig.userId}.json`);
