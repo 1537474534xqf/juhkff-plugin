@@ -10,13 +10,7 @@ import { randomInt } from "crypto";
 export async function firstSaveUserIllusts(userId, proxyAgent) {
     while (true) {
         try {
-            let response;
-            response = await pixivInstance.getIllustsByUserID(userId, { httpAgent: proxyAgent, httpsAgent: proxyAgent });
-            if (!response.ok && response.status == 429) {
-                logger.warn(`[JUHKFF-PLUGIN] [Pixiv]请求频繁触发反爬虫保护，等待2min后自动重试（可忽视此条）`);
-                await new Promise(resolve => setTimeout(resolve, 1000 * 60 * 2)); // 等待1-3分钟间隔，防止请求过于集中
-                continue;
-            }
+            const response = await pixivInstance.getIllustsByUserID(userId, { httpAgent: proxyAgent, httpsAgent: proxyAgent }, 1);
             // 倒序排列
             let ids = response.map(illust => illust.illustID).reverse();
             if (ids.length === 0)
@@ -32,6 +26,11 @@ export async function firstSaveUserIllusts(userId, proxyAgent) {
             return true;
         }
         catch (error) {
+            if (error.status == 429) {
+                logger.warn(`[JUHKFF-PLUGIN] [Pixiv]请求频繁触发反爬虫保护，等待2min后自动重试（可忽视此条）`);
+                await new Promise(resolve => setTimeout(resolve, 1000 * 60 * 2)); // 等待1-3分钟间隔，防止请求过于集中
+                continue;
+            }
             if (error.code === "ECONNRESET") {
                 logger.warn(`[JUHKFF-PLUGIN] [Pixiv]连接被重置，等待2min后自动重试（可忽视此条）`);
                 await new Promise(resolve => setTimeout(resolve, 1000 * 60 * 2));
@@ -61,13 +60,7 @@ async function checkAndFetchUserNewestIllustId(lock, intervalConfig, proxyAgent)
     const release = await lock.acquire();
     while (true) {
         try {
-            let response;
-            response = await pixivInstance.getIllustsByUserID(intervalConfig.userId, { httpAgent: proxyAgent, httpsAgent: proxyAgent });
-            if (!response.ok && response.status == 429) {
-                logger.warn(`[JUHKFF-PLUGIN] [Pixiv]请求频繁触发反爬虫保护，等待2min后自动重试（可忽视此条）`);
-                await new Promise(resolve => setTimeout(resolve, 1000 * 60 * 2)); // 等待2分钟间隔，防止请求过于集中
-                continue;
-            }
+            const response = await pixivInstance.getIllustsByUserID(intervalConfig.userId, { httpAgent: proxyAgent, httpsAgent: proxyAgent }, 1);
             // id应该是和时间一样的排序吧
             let ids = response.map(illust => illust.illustID).reverse();
             if (ids.length === 0)
@@ -92,6 +85,11 @@ async function checkAndFetchUserNewestIllustId(lock, intervalConfig, proxyAgent)
             return;
         }
         catch (error) {
+            if (error.status == 429) {
+                logger.warn(`[JUHKFF-PLUGIN] [Pixiv]请求频繁触发反爬虫保护，等待2min后自动重试（可忽视此条）`);
+                await new Promise(resolve => setTimeout(resolve, 1000 * 60 * 2)); // 等待1-3分钟间隔，防止请求过于集中
+                continue;
+            }
             if (error.code === 'ECONNRESET') {
                 logger.warn(`[JUHKFF-PLUGIN] [Pixiv]连接被重置，等待2min后自动重试（可忽视此条）`);
                 await new Promise(resolve => setTimeout(resolve, 1000 * 60 * 2));

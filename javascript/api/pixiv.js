@@ -178,9 +178,11 @@ export class Pixiv {
      * @param id
      * @returns Illust
      */
-    async getIllustByID(id) {
-        const res = await this.fetch(new URL("https://www.pixiv.net/ajax/illust/" + id));
-        const json = JSON.parse(await res.text()).body;
+    async getIllustByID(id, options) {
+        // const res = await this.fetch(new URL("https://www.pixiv.net/ajax/illust/" + id));
+        const res = await axios.get(`https://www.pixiv.net/ajax/illust/${id}`, { ...options });
+        // const json = JSON.parse(await res.text()).body;
+        const json = res.data.body;
         const arr = [];
         for (let a = 0; a < json.pageCount; a++) {
             arr.push({
@@ -240,10 +242,11 @@ export class Pixiv {
         if (limit == 0)
             limit = Number.MAX_VALUE;
         let i = 1;
-        for (let ID of Object.keys(json.body.illusts)) {
+        // 按时间倒序
+        for (let ID of Object.keys(json.body.illusts).reverse()) {
             if (i > limit)
                 break;
-            arr.push(await this.getIllustByID(ID));
+            arr.push(await this.getIllustByID(ID, options));
             i++;
         }
         return arr;
