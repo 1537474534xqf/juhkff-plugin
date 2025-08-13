@@ -6,3 +6,6 @@ groupSubscribeToUserId: []
 
 # 默认订阅查询频率（分）
 interval: 60
+
+# 可选代理地址
+proxyUrl: ""

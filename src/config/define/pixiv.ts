@@ -8,17 +8,21 @@ import { configFolderCheck, configSync, getFileHash, saveConfigToFile } from "..
 import { GroupSubscribeUser } from "../../types/config/define/pixiv.js";
 import { createSubscribeTimer, firstSaveUserIllusts } from "../../utils/pixiv.js";
 import { pixivSubscribeTimerDict } from "../../cache/global.js";
-import { Pixiv as PixivVClient } from "@ibaraki-douji/pixivts";
+import { Pixiv as PixivClient } from "../../api/pixiv.js"
+import { HttpsProxyAgent } from "https-proxy-agent";
 
 export type Pixiv = {
     usePixiv: boolean,
     groupSubscribeToUserId: GroupSubscribeUser[],
     interval: number,
+    proxyUrl?: string, // 可选的代理URL
 }
 
-export let pixivInstance: PixivVClient | null = null;
+export let pixivInstance: PixivClient | null = null;
 
 export const pixivConfig: Pixiv = {} as Pixiv;
+
+export let proxyAgent: HttpsProxyAgent<string> | null = null;
 
 (() => {
     const file = path.join(PLUGIN_CONFIG_DIR, `pixiv.yaml`);
@@ -39,7 +43,9 @@ export const pixivConfig: Pixiv = {} as Pixiv;
             // 插件初始化逻辑，插件启动不需要await，直接调用即可
             // pixiv 相关
             if (pixivConfig.usePixiv) {
-                pixivInstance = new PixivVClient();
+                pixivInstance = new PixivClient();
+                if (pixivConfig.proxyUrl && pixivConfig.proxyUrl.trim() !== "") proxyAgent = new HttpsProxyAgent(pixivConfig.proxyUrl);
+                else proxyAgent = null;
                 // clearSubscribeTimer();
                 initSubscribeTimer();
                 removeUnusedSubscribeTimer();
@@ -103,7 +109,7 @@ async function initSubscribeTimer() {
                 let release;
                 try {
                     logger.info(`- [JUHKFF-PLUGIN] [Pixiv]获取订阅记录点中: 用户ID ${item.userId}`);
-                    const success = await firstSaveUserIllusts(item.userId.toString());
+                    const success = await firstSaveUserIllusts(item.userId.toString(), proxyAgent);
                     if (!success) break;
                     // 二次判断，如果在请求的间隔内取消了订阅，则不添加定时器
                     if (pixivConfig.groupSubscribeToUserId.find(user => user.userId === item.userId) === undefined) break;
@@ -116,7 +122,7 @@ async function initSubscribeTimer() {
                         },
                         stale: 15 * 1000, // 15秒后锁失效
                     });
-                    const intervalId = await createSubscribeTimer(item.userId, pixivConfig);
+                    const intervalId = await createSubscribeTimer(item.userId, pixivConfig, proxyAgent);
                     pixivSubscribeTimerDict[item.userId] = intervalId;
                     logger.info(`- [JUHKFF-PLUGIN] [Pixiv]成功订阅: 用户ID ${item.userId}`);
                     break;

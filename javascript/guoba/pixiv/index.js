@@ -47,5 +47,11 @@ export const pixivSchema = () => [
             min: 0,
             step: 1,
         },
-    }
+    },
+    {
+        field: "pixiv.proxyUrl",
+        label: "代理URL",
+        bottomHelpMessage: "可选的代理URL，用于访问Pixiv API，留空则不使用代理",
+        component: "Input",
+    },
 ];

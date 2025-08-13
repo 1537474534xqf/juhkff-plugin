@@ -7,12 +7,13 @@ import { botId } from "../cache/global.js";
 import axios from "axios";
 import lockfile from "proper-lockfile";
 import { randomInt } from "crypto";
+import { HttpsProxyAgent } from "https-proxy-agent";
 
-export async function firstSaveUserIllusts(userId: string) {
+export async function firstSaveUserIllusts(userId: string, proxyAgent?: HttpsProxyAgent<string>) {
     while (true) {
         try {
             let response;
-            response = await pixivInstance.getIllustsByUserID(userId, { limit: 0 });
+            response = await pixivInstance.getIllustsByUserID(userId, { httpAgent: proxyAgent, httpsAgent: proxyAgent });
             if (!response.ok && response.status == 429) {
                 logger.warn(`[JUHKFF-PLUGIN] [Pixiv]请求频繁触发反爬虫保护，等待2min后自动重试（可忽视此条）`);
                 await new Promise(resolve => setTimeout(resolve, 1000 * 60 * 2)); // 等待1-3分钟间隔，防止请求过于集中
@@ -43,7 +44,7 @@ export async function firstSaveUserIllusts(userId: string) {
     }
 }
 
-export async function createSubscribeTimer(userId: number, pixivConfig: Pixiv) {
+export async function createSubscribeTimer(userId: number, pixivConfig: Pixiv, proxyAgent?: HttpsProxyAgent<string>) {
     const filePath = path.join(PLUGIN_DATA_DIR, "pixiv", `user_subscribe_${userId}.json`);
     if (!fs.existsSync(filePath)) {
         logger.error(`[JUHKFF-PLUGIN] [Pixiv]订阅配置文件不存在：${filePath}`);
@@ -53,18 +54,18 @@ export async function createSubscribeTimer(userId: number, pixivConfig: Pixiv) {
     const lastIllustId = data.lastId as number;
     const intervalConfig = { userId: userId.toString(), lastIllustId, pixivConfig };
     const lock = new Mutex();
-    const intervalId = setInterval(checkAndFetchUserNewestIllustId, pixivConfig.interval * 60 * 1000, lock, intervalConfig);
+    const intervalId = setInterval(checkAndFetchUserNewestIllustId, pixivConfig.interval * 60 * 1000, lock, intervalConfig, proxyAgent);
     return intervalId;
 }
 
 
-async function checkAndFetchUserNewestIllustId(lock: Mutex, intervalConfig: { userId: string, lastIllustId: number, pixivConfig: Pixiv }) {
+async function checkAndFetchUserNewestIllustId(lock: Mutex, intervalConfig: { userId: string, lastIllustId: number, pixivConfig: Pixiv }, proxyAgent?: HttpsProxyAgent<string>) {
     if (lock.isLocked()) return;
     const release = await lock.acquire();
     while (true) {
         try {
             let response;
-            response = await pixivInstance.getIllustsByUserID(intervalConfig.userId, { limit: 0 });
+            response = await pixivInstance.getIllustsByUserID(intervalConfig.userId, { httpAgent: proxyAgent, httpsAgent: proxyAgent });
             if (!response.ok && response.status == 429) {
                 logger.warn(`[JUHKFF-PLUGIN] [Pixiv]请求频繁触发反爬虫保护，等待2min后自动重试（可忽视此条）`);
                 await new Promise(resolve => setTimeout(resolve, 1000 * 60 * 2)); // 等待2分钟间隔，防止请求过于集中
