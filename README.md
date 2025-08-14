@@ -118,7 +118,7 @@ pnpm install --filter=juhkff-plugin
     <img src="./resources/images/help-screenshot.png"/>
   </details>
 - [x] **小工具 (latest update)**
-  - [x] **分享内容解析：当PC端用户无法直接看到分享内容时，可以看BOT发送的解析简单了解 (latest update)**
+  - [x] **分享内容解析：当PC端用户无法直接看到分享内容时，可以看BOT发送的解析简单了解，目前支持Blibili和小黑和的分享 (latest update)**
 - [x] 其它
   - [x] 插件配置页面优化（长期）
 - [ ] TODO...
