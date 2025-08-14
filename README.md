@@ -101,8 +101,9 @@ pnpm install --filter=juhkff-plugin
   - [x] 使群BOT进入相关预设场景，直到生成特定关键词或用户输入 `#结束` 时退出
 - [x] **Pixix 订阅推送(试运行中) (latest update)**
   - [x] Pixiv的请求API使用 [@ibaraki-douji/pixivts](https://www.npmjs.com/package/@ibaraki-douji/pixivts) 的包源码并进行少许改造
-  - [x] **在锅巴配置中或群聊中使用`#pixiv订阅 ID`可订阅相应ID用户的最新插画动态推送到群聊中**
-  - [x] **在锅巴配置中或群聊中使用`#pixiv取消订阅`可取消订阅相应ID用户**
+  - [x] 在锅巴配置中或群聊中使用`#pixiv订阅 ID`可订阅相应ID用户的最新插画动态推送到群聊中
+  - [x] 在锅巴配置中或群聊中使用`#pixiv取消订阅`可取消订阅相应ID用户
+  - [ ] R18限制开关制作，日推榜推送等功能 DOING
 - [x] 骰子
   - [x] 支持`1d6`格式、特定类型 和 类型组合的骰子，可添加骰子类型
 - [x] AI 功能接入中
@@ -116,6 +117,8 @@ pnpm install --filter=juhkff-plugin
     <summary>图片效果预览</summary>
     <img src="./resources/images/help-screenshot.png"/>
   </details>
+- [x] **小工具 (latest update)**
+  - [x] **分享内容解析：当PC端用户无法直接看到分享内容时，可以看BOT发送的解析简单了解 (latest update)**
 - [x] 其它
   - [x] 插件配置页面优化（长期）
 - [ ] TODO...
