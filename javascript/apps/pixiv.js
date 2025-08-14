@@ -1,4 +1,22 @@
 import { addSubscribe, removeSubscribe } from "../config/define/pixiv.js";
+import { config } from "../config/index.js";
+export const help = () => {
+    return {
+        name: "Pixiv功能",
+        type: "group",
+        dsc: "主动或定时推送日报",
+        enable: config.pixiv.usePixiv,
+        subMenu: [
+            {
+                name: "Pixiv订阅",
+                type: "sub",
+                command: "#pixiv订阅|取消订阅 [用户ID]",
+                dsc: "订阅用户有新插画作品时推送到相关群聊",
+                enable: config.pixiv.usePixiv,
+            },
+        ]
+    };
+};
 export class pixiv extends plugin {
     constructor() {
         super({

@@ -13,6 +13,7 @@ import { helpGenConfig } from "./define/helpGen.js";
 import { commandPromptConfig } from "./define/commandPrompt.js";
 import { diceConfig } from "./define/dice.js";
 import { pixivConfig } from "./define/pixiv.js";
+import { kitsConfig } from "./define/kits.js";
 // 全局 config
 export const config = {
     autoReply: autoReplyConfig,
@@ -24,6 +25,7 @@ export const config = {
     commandPrompt: commandPromptConfig,
     dice: diceConfig,
     pixiv: pixivConfig,
+    kits: kitsConfig,
 };
 export function updateConfig(data) {
     processCron(data);
@@ -36,6 +38,7 @@ export function updateConfig(data) {
     saveConfigToFile(data.commandPrompt, "commandPrompt.yaml");
     saveConfigToFile(data.dice, "dice.yaml");
     saveConfigToFile(data.pixiv, "pixiv.yaml");
+    saveConfigToFile(data.kits, "kits.yaml");
 }
 function processCron(data) {
     if (!Objects.isNull(data.dailyReport.dailyReportTime))

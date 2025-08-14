@@ -167,7 +167,7 @@ export class dailyReport extends plugin {
         fs.writeFileSync(DAILY_REPORT_SAVE_PATH, imageBuffer);
     }
 
-    async dailyReport(e: any) {
+    async dailyReport(e: E) {
         if (!config.dailyReport.useDailyReport) return false;
         if (e.message_type != "group") {
             await e.reply("功能只对群聊开放");

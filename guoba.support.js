@@ -13,6 +13,7 @@ import { transformDataToType } from "./javascript/guoba/handler.js";
 import { commandPromptSchema } from "./javascript/guoba/commandPrompt/index.js";
 import { diceSchema } from "./javascript/guoba/dice/index.js";
 import { pixivSchema } from "./javascript/guoba/pixiv/index.js";
+import { kitsSchema } from "./javascript/guoba/kits/index.js";
 // 支持锅巴
 export function supportGuoba() {
     return {
@@ -61,6 +62,7 @@ export function supportGuoba() {
                 ...douBaoSchema(),
                 ...sfSchema(),
                 ...pixivSchema(),
+                ...kitsSchema(),
             ],
             // 获取配置数据方法（用于前端填充显示数据）
             getConfigData: () => config,

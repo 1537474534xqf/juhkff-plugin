@@ -53,7 +53,7 @@ declare type util = {
     sleep(time: number, promise: Promise<any>): Promise<any>;
     debounce<T extends (...args: any[]) => any>(func: T, time?: number): T & { promise?: Promise<any> };
 };
-
+declare type Segment = ({ type: string; } & Record<string, any>) | string;
 declare type E = {
     adapter_id: string,
     adapter_name: string,
@@ -135,12 +135,13 @@ declare type E = {
     logText: string,
     /** 随用随加 */
     message: {
-        type: "at" | "record" | "reply" | "text" | "image" | "file" | "face" | "poke",
+        type: "at" | "record" | "reply" | "text" | "image" | "file" | "face" | "poke" | "json",
         text?: string,
         qq?: number | "all",
         file?: string,
         id?: number,
         time?: number
+        data?: string,
     }[],
     message_format: "array" | string,
     message_id: number,
@@ -153,7 +154,7 @@ declare type E = {
     real_id: number,
     real_seq: string,
     recall: Function,
-    reply: (msg?: string, quote?: boolean, data?: any) => Promise<void>,
+    reply: (segments: Segment | Segment[]) => Promise<void>,
     runtime: any,
     self_id: number,
     sender: {

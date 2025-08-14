@@ -13,8 +13,9 @@ import { HelpGen, helpGenConfig } from "./define/helpGen.js"
 import { CommandPrompt, commandPromptConfig } from "./define/commandPrompt.js"
 import { Dice, diceConfig } from "./define/dice.js"
 import { Pixiv, pixivConfig } from "./define/pixiv.js"
+import { Kits, kitsConfig } from "./define/kits.js"
 
-export type ConfigType = AutoReply | DailyReport | EmojiSave | HelpGen | DouBao | SiliconFlow | CommandPrompt | Dice | Pixiv;
+export type ConfigType = AutoReply | DailyReport | EmojiSave | HelpGen | DouBao | SiliconFlow | CommandPrompt | Dice | Pixiv | Kits;
 
 export type Config = {
     autoReply: AutoReply
@@ -26,6 +27,7 @@ export type Config = {
     commandPrompt: CommandPrompt,
     dice: Dice,
     pixiv: Pixiv,
+    kits: Kits,
 }
 
 // 全局 config
@@ -39,6 +41,7 @@ export const config: Config = {
     commandPrompt: commandPromptConfig,
     dice: diceConfig,
     pixiv: pixivConfig,
+    kits: kitsConfig,
 };
 
 export function updateConfig(data: Config) {
@@ -53,6 +56,7 @@ export function updateConfig(data: Config) {
     saveConfigToFile(data.commandPrompt, "commandPrompt.yaml");
     saveConfigToFile(data.dice, "dice.yaml");
     saveConfigToFile(data.pixiv, "pixiv.yaml");
+    saveConfigToFile(data.kits, "kits.yaml");
 }
 
 function processCron(data: Config) {
