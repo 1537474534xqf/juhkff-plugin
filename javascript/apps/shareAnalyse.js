@@ -19,6 +19,7 @@ export class shareAnalyse extends plugin {
                 {
                     reg: ".*",
                     fnc: "analyseShare",
+                    log: false,
                 },
             ],
         });
