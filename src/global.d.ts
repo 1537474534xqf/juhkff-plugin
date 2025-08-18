@@ -160,7 +160,7 @@ declare type E = {
     sender: {
         card: string,
         nickname: string,
-        role: "owner" | "member" | string,
+        role: "owner" | "member" | "admin",
         user_id: number
     },
     sub_type: "normal" | string,

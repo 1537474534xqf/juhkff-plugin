@@ -149,7 +149,7 @@ export class OpenAI extends ChatAgent {
     }
     protected async commonRequestChat(groupId: number, request: Request, input: string, historyMessages: HistorySimpleJMsg[] = [], useSystemRole = true) {
         if (useSystemRole) {
-            var systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompt);
+            var systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompts.find(p => p.name == config.autoReply.chatPromptApply)?.prompt);
             (request.options.body as RequestBody).messages.push(systemContent);
         }
         // 添加历史对话
@@ -188,7 +188,7 @@ export class OpenAI extends ChatAgent {
 
     protected async commonRequestVisual(groupId: number, request: Request, nickeName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole: boolean = true) {
         if (useSystemRole) {
-            var systemContent = await this.generateSystemContentVisual(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompt);
+            var systemContent = await this.generateSystemContentVisual(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompts.find(p => p.name == config.autoReply.chatPromptApply)?.prompt);
             (request.options.body as RequestBody).messages.push(systemContent);
         }
         // 添加历史对话

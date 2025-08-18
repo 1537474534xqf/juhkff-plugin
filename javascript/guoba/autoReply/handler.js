@@ -55,6 +55,13 @@ export function listAllVisualApi() {
     }
     return result;
 }
+export function listAllPrompts() {
+    var result = [];
+    for (const item of config.autoReply.chatPrompts) {
+        result.push({ label: item.name, value: item.name });
+    }
+    return result;
+}
 export function appendIfShouldInputSelf() {
     let schemas = [];
     if (!agent.chat)

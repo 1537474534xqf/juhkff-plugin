@@ -1,5 +1,5 @@
 import { ConfigSchemaType } from "../../types/index.js"
-import { appendIfShouldInputSelf, appendIfShouldInputSelfVisual, listAllChatApi, listAllVisualApi } from "./handler.js"
+import { appendIfShouldInputSelf, appendIfShouldInputSelfVisual, listAllChatApi, listAllPrompts, listAllVisualApi } from "./handler.js"
 
 export const autoReplySchema = (): ConfigSchemaType[] => [
     {
@@ -96,14 +96,48 @@ export const autoReplySchema = (): ConfigSchemaType[] => [
         },
     },
     {
-        field: "autoReply.chatPrompt",
+        field: "autoReply.chatPrompts",
         label: "群聊预设",
         bottomHelpMessage: "定义BOT的人设或信息处理的基本逻辑",
-        component: "InputTextArea",
+        component: "GSubForm",
         componentProps: {
-            placeholder: "请输入群聊预设",
-            rows: 6,
+            multiple: true,
+            schemas: [
+                {
+                    field: "name",
+                    label: "预设名称",
+                    component: "Input",
+                    componentProps: {
+                        placeholder: "请输入预设名称"
+                    },
+                    required: true,
+                    bottomHelpMessage: "预设名称，方便识别"
+                },
+                {
+                    field: "prompt",
+                    label: "预设内容",
+                    component: "InputTextArea",
+                    componentProps: {
+                        placeholder: "请输入群聊预设",
+                        rows: 15,
+                    },
+                    required: true,
+                    bottomHelpMessage:
+                        "BOT的群聊预设内容。{{botName}}为BOT的群聊名称，可用在预设中，如：`你的群聊名称是{{botName}}，请记住`",
+                },
+            ],
         },
+    },
+    {
+        field: "autoReply.chatPromptApply",
+        label: "群聊预设应用",
+        bottomHelpMessage:
+            "BOT在群聊中使用的预设，填好预设后，先保存，刷新页面，再选择该项",
+        component: "AutoComplete",
+        componentProps: {
+            options: listAllPrompts(),
+            placeholder: "请选择预设名称",
+        }
     },
     {
         field: "autoReply.useEmotion",

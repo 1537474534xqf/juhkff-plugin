@@ -52,7 +52,7 @@ export class DeepSeek extends OpenAI {
     async deepseek_chat(groupId, request, input, historyMessages = [], useSystemRole = true) {
         // 添加消息内容
         if (useSystemRole) {
-            let systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompt);
+            let systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompts.find(p => p.name == config.autoReply.chatPromptApply)?.prompt);
             request.options.body.messages.push(systemContent);
         }
         // 添加历史对话
@@ -93,7 +93,7 @@ export class DeepSeek extends OpenAI {
     async deepseek_reasoner(groupId, request, input, historyMessages = [], useSystemRole = true) {
         // 添加消息内容
         if (useSystemRole) {
-            let systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompt);
+            let systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompts.find(p => p.name == config.autoReply.chatPromptApply)?.prompt);
             request.options.body.messages.push(systemContent);
         }
         // 添加历史对话

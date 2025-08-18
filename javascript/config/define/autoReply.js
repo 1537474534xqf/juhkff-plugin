@@ -4,7 +4,7 @@ import YAML from "yaml";
 import chokidar from "chokidar";
 import lodash from "lodash";
 import { PLUGIN_CONFIG_DIR, PLUGIN_DEFAULT_CONFIG_DIR } from "../../model/path.js";
-import { configFolderCheck, configSync, getFileHash } from "../common.js";
+import { configFolderCheck, configSync, getFileHash, saveConfigToFile } from "../common.js";
 import { removeSubKeys } from "../../utils/redis.js";
 import { EMOTION_GENERATE, EVENT_UPDATE_EMOTION_GENERATE_TIME, EMOTION_KEY, EVENT_RELOAD_INSTANCE } from "../../model/constant.js";
 import { deleteJob } from "../../utils/job.js";
@@ -71,22 +71,9 @@ export const autoReplyConfig = {};
  * @param defaultConfig
  */
 function privateSync(userConfig, defaultConfig) {
-    // 对预设单独处理，将旧预设自动更新为新预设
-    if (defaultConfig.oldPrompt.includes(userConfig.chatPrompt.trim()))
-        userConfig.chatPrompt = defaultConfig.chatPrompt;
-    delete defaultConfig.oldPrompt;
-    // 兼容和修复命名错误
-    if (userConfig.chatApi === "Gemini-OpenAPI（国内中转）")
-        userConfig.chatApi = "Gemini-OpenAI（国内中转）";
-    // 兼容apiKey从字符串变为obj数组
-    if (!userConfig.chatApiKey)
-        userConfig.chatApiKey = [];
-    if (typeof userConfig.chatApiKey === "string") {
-        userConfig.chatApiKey = userConfig.chatApiKey.trim() === "" ? [] : [{ name: "默认", apiKey: userConfig.chatApiKey, enabled: true }];
-    }
-    if (!userConfig.visualApiKey)
-        userConfig.visualApiKey = [];
-    if (typeof userConfig.visualApiKey === "string") {
-        userConfig.visualApiKey = userConfig.visualApiKey.trim() === "" ? [] : [{ name: "默认", apiKey: userConfig.visualApiKey, enabled: true }];
-    }
+}
+export function changePrompt(promptName) {
+    autoReplyConfig.chatPromptApply = promptName;
+    // 写入配置文件
+    saveConfigToFile(autoReplyConfig, "pixiv.yaml");
 }

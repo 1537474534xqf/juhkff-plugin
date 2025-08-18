@@ -1,4 +1,4 @@
-import { ChatApiType } from "../config/define/autoReply.js";
+import { changePrompt, ChatApiType } from "../config/define/autoReply.js";
 import { config } from "../config/index.js";
 import { transformTextToVoice } from "../plugin/siliconflow.js";
 import { formatDateDetail } from "../utils/date.js";
@@ -33,11 +33,16 @@ export class autoReply extends plugin {
                     fnc: "autoReply",
                     log: false,
                 },
+                {
+                    reg: "^#聊天预设切换.*",
+                    fnc: "switchChatPreset",
+                    log: false,
+                }
             ],
         });
     }
 
-    async autoReply(e: any) {
+    async autoReply(e: E) {
         if (!config.autoReply.useAutoReply) return false;
         if (e.message_type != "group") return false;
         await ChatKits.saveGroupDict(e);
@@ -46,6 +51,21 @@ export class autoReply extends plugin {
         } else {
             await this.commonProcess(e);
         }
+    }
+
+    async switchChatPreset(e: E) {
+        if (e.sender.role != "owner" && e.sender.role != "admin") {
+            return e.reply("只有群主或管理员可以切换聊天预设");
+        }
+        const promptName = e.msg.replace(/^#聊天预设切换\s*/, "").trim();
+        if (!promptName) {
+            return e.reply("请指定要切换的聊天预设名称");
+        }
+        if (!config.autoReply.chatPrompts.some(p => p.name === promptName)) {
+            return e.reply(`没有找到名为 "${promptName}" 的聊天预设`);
+        }
+        changePrompt(promptName);
+        await e.reply(`已切换聊天预设为 "${promptName}"`);
     }
 
     /**
