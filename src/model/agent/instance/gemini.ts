@@ -1,7 +1,7 @@
 import axios from "axios";
 import { config } from "../../../config/index.js";
 import { HistorySimpleJMsg, ComplexJMsg, HistoryComplexJMsg, Request, RequestBody } from "../../../types/index.js";
-import { ChatKits, FileType, Objects } from "../../../utils/kits.js";
+import { ChatKits, ConfigKits, FileType, Objects } from "../../../utils/kits.js";
 import { EMOTION_KEY } from "../../constant.js";
 import { ChatAgent } from "../chatAgent.js";
 
@@ -129,7 +129,8 @@ export class Gemini extends ChatAgent {
 
     protected async commonRequestChat(groupId: number, request: Request, input: string, historyMessages: HistorySimpleJMsg[] = [], useSystemRole = true) {
         if (useSystemRole) {
-            var systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompts.find(p => p.name == config.autoReply.chatPromptApply)?.prompt);
+            const promptName = ConfigKits.checkSpecificGroupPrompt(groupId, config.autoReply.chatPromptApply, config.autoReply.groupChatPromptApply);
+            var systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompts.find(p => p.name == promptName)?.prompt);
             request.options.body["system_instruction"] = systemContent;
         }
         // 添加历史对话
@@ -187,7 +188,8 @@ export class Gemini extends ChatAgent {
 
     protected async commonRequestVisual(groupId: number, request: Request, nickeName: string, j_msg: ComplexJMsg, historyMessages?: HistoryComplexJMsg[], useSystemRole: boolean = true) {
         if (useSystemRole) {
-            var systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompts.find(p => p.name == config.autoReply.chatPromptApply)?.prompt);
+            const promptName = ConfigKits.checkSpecificGroupPrompt(groupId, config.autoReply.chatPromptApply, config.autoReply.groupChatPromptApply);
+            var systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompts.find(p => p.name == promptName)?.prompt);
             request.options.body["system_instruction"] = systemContent;
         }
         // 添加历史对话

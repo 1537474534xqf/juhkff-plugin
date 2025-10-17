@@ -1,6 +1,7 @@
 import axios from "axios";
 import { config } from "../../../config/index.js";
 import { OpenAI } from "../openaiAgent.js";
+import { ConfigKits } from "../../../utils/kits.js";
 export class DeepSeek extends OpenAI {
     constructor(apiKey) { super(apiKey, "https://api.deepseek.com"); }
     static hasVisual = () => false;
@@ -52,7 +53,8 @@ export class DeepSeek extends OpenAI {
     async deepseek_chat(groupId, request, input, historyMessages = [], useSystemRole = true) {
         // 添加消息内容
         if (useSystemRole) {
-            let systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompts.find(p => p.name == config.autoReply.chatPromptApply)?.prompt);
+            const promptName = ConfigKits.checkSpecificGroupPrompt(groupId, config.autoReply.chatPromptApply, config.autoReply.groupChatPromptApply);
+            let systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompts.find(p => p.name == promptName)?.prompt);
             request.options.body.messages.push(systemContent);
         }
         // 添加历史对话
@@ -93,7 +95,8 @@ export class DeepSeek extends OpenAI {
     async deepseek_reasoner(groupId, request, input, historyMessages = [], useSystemRole = true) {
         // 添加消息内容
         if (useSystemRole) {
-            let systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompts.find(p => p.name == config.autoReply.chatPromptApply)?.prompt);
+            const promptName = ConfigKits.checkSpecificGroupPrompt(groupId, config.autoReply.chatPromptApply, config.autoReply.groupChatPromptApply);
+            let systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompts.find(p => p.name == promptName)?.prompt);
             request.options.body.messages.push(systemContent);
         }
         // 添加历史对话

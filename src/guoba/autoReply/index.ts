@@ -140,6 +140,35 @@ export const autoReplySchema = (): ConfigSchemaType[] => [
         }
     },
     {
+        field: "autoReply.groupChatPromptApply",
+        label: "特定群预设应用",
+        bottomHelpMessage: "该项优先于默认设置",
+        component: "GSubForm",
+        componentProps: {
+            multiple: true,
+            schemas: [
+                {
+                    field: "groupList",
+                    label: "群号",
+                    required: true,
+                    bottomHelpMessage: "群号",
+                    component: "GSelectGroup",
+                },
+                {
+                    field: "chatPromptApply",
+                    label: "群聊预设应用",
+                    bottomHelpMessage:
+                        "BOT在群聊中使用的预设，填好预设后，先保存，刷新页面，再选择该项",
+                    component: "AutoComplete",
+                    componentProps: {
+                        options: listAllPrompts(),
+                        placeholder: "请选择预设名称",
+                    }
+                }
+            ]
+        }
+    },
+    {
         field: "autoReply.useEmotion",
         label: "BOT情感开关",
         bottomHelpMessage:

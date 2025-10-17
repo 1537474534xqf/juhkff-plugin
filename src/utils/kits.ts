@@ -352,3 +352,25 @@ export class Thread {
         return new Promise((resolve) => setTimeout(resolve, ms));
     };
 }
+
+export class ConfigKits {
+    static checkSpecificGroupPrompt(groupId: number, defaultPrompt: string, config: { groupList: number[]; chatPromptApply: string; }[]): string | null {
+        var promptName = null;
+        // 检查是否有群组专用聊天预设
+        if (config && config.length > 0) {
+            for (var each of config) {
+                // 确保 config.groupList 是数组，以避免 undefined 的情况
+                if (
+                    Array.isArray(each.groupList) &&
+                    each.groupList.includes(groupId)
+                ) {
+                    // if(config.chatRate) 会将0概率认为是为false，改成如下写法
+                    if (each.chatPromptApply !== undefined && each.chatPromptApply !== null)
+                        promptName = each.chatPromptApply;
+                    break;
+                }
+            }
+        }
+        return promptName || defaultPrompt;
+    }
+}

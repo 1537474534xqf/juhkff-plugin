@@ -2,6 +2,7 @@ import axios from "axios";
 import { config } from "../../../config/index.js";
 import { ComplexJMsg, HistoryComplexJMsg, HistorySimpleJMsg, Request, RequestBody } from "../../../types/index.js";
 import { OpenAI } from "../openaiAgent.js";
+import { ConfigKits } from "../../../utils/kits.js";
 
 export class DeepSeek extends OpenAI {
     constructor(apiKey: { name: string, apiKey: string, enabled: boolean }[]) { super(apiKey, "https://api.deepseek.com"); }
@@ -52,7 +53,8 @@ export class DeepSeek extends OpenAI {
     private async deepseek_chat(groupId: number, request: Request, input: string, historyMessages: any[] = [], useSystemRole = true) {
         // 添加消息内容
         if (useSystemRole) {
-            let systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompts.find(p => p.name == config.autoReply.chatPromptApply)?.prompt);
+                    const promptName = ConfigKits.checkSpecificGroupPrompt(groupId, config.autoReply.chatPromptApply, config.autoReply.groupChatPromptApply);
+            let systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompts.find(p => p.name == promptName)?.prompt);
             (request.options.body as RequestBody).messages.push(systemContent);
         }
         // 添加历史对话
@@ -92,7 +94,8 @@ export class DeepSeek extends OpenAI {
     private async deepseek_reasoner(groupId: number, request: Request, input: string, historyMessages: any[] = [], useSystemRole = true) {
         // 添加消息内容
         if (useSystemRole) {
-            let systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompts.find(p => p.name == config.autoReply.chatPromptApply)?.prompt);
+            const promptName = ConfigKits.checkSpecificGroupPrompt(groupId, config.autoReply.chatPromptApply, config.autoReply.groupChatPromptApply);
+            let systemContent = await this.generateSystemContent(groupId, config.autoReply.useEmotion, config.autoReply.chatPrompts.find(p => p.name == promptName)?.prompt);
             (request.options.body as RequestBody).messages.push(systemContent);
         }
         // 添加历史对话

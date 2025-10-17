@@ -37,6 +37,7 @@ export type AutoReply = {
     // textToPaintPrompt: string;
     chatPrompts: { name: string, prompt: string }[];
     chatPromptApply: string;
+    groupChatPromptApply: { groupList: number[], chatPromptApply: string }[];
     useEmotion: boolean;
     emotionGenerateTime: CronExpression;
     emotionGeneratePrompt: string;
