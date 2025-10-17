@@ -13,6 +13,7 @@ import { Gemini } from "./agent/instance/gemini.js";
 import { GeminiOpenAI } from "./agent/instance/gemini-openai.js";
 import { OpenAI } from "./agent/openaiAgent.js";
 import { OpenRouter } from "./agent/instance/openrouter.js";
+import { GPTGod } from "./agent/instance/gptgod.js";
 import { EVENT_RELOAD_INSTANCE } from "./constant.js";
 import { HttpsProxyAgent } from "https-proxy-agent";
 
@@ -26,6 +27,7 @@ const agentMap: Record<string, { new(...args: any[]): ChatAgent; hasVisual: () =
     Gemini: Gemini,
     "Gemini-OpenAI（国内中转）": GeminiOpenAI,
     OpenRouter: OpenRouter,
+    GPTGod: GPTGod,
     OpenAI通用: OpenAI,
 };
 
